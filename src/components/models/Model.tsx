@@ -3,7 +3,7 @@ import { useGLTF } from "@react-three/drei";
 interface ModelProps {
   position?: [number, number, number];
   rotation?: [number, number, number];
-  scale?: [number, number, number];
+  scale?: number;
   modelPath: string;
 }
 

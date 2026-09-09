@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { PointerLockControls } from '@react-three/drei'
+import { OrbitControls, PointerLockControls } from '@react-three/drei'
 import Model from './components/models/Model'
 
 export default function App() {
@@ -9,7 +9,7 @@ export default function App() {
         fov: 75,
         near: 1,
         far: 1000,
-        position: [0, 10, 0],
+        position: [0, 1, 100],
       }}
     >
       <axesHelper />
@@ -20,13 +20,14 @@ export default function App() {
         modelPath="/models/black_dragon_with_idle_animation.glb"
         position={[0, 0, 0]}
         rotation={[0, 0, 0]}
-        scale={[1, 1, 1]}
+        scale={1}
       />
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[2000, 2000, 100, 100]} />
         <meshBasicMaterial vertexColors />
       </mesh>
       <PointerLockControls />
+      {/* <OrbitControls /> */}
     </Canvas>
   )
 }
