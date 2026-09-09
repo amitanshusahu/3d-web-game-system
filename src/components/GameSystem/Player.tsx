@@ -3,97 +3,97 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { CapsuleCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 
-const SPEED = 5
-const CAM_DIST = 9
-const CAM_SMOOTH = 5
-const LOOK_HEIGHT = 1
-const MOUSE_SENS = 0.0025
-const MIN_PITCH = 0.05
-const MAX_PITCH = 1.3
+const MOVE_SPEED = 5
+const CAMERA_DISTANCE = 3
+const CAMERA_SMOOTHING_SPEED = 5
+const CAMERA_LOOK_AT_HEIGHT = 1
+const MOUSE_SENSITIVITY = 0.0025
+const MIN_CAMERA_PITCH = 0.05
+const MAX_CAMERA_PITCH = 1.3
 
 export default function Player() {
-  const body = useRef<RapierRigidBody>(null)
-  const keys = useRef<Set<string>>(new Set())
-  const yaw = useRef(0)
-  const pitch = useRef(0.42)
-  const [locked, setLocked] = useState(false)
-  const gl = useThree((s) => s.gl)
+  const playerBodyRef = useRef<RapierRigidBody>(null)
+  const pressedKeysRef = useRef<Set<string>>(new Set())
+  const cameraYawRef = useRef(0)
+  const cameraPitchRef = useRef(0.42)
+  const [isPointerLocked, setIsPointerLocked] = useState(false)
+  const renderer = useThree((s) => s.gl)
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => keys.current.add(e.code)
-    const up = (e: KeyboardEvent) => keys.current.delete(e.code)
-    window.addEventListener('keydown', down)
-    window.addEventListener('keyup', up)
+    const handleKeyDown = (event: KeyboardEvent) => pressedKeysRef.current.add(event.code)
+    const handleKeyUp = (event: KeyboardEvent) => pressedKeysRef.current.delete(event.code)
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
     return () => {
-      window.removeEventListener('keydown', down)
-      window.removeEventListener('keyup', up)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
     }
   }, [])
 
   useEffect(() => {
-    const canvas = gl.domElement
-    const onLockChange = () => setLocked(document.pointerLockElement === canvas)
-    const onMouseMove = (e: MouseEvent) => {
+    const canvas = renderer.domElement
+    const handlePointerLockChange = () => setIsPointerLocked(document.pointerLockElement === canvas)
+    const handleMouseMove = (event: MouseEvent) => {
       if (document.pointerLockElement !== canvas) return
-      yaw.current -= e.movementX * MOUSE_SENS
-      const next = pitch.current + e.movementY * MOUSE_SENS
-      pitch.current = Math.min(MAX_PITCH, Math.max(MIN_PITCH, next))
+      cameraYawRef.current -= event.movementX * MOUSE_SENSITIVITY
+      const nextPitch = cameraPitchRef.current + event.movementY * MOUSE_SENSITIVITY
+      cameraPitchRef.current = Math.min(MAX_CAMERA_PITCH, Math.max(MIN_CAMERA_PITCH, nextPitch))
     }
-    document.addEventListener('pointerlockchange', onLockChange)
-    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('pointerlockchange', handlePointerLockChange)
+    document.addEventListener('mousemove', handleMouseMove)
     return () => {
-      document.removeEventListener('pointerlockchange', onLockChange)
-      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('pointerlockchange', handlePointerLockChange)
+      document.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [gl])
+  }, [renderer])
 
-  const lock = () => {
-    const r = gl.domElement.requestPointerLock() as unknown as Promise<void> | undefined
-    if (r && typeof r.catch === 'function') r.catch(() => {})
+  const requestPointerLock = () => {
+    const lockRequest = renderer.domElement.requestPointerLock() as unknown as Promise<void> | undefined
+    if (lockRequest && typeof lockRequest.catch === 'function') lockRequest.catch(() => {})
   }
 
   useFrame((state, delta) => {
-    const b = body.current
-    if (!b) return
+    const playerBody = playerBodyRef.current
+    if (!playerBody) return
 
-    const k = keys.current
-    let x = 0
-    let z = 0
-    if (k.has('KeyW') || k.has('ArrowUp')) z -= 1
-    if (k.has('KeyS') || k.has('ArrowDown')) z += 1
-    if (k.has('KeyA') || k.has('ArrowLeft')) x -= 1
-    if (k.has('KeyD') || k.has('ArrowRight')) x += 1
+    const pressedKeys = pressedKeysRef.current
+    let sidewaysInput = 0
+    let forwardInput = 0
+    if (pressedKeys.has('KeyW') || pressedKeys.has('ArrowUp')) forwardInput -= 1
+    if (pressedKeys.has('KeyS') || pressedKeys.has('ArrowDown')) forwardInput += 1
+    if (pressedKeys.has('KeyA') || pressedKeys.has('ArrowLeft')) sidewaysInput -= 1
+    if (pressedKeys.has('KeyD') || pressedKeys.has('ArrowRight')) sidewaysInput += 1
 
-    if (x !== 0 && z !== 0) {
-      x *= Math.SQRT1_2
-      z *= Math.SQRT1_2
+    if (sidewaysInput !== 0 && forwardInput !== 0) {
+      sidewaysInput *= Math.SQRT1_2
+      forwardInput *= Math.SQRT1_2
     }
 
-    const s = Math.sin(yaw.current)
-    const c = Math.cos(yaw.current)
-    const wx = x * c + z * s
-    const wz = -x * s + z * c
+    const sinYaw = Math.sin(cameraYawRef.current)
+    const cosYaw = Math.cos(cameraYawRef.current)
+    const worldMoveX = sidewaysInput * cosYaw + forwardInput * sinYaw
+    const worldMoveZ = -sidewaysInput * sinYaw + forwardInput * cosYaw
 
-    const vel = b.linvel()
-    b.setLinvel({ x: wx * SPEED, y: vel.y, z: wz * SPEED }, true)
+    const currentVelocity = playerBody.linvel()
+    playerBody.setLinvel({ x: worldMoveX * MOVE_SPEED, y: currentVelocity.y, z: worldMoveZ * MOVE_SPEED }, true)
 
-    const t = b.translation()
-    const cam = state.camera
-    const cp = Math.cos(pitch.current)
-    const targetX = t.x + Math.sin(yaw.current) * cp * CAM_DIST
-    const targetY = t.y + Math.sin(pitch.current) * CAM_DIST
-    const targetZ = t.z + Math.cos(yaw.current) * cp * CAM_DIST
-    const a = 1 - Math.exp(-CAM_SMOOTH * delta)
-    cam.position.x += (targetX - cam.position.x) * a
-    cam.position.y += (targetY - cam.position.y) * a
-    cam.position.z += (targetZ - cam.position.z) * a
-    cam.lookAt(t.x, t.y + LOOK_HEIGHT, t.z)
+    const playerPosition = playerBody.translation()
+    const camera = state.camera
+    const cosPitch = Math.cos(cameraPitchRef.current)
+    const desiredCameraX = playerPosition.x + Math.sin(cameraYawRef.current) * cosPitch * CAMERA_DISTANCE
+    const desiredCameraY = playerPosition.y + Math.sin(cameraPitchRef.current) * CAMERA_DISTANCE
+    const desiredCameraZ = playerPosition.z + Math.cos(cameraYawRef.current) * cosPitch * CAMERA_DISTANCE
+    const smoothingFactor = 1 - Math.exp(-CAMERA_SMOOTHING_SPEED * delta)
+    camera.position.x += (desiredCameraX - camera.position.x) * smoothingFactor
+    camera.position.y += (desiredCameraY - camera.position.y) * smoothingFactor
+    camera.position.z += (desiredCameraZ - camera.position.z) * smoothingFactor
+    camera.lookAt(playerPosition.x, playerPosition.y + CAMERA_LOOK_AT_HEIGHT, playerPosition.z)
   })
 
   return (
     <>
       <RigidBody
-        ref={body}
+        ref={playerBodyRef}
         colliders={false}
         position={[20, 2, 20]}
         lockRotations
@@ -107,7 +107,7 @@ export default function Player() {
         </mesh>
       </RigidBody>
       <Html fullscreen>
-        {locked ? (
+        {isPointerLocked ? (
           <div
             style={{
               position: 'absolute',
@@ -124,7 +124,7 @@ export default function Player() {
           />
         ) : (
           <div
-            onClick={lock}
+            onClick={requestPointerLock}
             style={{
               position: 'absolute',
               inset: 0,

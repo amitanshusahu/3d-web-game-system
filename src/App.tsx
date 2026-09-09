@@ -18,9 +18,9 @@ export default function App() {
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
       <Physics gravity={[0, -9.81, 0]} debug>
-        <RigidBody colliders="cuboid" position={[0, 5, 0]}>
+        <RigidBody colliders="hull" position={[0, 5, 0]}>
           <Model
-            modelPath="/models/black_dragon_with_idle_animation.glb"
+            modelPath="/models/cyberpunk_hovercar.glb"
             position={[0, 0, 0]}
             rotation={[0, 0, 0]}
             scale={1}
