@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody } from '@react-three/rapier'
 import Model from './components/Rendering/models/Model'
 import Player from './components/GameSystem/Player'
+import { HoverCar } from './components/Rendering/models/HoverCar'
 
 export default function App() {
   return (
@@ -19,12 +20,13 @@ export default function App() {
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
       <Physics gravity={[0, -9.81, 0]} debug>
         <RigidBody colliders="hull" position={[0, 5, 0]}>
-          <Model
+          {/* <Model
             modelPath="/models/cyberpunk_hovercar.glb"
             position={[0, 0, 0]}
             rotation={[0, 0, 0]}
             scale={1}
-          />
+          /> */}
+          <HoverCar />
         </RigidBody>
         <Player />
         <RigidBody type="fixed" colliders="cuboid">
