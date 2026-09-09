@@ -4,6 +4,7 @@ import { Html } from '@react-three/drei'
 import { CapsuleCollider, RigidBody, useRapier, type RapierRigidBody } from '@react-three/rapier'
 
 const MOVE_SPEED = 5
+const JUMP_VELOCITY = 5
 const GROUND_RAY_LENGTH = 1.1
 const CAMERA_DISTANCE = 3
 const CAMERA_SMOOTHING_SPEED = 5
@@ -96,7 +97,11 @@ export default function Player() {
     const worldMoveZ = -sidewaysInput * sinYaw + forwardInput * cosYaw
 
     const currentVelocity = playerBody.linvel()
-    playerBody.setLinvel({ x: worldMoveX * MOVE_SPEED, y: currentVelocity.y, z: worldMoveZ * MOVE_SPEED }, true)
+    let verticalVelocity = currentVelocity.y
+    if (pressedKeys.has('Space') && isGroundedRef.current) {
+      verticalVelocity = JUMP_VELOCITY
+    }
+    playerBody.setLinvel({ x: worldMoveX * MOVE_SPEED, y: verticalVelocity, z: worldMoveZ * MOVE_SPEED }, true)
 
     const camera = state.camera
     const cosPitch = Math.cos(cameraPitchRef.current)
@@ -176,7 +181,7 @@ export default function Player() {
               userSelect: 'none',
             }}
           >
-            Click to look around (WASD to move, ESC to release)
+            Click to look around (WASD to move, Space to jump, ESC to release)
           </div>
         )}
       </Html>
