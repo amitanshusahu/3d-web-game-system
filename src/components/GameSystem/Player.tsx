@@ -3,6 +3,11 @@ import { useFrame } from '@react-three/fiber'
 import { CapsuleCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 
 const SPEED = 5
+const CAM_OFFSET_X = 0
+const CAM_OFFSET_Y = 4
+const CAM_OFFSET_Z = 8
+const CAM_SMOOTH = 5
+const LOOK_HEIGHT = 1
 
 export default function Player() {
   const body = useRef<RapierRigidBody>(null)
@@ -19,7 +24,7 @@ export default function Player() {
     }
   }, [])
 
-  useFrame(() => {
+  useFrame((state, delta) => {
     const b = body.current
     if (!b) return
 
@@ -38,6 +43,17 @@ export default function Player() {
 
     const vel = b.linvel()
     b.setLinvel({ x: x * SPEED, y: vel.y, z: z * SPEED }, true)
+
+    const t = b.translation()
+    const cam = state.camera
+    const targetX = t.x + CAM_OFFSET_X
+    const targetY = t.y + CAM_OFFSET_Y
+    const targetZ = t.z + CAM_OFFSET_Z
+    const a = 1 - Math.exp(-CAM_SMOOTH * delta)
+    cam.position.x += (targetX - cam.position.x) * a
+    cam.position.y += (targetY - cam.position.y) * a
+    cam.position.z += (targetZ - cam.position.z) * a
+    cam.lookAt(t.x, t.y + LOOK_HEIGHT, t.z)
   })
 
   return (
