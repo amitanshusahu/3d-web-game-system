@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PointerLockControls } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import Model from './components/Rendering/models/Model'
+import Player from './components/GameSystem/Player'
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
             scale={1}
           />
         </RigidBody>
+        <Player />
         <RigidBody type="fixed" colliders="cuboid">
           <mesh position={[0, -0.05, 0]}>
             <boxGeometry args={[2000, 0.1, 2000]} />
