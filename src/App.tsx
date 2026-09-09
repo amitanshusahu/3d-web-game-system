@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PointerLockControls } from '@react-three/drei'
-import Model from './components/models/Model'
+import Model from './components/Rendering/models/Model'
 
 export default function App() {
   return (
