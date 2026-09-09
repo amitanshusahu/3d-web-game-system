@@ -69,8 +69,13 @@ export default function Player() {
       z *= Math.SQRT1_2
     }
 
+    const s = Math.sin(yaw.current)
+    const c = Math.cos(yaw.current)
+    const wx = x * c + z * s
+    const wz = -x * s + z * c
+
     const vel = b.linvel()
-    b.setLinvel({ x: x * SPEED, y: vel.y, z: z * SPEED }, true)
+    b.setLinvel({ x: wx * SPEED, y: vel.y, z: wz * SPEED }, true)
 
     const t = b.translation()
     const cam = state.camera
