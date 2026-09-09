@@ -2,19 +2,20 @@
 
 > Goal of this step: give our scene **gravity** so the dragon falls and **lands on the floor** instead of falling forever.
 > If you run the app now, the dragon spawns at `y=5`, falls down, and stops on the ground.
+> Prereq: `0_physics_model.md` (mental model). Sequel: `2_rigidbody_collider_velocity_collision.md` (deep dive).
 
 ## 0. What we just did (TL;DR)
 
 1. Installed physics: `bun add @react-three/rapier`
 2. Wrapped scene objects in `<Physics>` in `src/App.tsx`
-3. Made dragon a **falling** body: `<RigidBody colliders="hull" position={[0,5,0]}>`
+3. Made dragon a **falling** body: `<RigidBody colliders="cuboid" position={[0,5,0]}>`
 4. Made floor a **static** body: `<RigidBody type="fixed" colliders="cuboid">` with a thin box mesh
 
 Final `App.tsx` looks like this:
 
 ```tsx
 import { Canvas } from '@react-three/fiber'
-import { PointerLockControls } from '@react-three/drei'
+import { OrbitControls, PointerLockControls } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import Model from './components/Rendering/models/Model'
 
@@ -26,7 +27,7 @@ export default function App() {
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
       <Physics gravity={[0, -9.81, 0]}>
-        <RigidBody colliders="hull" position={[0, 5, 0]}>
+        <RigidBody colliders="cuboid" position={[0, 5, 0]}>
           <Model
             modelPath="/models/black_dragon_with_idle_animation.glb"
             position={[0, 0, 0]}
@@ -41,11 +42,15 @@ export default function App() {
           </mesh>
         </RigidBody>
       </Physics>
-      <PointerLockControls />
+      {/* <PointerLockControls /> */}
+      <OrbitControls />
     </Canvas>
   )
 }
 ```
+
+> Note: dragon currently uses `colliders="cuboid"` (cheap box, slightly loose around wings).
+> Upgrade to `"hull"` later for tighter fit — see doc 2 §2b.
 
 ## 1. Mental model: Three.js vs R3F vs Rapier
 
@@ -115,7 +120,7 @@ Rapier does NOT use your pretty triangles for collision by default (too slow). I
 
 We used:
 - Floor: `colliders="cuboid"` — perfect box.
-- Dragon: `colliders="hull"` — GLB model is complex, hull gives a cheap shrink-wrap so it lands believably.
+- Dragon: `colliders="cuboid"` for now — cheap box around GLB (see doc 2 §2b for `hull` upgrade).
 
 Beginner trap: `colliders="trimesh"` on a moving character looks accurate but causes tunneling and jank. Use `hull` or `cuboid` for anything dynamic.
 
@@ -158,7 +163,7 @@ New floor:
 
 1. Dragon spawns at `y=5` (RigidBody position).
 2. Each physics step, gravity adds downward velocity: `v += -9.81 * dt`.
-3. Rapier moves dragon down, checks `hull` vs floor `cuboid` overlap.
+3. Rapier moves dragon down, checks `cuboid` vs floor `cuboid` overlap.
 4. On contact, solver pushes dragon out and zeroes vertical velocity. It rests at `y≈0`.
 5. R3F syncs mesh transform to body transform, Three draws it.
 
