@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
 import { CapsuleCollider, RigidBody, useRapier, type RapierRigidBody } from '@react-three/rapier'
+import { setPlayerHud } from './playerHudStore'
 
 const MOVE_SPEED = 5
 const JUMP_VELOCITY = 5
 const GROUND_RAY_LENGTH = 1.1
-const CAMERA_DISTANCE = 3
+const CAMERA_DISTANCE = 5
 const CAMERA_SMOOTHING_SPEED = 5
 const CAMERA_LOOK_AT_HEIGHT = 1
 const MOUSE_SENSITIVITY = 0.0025
@@ -19,8 +19,6 @@ export default function Player() {
   const cameraYawRef = useRef(0)
   const cameraPitchRef = useRef(0.42)
   const isGroundedRef = useRef(false)
-  const [isPointerLocked, setIsPointerLocked] = useState(false)
-  const [isGrounded, setIsGrounded] = useState(false)
   const renderer = useThree((s) => s.gl)
   const { world, rapier } = useRapier()
 
@@ -39,13 +37,16 @@ export default function Player() {
 
   useEffect(() => {
     const canvas = renderer.domElement
-    const handlePointerLockChange = () => setIsPointerLocked(document.pointerLockElement === canvas)
+    const handlePointerLockChange = () => {
+      setPlayerHud({ isPointerLocked: document.pointerLockElement === canvas })
+    }
     const handleMouseMove = (event: MouseEvent) => {
       if (document.pointerLockElement !== canvas) return
       cameraYawRef.current -= event.movementX * MOUSE_SENSITIVITY
       const nextPitch = cameraPitchRef.current + event.movementY * MOUSE_SENSITIVITY
       cameraPitchRef.current = Math.min(MAX_CAMERA_PITCH, Math.max(MIN_CAMERA_PITCH, nextPitch))
     }
+    handlePointerLockChange()
     document.addEventListener('pointerlockchange', handlePointerLockChange)
     document.addEventListener('mousemove', handleMouseMove)
     return () => {
@@ -53,11 +54,6 @@ export default function Player() {
       document.removeEventListener('mousemove', handleMouseMove)
     }
   }, [renderer])
-
-  const requestPointerLock = () => {
-    const lockRequest = renderer.domElement.requestPointerLock() as unknown as Promise<void> | undefined
-    if (lockRequest && typeof lockRequest.catch === 'function') lockRequest.catch(() => {})
-  }
 
   useFrame((state, delta) => {
     const playerBody = playerBodyRef.current
@@ -75,7 +71,7 @@ export default function Player() {
     const groundedNow = groundHit !== null
     if (groundedNow !== isGroundedRef.current) {
       isGroundedRef.current = groundedNow
-      setIsGrounded(groundedNow)
+      setPlayerHud({ isGrounded: groundedNow })
     }
 
     const pressedKeys = pressedKeysRef.current
@@ -116,75 +112,19 @@ export default function Player() {
   })
 
   return (
-    <>
-      <RigidBody
-        ref={playerBodyRef}
-        colliders={false}
-        position={[20, 2, 20]}
-        lockRotations
-        friction={1}
-        restitution={0}
-      >
-        <CapsuleCollider args={[0.5, 0.5]} />
-        <mesh>
-          <capsuleGeometry args={[0.5, 1, 8, 16]} />
-          <meshStandardMaterial color="#e63b3b" />
-        </mesh>
-      </RigidBody>
-      <Html fullscreen>
-        {isPointerLocked ? (
-          <>
-            <div
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                width: 6,
-                height: 6,
-                marginLeft: -3,
-                marginTop: -3,
-                borderRadius: '50%',
-                background: 'white',
-                pointerEvents: 'none',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: 16,
-                bottom: 16,
-                padding: '6px 12px',
-                borderRadius: 8,
-                background: isGrounded ? 'rgba(34, 197, 94, 0.85)' : 'rgba(239, 68, 68, 0.85)',
-                color: 'white',
-                fontSize: 14,
-                fontFamily: 'sans-serif',
-                pointerEvents: 'none',
-              }}
-            >
-              {isGrounded ? 'Grounded' : 'Airborne'}
-            </div>
-          </>
-        ) : (
-          <div
-            onClick={requestPointerLock}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0, 0, 0, 0.45)',
-              color: 'white',
-              fontSize: 20,
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
-          >
-            Click to look around (WASD to move, Space to jump, ESC to release)
-          </div>
-        )}
-      </Html>
-    </>
+    <RigidBody
+      ref={playerBodyRef}
+      colliders={false}
+      position={[20, 2, 20]}
+      lockRotations
+      friction={1}
+      restitution={0}
+    >
+      <CapsuleCollider args={[0.5, 0.5]} />
+      <mesh>
+        <capsuleGeometry args={[0.5, 1, 8, 16]} />
+        <meshStandardMaterial color="#e63b3b" />
+      </mesh>
+    </RigidBody>
   )
 }
