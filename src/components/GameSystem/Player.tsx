@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
-import { CapsuleCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier'
+import { CapsuleCollider, RigidBody, useRapier, type RapierRigidBody } from '@react-three/rapier'
 
 const MOVE_SPEED = 5
+const GROUND_RAY_LENGTH = 1.1
 const CAMERA_DISTANCE = 3
 const CAMERA_SMOOTHING_SPEED = 5
 const CAMERA_LOOK_AT_HEIGHT = 1
@@ -16,8 +17,13 @@ export default function Player() {
   const pressedKeysRef = useRef<Set<string>>(new Set())
   const cameraYawRef = useRef(0)
   const cameraPitchRef = useRef(0.42)
+  const isGroundedRef = useRef(false)
   const [isPointerLocked, setIsPointerLocked] = useState(false)
+  const [isGrounded, setIsGrounded] = useState(false)
   const renderer = useThree((s) => s.gl)
+  const { world, rapier } = useRapier()
+
+  const groundRayRef = useRef<InstanceType<typeof rapier.Ray> | null>(null)
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => pressedKeysRef.current.add(event.code)
@@ -56,6 +62,21 @@ export default function Player() {
     const playerBody = playerBodyRef.current
     if (!playerBody) return
 
+    const playerPosition = playerBody.translation()
+    if (groundRayRef.current === null) {
+      groundRayRef.current = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 })
+    }
+    const groundRay = groundRayRef.current
+    groundRay.origin.x = playerPosition.x
+    groundRay.origin.y = playerPosition.y
+    groundRay.origin.z = playerPosition.z
+    const groundHit = world.castRay(groundRay, GROUND_RAY_LENGTH, true, undefined, undefined, undefined, playerBody)
+    const groundedNow = groundHit !== null
+    if (groundedNow !== isGroundedRef.current) {
+      isGroundedRef.current = groundedNow
+      setIsGrounded(groundedNow)
+    }
+
     const pressedKeys = pressedKeysRef.current
     let sidewaysInput = 0
     let forwardInput = 0
@@ -77,7 +98,6 @@ export default function Player() {
     const currentVelocity = playerBody.linvel()
     playerBody.setLinvel({ x: worldMoveX * MOVE_SPEED, y: currentVelocity.y, z: worldMoveZ * MOVE_SPEED }, true)
 
-    const playerPosition = playerBody.translation()
     const camera = state.camera
     const cosPitch = Math.cos(cameraPitchRef.current)
     const desiredCameraX = playerPosition.x + Math.sin(cameraYawRef.current) * cosPitch * CAMERA_DISTANCE
@@ -108,20 +128,38 @@ export default function Player() {
       </RigidBody>
       <Html fullscreen>
         {isPointerLocked ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 6,
-              height: 6,
-              marginLeft: -3,
-              marginTop: -3,
-              borderRadius: '50%',
-              background: 'white',
-              pointerEvents: 'none',
-            }}
-          />
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 6,
+                height: 6,
+                marginLeft: -3,
+                marginTop: -3,
+                borderRadius: '50%',
+                background: 'white',
+                pointerEvents: 'none',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: 16,
+                bottom: 16,
+                padding: '6px 12px',
+                borderRadius: 8,
+                background: isGrounded ? 'rgba(34, 197, 94, 0.85)' : 'rgba(239, 68, 68, 0.85)',
+                color: 'white',
+                fontSize: 14,
+                fontFamily: 'sans-serif',
+                pointerEvents: 'none',
+              }}
+            >
+              {isGrounded ? 'Grounded' : 'Airborne'}
+            </div>
+          </>
         ) : (
           <div
             onClick={requestPointerLock}

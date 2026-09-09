@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody } from '@react-three/rapier'
-import Model from './components/Rendering/models/Model'
+// import Model from './components/Rendering/models/Model'
 import Player from './components/GameSystem/Player'
 import { HoverCar } from './components/Rendering/models/HoverCar'
 
