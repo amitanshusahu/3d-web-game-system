@@ -43,6 +43,22 @@ function createInstanceStack({ pos, rows, rowStep, itemStep, startCount, countSt
     return instances;
 }
 
+/**
+ * Spawn zones: known-clear floor regions for randomly placing world objects,
+ * derived from the collider layout (floor top surface is y = 0). Format: [x, z, radius].
+ * Keep-outs excluded: strips (x -48..-24, z -58..-23), ramps (x 30..40, z -110..-70),
+ * kinematic bar/platforms (x 18..52, z -60..-20), center track/ball area, pillar +
+ * dynamic clutter (z > 100), player spawn at [20, 20].
+ */
+export const TestMapSpawnZones: Array<[number, number, number]> = [
+    [55, 40, 8],    // right side, north of the ramps
+    [-55, 40, 8],   // left side, north of the strips
+    [60, -50, 5],   // right edge, clear of the kinematic platforms and bar
+    [0, -165, 6],   // south disk, below the U-ramp
+    [-60, 90, 6],   // north-west corner
+    [0, 60, 8],     // center north, between the ball area and the pillar
+]
+
 export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElements['group'] & { paused?: boolean; timeScale?: TimeScaleValue }) {
     // Map models GLTF
     const { nodes, materials } = useGLTF('/models/testMap.glb') as unknown as GLTFResult

@@ -1,7 +1,8 @@
 import { Physics } from '@react-three/rapier'
 import { EffectComposer, HueSaturation, Vignette } from '@react-three/postprocessing'
 import Lights from '../Rendering/Lights'
-import { TestMap } from '../Rendering/map/TestMap'
+import { World } from '../World/World'
+import testWorld from '../World/testWorld.json'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
 
@@ -33,7 +34,7 @@ export default function Experience() {
       <Lights />
       {/*  gravty set through Ecctrl in EcctrlWrapper */}
       <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
-        <TestMap />
+        <World config={testWorld} />
         <EcctrlWrapper />
       </Physics>
     </>
