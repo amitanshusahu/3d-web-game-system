@@ -4,17 +4,9 @@ import { TestMap } from '../Rendering/map/TestMap'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useControls } from 'leva'
 import { useEffect, useRef } from 'react'
-import { GravityField } from './GravityField'
-import { useCustomGravity } from 'ecctrl/gravity'
 
 export default function Experience() {
-  /**
-  * Custom gravity field
-  */
-  const { gravityField } = GravityField();
-  const setGravityField = useCustomGravity((state) => state.setGravityField)
-  useEffect(() => setGravityField(gravityField), [gravityField, setGravityField])
-
+ 
   /**
    * Debug settings
    */

@@ -159,6 +159,7 @@ export default function EcctrlWrapper() {
       maxWalkVel={WALK_SPEED}
       maxRunVel={RUN_SPEED}
       enableToggleRun={true}
+      enableCustomGravity={true}
     >
       <CharacterModel position={[0, -0.6, 0]} />
     </Ecctrl>
