@@ -1,4 +1,5 @@
 import { Physics } from '@react-three/rapier'
+import { EffectComposer, HueSaturation, Vignette } from '@react-three/postprocessing'
 import Lights from '../Rendering/Lights'
 import { TestMap } from '../Rendering/map/TestMap'
 import EcctrlWrapper from './EcctrlWrapper'
@@ -20,6 +21,14 @@ export default function Experience() {
 
   return (
     <>
+      {/* Dream atmosphere: background + fog must share one color so distant
+          geometry melts into the sky (CSS background can never blend with fog) */}
+      <color attach="background" args={['#bcc0fe']} />
+      <fog attach="fog" args={['#bcc0fe', 0, 100]} />
+      <EffectComposer multisampling={1}>
+        <HueSaturation saturation={-0.25} />
+        <Vignette offset={0.25} darkness={0.8} />
+      </EffectComposer>
       <axesHelper />
       <Lights />
       {/*  gravty set through Ecctrl in EcctrlWrapper */}
