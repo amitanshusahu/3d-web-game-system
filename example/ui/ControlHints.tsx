@@ -1,4 +1,4 @@
-import React, { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { type ContorlType, useControlStore } from "../store/useControlStore";
 import { useIsTouchDevice } from "./useIsTouchDevice";
 

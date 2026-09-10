@@ -9,7 +9,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useCallback, useState, useMemo, useLayoutEffect, type RefObject } from "react";
 import { button, useControls, folder } from "leva";
 import AnimatedCharacterModel from "./AnimatedCharacterModel";
-import { BallCollider, CuboidCollider, CylinderCollider, MeshCollider } from "@react-three/rapier";
+import { BallCollider, CuboidCollider, CylinderCollider } from "@react-three/rapier";
 import { CapsuleCahracterModel } from "./CapsuleCharacterModel";
 import { type GLTF } from 'three-stdlib'
 import { useControlStore } from "./store/useControlStore";

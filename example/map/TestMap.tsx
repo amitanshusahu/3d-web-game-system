@@ -94,7 +94,6 @@ export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElemen
     const mapTime = useRef(0)
 
     // Static rotation axes
-    const xRotationAxies = new THREE.Vector3(1, 0, 0)
     const yRotationAxies = new THREE.Vector3(0, 1, 0)
     const zRotationAxies = new THREE.Vector3(0, 0, 1)
 
