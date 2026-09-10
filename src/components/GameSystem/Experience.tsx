@@ -2,47 +2,28 @@ import { Physics } from '@react-three/rapier'
 import Lights from '../Rendering/Lights'
 import { TestMap } from '../Rendering/map/TestMap'
 import EcctrlWrapper from './EcctrlWrapper'
-import { useControls } from 'leva'
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Experience() {
- 
-  /**
-   * Debug settings
-   */
-  const timeScale = useRef(1)
-  const [{ pausedPhysics, physicsDebug, physicsGravity }, setWorldSettings] = useControls(
-    "World Settings",
-    () => ({
-      physicsDebug: false,
-      pausedPhysics: true,
-      physicsGravity: { value: [0, 0, 0] },
-      slowMotion: {
-        value: timeScale.current,
-        min: 0.01,
-        max: 1,
-        step: 0.01,
-        onChange: (value) => { timeScale.current = value },
-      },
-    }),
-    { collapsed: true }
-  );
 
   /**
-   * Delay physics activate
+   * Delay physics activate: keep Rapier paused for the first second so the
+   * GLB, textures, WASM world and shaders finish loading before the
+   * simulation starts (otherwise the first huge frames cause unstable steps)
    */
+  const [physicsActive, setPhysicsActive] = useState(false)
+
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setWorldSettings({ pausedPhysics: false });
-    }, 1000);
+    const timeout = setTimeout(() => setPhysicsActive(true), 1000);
     return () => clearTimeout(timeout);
-  }, [setWorldSettings]);
+  }, []);
 
   return (
     <>
       <axesHelper />
       <Lights />
-      <Physics debug={physicsDebug} timeStep="vary" gravity={physicsGravity} paused={pausedPhysics}>
+      {/*  gravty set through Ecctrl in EcctrlWrapper */}
+      <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
         <TestMap />
         <EcctrlWrapper />
       </Physics>
