@@ -5,6 +5,8 @@ import { type GLTF } from 'three-stdlib'
 import { useFrame, type ThreeElements } from '@react-three/fiber'
 import { CuboidCollider, CylinderCollider, InstancedRigidBodies, type RapierRigidBody, RigidBody, type InstancedRigidBodyProps, useRapier, BallCollider } from '@react-three/rapier'
 import { useCustomGravity } from 'ecctrl/gravity'
+import { useLoader } from '@react-three/fiber'
+import { TextureLoader, RepeatWrapping } from 'three'
 
 type TimeScaleValue = number | RefObject<number>
 
@@ -133,6 +135,19 @@ export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElemen
         if (blockInstancesRef.current) blockInstancesRef.current.forEach(body => applyGravityField(body, world.timestep))
     })
 
+    const [diffuse, normal, roughness, ao] = useLoader(TextureLoader, [
+        '/texture/ground/optimized/road_damaged_diff.png',
+        '/texture/ground/optimized/road_damaged_nor_gl.png',
+        '/texture/ground/optimized/road_damaged_rough.png',
+        '/texture/ground/optimized/road_damaged_ao.png'
+    ]);
+
+    [diffuse, normal, roughness, ao].forEach(texture => {
+        texture.wrapS = RepeatWrapping;
+        texture.wrapT = RepeatWrapping;
+        texture.repeat.set(0.1, 0.1);
+    });
+
     return (
         <group {...props} dispose={null}>
             {/* Fixed base floor */}
@@ -141,8 +156,10 @@ export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElemen
                 <CylinderCollider args={[1, 80]} position={[0, 0, 110]} />
                 <CylinderCollider args={[1, 80]} position={[0, 0, -110]} />
                 <CylinderCollider args={[1, 80]} position={[0, 102, 110]} />
-                <mesh receiveShadow geometry={nodes.BaseFloor.geometry} material={variantMaterials[0]} />
-                <mesh receiveShadow geometry={nodes.R80Disk.geometry} material={variantMaterials[0]} position={[0, 102, 110]} />
+                <mesh receiveShadow geometry={nodes.BaseFloor.geometry} >
+                    <meshStandardMaterial map={diffuse} normalMap={normal} roughnessMap={roughness} aoMap={ao} />
+                </mesh>
+                <mesh receiveShadow geometry={nodes.R80Disk.geometry} material={variantMaterials[0]}  position={[0, 102, 110]} />
             </RigidBody>
 
             {/* Fixed friction floor */}
