@@ -7,6 +7,7 @@
         "@react-three/drei": "^10.7.8",
         "@react-three/fiber": "^9.7.0",
         "@react-three/rapier": "^2.2.0",
+        "ecctrl": "^2.0.2",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
         "three": "^0.186.0",
@@ -154,6 +155,8 @@
     "detect-libc": ["detect-libc@2.1.2", "", {}, "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="],
 
     "draco3d": ["draco3d@1.5.7", "", {}, "sha512-m6WCKt/erDXcw+70IJXnG7M3awwQPAsZvJGX5zY7beBqpELw6RDGkYVU0W43AFxye4pDZ5i2Lbyc/NNGqwjUVQ=="],
+
+    "ecctrl": ["ecctrl@2.0.2", "", { "dependencies": { "zustand": "^5.0.14" }, "peerDependencies": { "@react-three/drei": ">=10.7", "@react-three/fiber": ">=9.4", "@react-three/rapier": ">=2.2.0", "leva": ">=0.10.1", "react": ">=19.2.7", "react-dom": ">=19.2.7", "three": ">=0.184.0" }, "optionalPeers": ["@react-three/drei", "leva"] }, "sha512-cbfB/egQwZgNKmNIkdtdILWUo/U7EWLa2uAgqWQ8uvrRgxKJ/01VZ51RhEezvtnWl8/Y2tmetf3TNYw8c7llEQ=="],
 
     "fdir": ["fdir@6.5.0", "", { "peerDependencies": { "picomatch": "^3 || ^4" }, "optionalPeers": ["picomatch"] }, "sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg=="],
 
