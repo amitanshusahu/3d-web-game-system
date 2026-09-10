@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 
-import { setPlayerHud } from './playerHudStore'
+import { usePlayerHudStore } from './playerHudStore'
 
 const MOUSE_SENSITIVITY = 0.0025
 const MAX_LOOK_PITCH = 1.55
@@ -54,7 +54,7 @@ export default function Player() {
     const canvas = renderer.domElement
 
     const handlePointerLockChange = () => {
-      setPlayerHud({
+      usePlayerHudStore.getState().setPlayerHud({
         isPointerLocked: document.pointerLockElement === canvas,
       })
     }
@@ -142,7 +142,7 @@ export default function Player() {
     state.camera.quaternion.setFromEuler(lookEuler)
 
     // Debug / HUD
-    setPlayerHud({
+    usePlayerHudStore.getState().setPlayerHud({
       isGrounded: controller.isOnGround,
     })
   })

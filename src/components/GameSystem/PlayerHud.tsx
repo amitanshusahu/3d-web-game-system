@@ -1,7 +1,8 @@
-import { usePlayerHud } from './playerHudStore'
+import { usePlayerHudStore } from './playerHudStore'
 
 export default function PlayerHud() {
-  const { isPointerLocked, isGrounded } = usePlayerHud()
+  const isPointerLocked = usePlayerHudStore((state) => state.isPointerLocked)
+  const isGrounded = usePlayerHudStore((state) => state.isGrounded)
 
   const requestPointerLock = () => {
     const canvas = document.querySelector('#root canvas')
