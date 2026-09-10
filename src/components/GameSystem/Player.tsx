@@ -155,7 +155,7 @@ export default function Player() {
       capsuleHalfHeight={0.5}
       maxWalkVel={WALK_SPEED}
       maxRunVel={RUN_SPEED}
-      enableToggleRun={false}
+      enableToggleRun={true}
     />
   )
 }
