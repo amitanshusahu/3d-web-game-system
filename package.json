@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:example": "vite --config vite.example.config.ts",
     "build": "tsc -b && vite build",
+    "build:example": "tsc -b && vite build --config vite.example.config.ts",
+    "preview:example": "vite preview --config vite.example.config.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },
@@ -15,6 +18,7 @@
     "@react-three/rapier": "^2.2.0",
     "ecctrl": "^2.0.2",
     "howler": "^2.2.4",
+    "leva": "^0.10.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "three": "^0.186.0",
