@@ -82,7 +82,7 @@ export default function EcctrlWrapper({ paused = false, timeScale = 1 }: EcctrlW
     /**
      * Vehicle models GLTF
      */
-    const vehicleModels = useGLTF('/vehicles.glb') as unknown as GLTFResult
+    const vehicleModels = useGLTF('/models/vehicles.glb') as unknown as GLTFResult
     vehicleModels.materials.GridTexture.side = THREE.FrontSide;
 
     /**
@@ -1018,7 +1018,7 @@ export default function EcctrlWrapper({ paused = false, timeScale = 1 }: EcctrlW
     )
 }
 
-useGLTF.preload('/vehicles.glb')
+useGLTF.preload('/models/vehicles.glb')
 
 type GLTFResult = GLTF & {
     nodes: {

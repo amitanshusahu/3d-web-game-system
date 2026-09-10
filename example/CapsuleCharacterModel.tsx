@@ -4,7 +4,7 @@ import { type GLTF } from 'three-stdlib'
 import { type ThreeElements } from '@react-three/fiber'
 
 export function CapsuleCahracterModel(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/capsule.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF('/models/capsule.glb') as unknown as GLTFResult
   materials.GridTexture.side = THREE.FrontSide;
   return (
     <group {...props} dispose={null}>
@@ -13,7 +13,7 @@ export function CapsuleCahracterModel(props: ThreeElements['group']) {
   )
 }
 
-useGLTF.preload('/capsule.glb')
+useGLTF.preload('/models/capsule.glb')
 
 type GLTFResult = GLTF & {
   nodes: {

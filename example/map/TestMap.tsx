@@ -43,7 +43,7 @@ function createInstanceStack({ pos, rows, rowStep, itemStep, startCount, countSt
 
 export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElements['group'] & { paused?: boolean; timeScale?: TimeScaleValue }) {
     // Map models GLTF
-    const { nodes, materials } = useGLTF('/testMap.glb') as unknown as GLTFResult
+    const { nodes, materials } = useGLTF('/models/testMap.glb') as unknown as GLTFResult
     materials.GridTexture.side = THREE.FrontSide;
 
     // Create material variants
@@ -245,7 +245,7 @@ export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElemen
     )
 }
 
-useGLTF.preload('/testMap.glb')
+useGLTF.preload('/models/testMap.glb')
 
 type GLTFResult = GLTF & {
     nodes: {

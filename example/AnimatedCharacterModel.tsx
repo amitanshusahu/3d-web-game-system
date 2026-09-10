@@ -16,7 +16,7 @@ export default function AnimatedCharacterModel(props: any) {
   const [canPlayNext, setCanPlayNext] = useState(true);
 
   // Load the GLTF model and animations
-  const { nodes, materials, animations } = useGLTF("/AnimationLibrary.glb");
+  const { nodes, materials, animations } = useGLTF("/models/AnimationLibrary.glb");
   const { ref, actions, mixer } = useAnimations(animations);
   const actionStore = useEcctrlAnimationStore((state) => state.animationState);
 
@@ -160,4 +160,4 @@ export default function AnimatedCharacterModel(props: any) {
   );
 }
 
-useGLTF.preload("/AnimationLibrary.glb");
+useGLTF.preload("/models/AnimationLibrary.glb");
