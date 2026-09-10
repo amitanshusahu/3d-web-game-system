@@ -1,4 +1,4 @@
-import { usePlayerHudStore } from './playerHudStore'
+import { usePlayerHudStore } from '../../store/playerHudStore'
 
 export default function PlayerHud() {
   const isPointerLocked = usePlayerHudStore((state) => state.isPointerLocked)

@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 
-import { usePlayerHudStore } from './playerHudStore'
+import { usePlayerHudStore } from '../../store/playerHudStore'
 
 const MOUSE_SENSITIVITY = 0.0025
 const MAX_LOOK_PITCH = 1.55
