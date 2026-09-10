@@ -4,14 +4,17 @@ import * as THREE from 'three'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 
 import { usePlayerHudStore } from '../../store/playerHudStore'
+import CharacterModel from '../Rendering/models/CharacterModel'
 
 const MOUSE_SENSITIVITY = 0.0025
 const MAX_LOOK_PITCH = 1.55
 const EYE_HEIGHT_ABOVE_CENTER = 0.62
 const WALK_SPEED = 4
 const RUN_SPEED = 8
+const CAPSULE_RADIUS = 0.5
+const CAPSULE_HALF_HEIGHT = 0.5
 
-export default function Player() {
+export default function EcctrlWrapper() {
   const ecctrlRef = useRef<EcctrlHandle>(null)
 
   const pressedKeysRef = useRef<Set<string>>(new Set())
@@ -151,11 +154,13 @@ export default function Player() {
     <Ecctrl
       ref={ecctrlRef}
       position={[20, 2, 20]}
-      capsuleRadius={0.5}
-      capsuleHalfHeight={0.5}
+      capsuleRadius={CAPSULE_RADIUS}
+      capsuleHalfHeight={CAPSULE_HALF_HEIGHT}
       maxWalkVel={WALK_SPEED}
       maxRunVel={RUN_SPEED}
       enableToggleRun={true}
-    />
+    >
+      <CharacterModel position={[0, -0.6, 0]} />
+    </Ecctrl>
   )
 }

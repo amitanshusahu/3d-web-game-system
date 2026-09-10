@@ -1,7 +1,7 @@
 import { Physics } from '@react-three/rapier'
 import Lights from '../Rendering/Lights'
 import { TestMap } from '../Rendering/map/TestMap'
-import Player from './Player'
+import EcctrlWrapper from './EcctrlWrapper'
 import { useControls } from 'leva'
 import { useEffect, useRef } from 'react'
 import { GravityField } from './GravityField'
@@ -52,7 +52,7 @@ export default function Experience() {
       <Lights />
       <Physics debug={physicsDebug} timeStep="vary" gravity={physicsGravity} paused={pausedPhysics}>
         <TestMap />
-        <Player />
+        <EcctrlWrapper />
       </Physics>
     </>
   );
