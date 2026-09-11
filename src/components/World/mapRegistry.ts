@@ -1,27 +1,26 @@
 import type { ComponentType } from 'react'
 import { TestMap, TestMapSpawnZones } from '../Rendering/map/TestMap'
+import { OpenPlains, OpenPlainsSpawnZones } from '../Rendering/map/OpenPlains'
 import type { SpawnZone } from './worldTypes'
 import { StrongHoldAnimated, StrongHoldSpawnZones } from '../Rendering/map/StrongHoldAnimated'
 
 export interface MapEntry {
   component: ComponentType
-  /** Spawn zones in the map component's local space; scaled to world space by mapScale */
   spawnZones: SpawnZone[],
   mapScale?: number
 }
 
-/** Global key-value registry: map id -> map component + its spawn zones */
 export const MAP_REGISTRY: Record<string, MapEntry> = {
   testMap: { component: TestMap, spawnZones: TestMapSpawnZones },
+  openPlains: { component: OpenPlains, spawnZones: OpenPlainsSpawnZones },
   strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones, mapScale: 10 },
 }
 
-/** Clearance above the zone's floor surface the player spawns at */
+
 const PLAYER_SPAWN_CLEARANCE = 1
 
 const SPAWN_ORIGIN: [number, number, number] = [0, PLAYER_SPAWN_CLEARANCE, 0]
 
-/** Uniformly scale a map's local-space spawn zones into world space */
 export function scaleSpawnZones(zones: SpawnZone[], scale: number): SpawnZone[] {
   if (scale === 1) return zones
   return zones.map(([x, z, radius, y]): SpawnZone => (
@@ -31,7 +30,6 @@ export function scaleSpawnZones(zones: SpawnZone[], scale: number): SpawnZone[] 
   ))
 }
 
-/** Spawn zones of the given map in world space (zones scale with the map's mapScale) */
 export function getMapSpawnZones(mapId: string): SpawnZone[] {
   const entry = MAP_REGISTRY[mapId]
   if (!entry) return []

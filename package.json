@@ -1,5 +1,5 @@
 {
-  "name": "react-3-fiber",
+  "name": "dreamworldClient",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -24,6 +24,7 @@
     "react-3-fiber": ".",
     "react-dom": "^19.2.8",
     "three": "^0.186.0",
+    "zod": "^4.6.2",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
