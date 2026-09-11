@@ -37,16 +37,16 @@ type GLTFResult = GLTF & {
     _rootJoint: THREE.Bone
   }
   materials: {
-    sky_sketchfab: THREE.MeshBasicMaterial
-    final_gate_low: THREE.MeshBasicMaterial
-    final_alfa: THREE.MeshBasicMaterial
-    final_gate_top: THREE.MeshBasicMaterial
-    final_C: THREE.MeshBasicMaterial
-    final_B: THREE.MeshBasicMaterial
-    final_SOMT: THREE.MeshBasicMaterial
-    final_E: THREE.MeshBasicMaterial
-    final_A: THREE.MeshBasicMaterial
-    final_rope: THREE.MeshBasicMaterial
+    sky_sketchfab: THREE.MeshPhysicalMaterial
+    final_gate_low: THREE.MeshPhysicalMaterial
+    final_alfa: THREE.MeshPhysicalMaterial
+    final_gate_top: THREE.MeshPhysicalMaterial
+    final_C: THREE.MeshPhysicalMaterial
+    final_B: THREE.MeshPhysicalMaterial
+    final_SOMT: THREE.MeshPhysicalMaterial
+    final_E: THREE.MeshPhysicalMaterial
+    final_A: THREE.MeshPhysicalMaterial
+    final_rope: THREE.MeshPhysicalMaterial
   }
   animations: GLTFAction[]
 }

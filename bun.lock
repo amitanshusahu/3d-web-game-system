@@ -4,7 +4,6 @@
     "": {
       "name": "react-3-fiber",
       "dependencies": {
-        "react-3-fiber": ".",
         "@react-three/drei": "^10.7.8",
         "@react-three/fiber": "^9.7.0",
         "@react-three/postprocessing": "^3.1.1",
@@ -13,6 +12,7 @@
         "howler": "^2.2.4",
         "leva": "^0.10.1",
         "react": "^19.2.8",
+        "react-3-fiber": ".",
         "react-dom": "^19.2.8",
         "three": "^0.186.0",
         "zustand": "^5.0.15",

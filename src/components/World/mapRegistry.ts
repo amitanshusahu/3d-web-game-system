@@ -5,13 +5,14 @@ import { StrongHoldAnimated, StrongHoldSpawnZones } from '../Rendering/map/Stron
 
 export interface MapEntry {
   component: ComponentType
-  spawnZones: SpawnZone[]
+  spawnZones: SpawnZone[],
+  mapScale?: number
 }
 
 /** Global key-value registry: map id -> map component + its spawn zones */
 export const MAP_REGISTRY: Record<string, MapEntry> = {
   testMap: { component: TestMap, spawnZones: TestMapSpawnZones },
-  strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones },
+  strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones, mapScale: 10 },
 }
 
 /** Clearance above the zone's floor surface the player spawns at */
