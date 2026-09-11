@@ -48,8 +48,11 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot }: {
   }, [scene, config])
 
   useEffect(() => {
+    // Scatter copies prefer their own offsetY, falling back to the object-level one
+    const offsetY = config.scatter?.offsetY ?? config.offsetY ?? 0
     if (config.position) {
-      setPlacement({ position: config.position, rotationY: config.rotationY ?? 0 })
+      const [x, y, z] = config.position
+      setPlacement({ position: [x, y + offsetY, z], rotationY: config.rotationY ?? 0 })
       return
     }
 
@@ -89,7 +92,7 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot }: {
           if (scatterSpot) break
           continue
         }
-        const position: [number, number, number] = [candidate.x, RAY_ORIGIN_Y - hit.timeOfImpact - bounds.bottomOffset, candidate.z]
+        const position: [number, number, number] = [candidate.x, RAY_ORIGIN_Y - hit.timeOfImpact - bounds.bottomOffset + offsetY, candidate.z]
 
         // Reject the spot when the model's bounding volume overlaps any collider
         // (probe lifted slightly so resting exactly on the floor doesn't count as overlap)
@@ -119,7 +122,7 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot }: {
       const hit = world.castRay(ray, RAY_LENGTH, true);
       console.log('[WorldObject] Spawn debug:', { model: config.model, fallback: true, zone })
       setPlacement({
-        position: [zone[0], RAY_ORIGIN_Y - (hit?.timeOfImpact ?? RAY_ORIGIN_Y) - bounds.bottomOffset, zone[1]],
+        position: [zone[0], RAY_ORIGIN_Y - (hit?.timeOfImpact ?? RAY_ORIGIN_Y) - bounds.bottomOffset + offsetY, zone[1]],
         rotationY: config.rotationY ?? 0,
       })
     }

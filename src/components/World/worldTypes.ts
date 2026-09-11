@@ -13,6 +13,8 @@ export interface ScatterConfig {
   spacing?: number
   /** Layout seed; defaults to the model path so layouts are stable across reloads */
   seed?: string
+  /** Vertical nudge in meters added after ground-snap; negative sinks, positive lifts (defaults to 0) */
+  offsetY?: number
 }
 
 export interface WorldObjectConfig {
@@ -23,6 +25,8 @@ export interface WorldObjectConfig {
   zone?: number
   /** Fixed Y rotation; random when omitted */
   rotationY?: number
+  /** Vertical nudge in meters added after ground-snap; negative sinks, positive lifts (defaults to 0) */
+  offsetY?: number
   scale?: number
   /** Collision probe half extents override; defaults to the model bounding box */
   footprint?: [number, number, number]

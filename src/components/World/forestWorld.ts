@@ -49,7 +49,8 @@ const forestWorld: WorldConfig = {
     {
       "model": "/models/ignore/terrain/grass.glb",
       "scatter": { "count": 60, "radius": 120 },
-      "physics": "decor"
+      "physics": "decor",
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/creatures/deer.glb",
@@ -62,8 +63,9 @@ const forestWorld: WorldConfig = {
     },
     {
       "model": "/models/ignore/creatures/armored_horse.glb",
-      "position": [-15, 0.1, -10],
-      "rotationY": 1.8
+      "position": [-15, 1.3, -10],
+      "rotationY": 1.8,
+      "scale": 3
     },
     {
       "model": "/models/ignore/creatures/velkhana.glb",
@@ -88,35 +90,42 @@ const forestWorld: WorldConfig = {
 
     {
       "model": "/models/ignore/nature/stylized_hand_painted_tree_toon.glb",
-      "scatter": { "count": 15, "center": [40, -90], "radius": 45 }
+      "scatter": { "count": 15, "center": [40, -90], "radius": 45 },
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/bush.glb",
-      "scatter": { "count": 40, "radius": 150 }
+      "scatter": { "count": 40, "radius": 150 },
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/flower_bush.glb",
       "scatter": { "count": 25, "center": [0, 40], "radius": 40 },
-      "physics": "decor"
+      "physics": "decor",
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/flowers.glb",
       "scatter": { "count": 30, "center": [10, 20], "radius": 45 },
-      "physics": "decor"
+      "physics": "decor",
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/mushroom.glb",
       "scatter": { "count": 20, "center": [-60, 30], "radius": 30 },
-      "physics": "decor"
+      "physics": "decor",
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/fantacy/blue_scrub_bush.glb",
-      "scatter": { "count": 20, "center": [70, -40], "radius": 40 }
+      "scatter": { "count": 20, "center": [70, -40], "radius": 40 },
+      "offsetY": -1
     },
     {
       "model": "/models/ignore/fantacy/glowing_mushroom.glb",
       "scatter": { "count": 15, "center": [-90, 70], "radius": 25 },
-      "physics": "decor"
+      "physics": "decor",
+      "offsetY": -1
     },
   ]
 }

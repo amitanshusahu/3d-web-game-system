@@ -5,6 +5,7 @@ import testWorld from '../World/forestWorld'
 import type { WorldConfig } from '../World/worldTypes'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
+import { EffectComposer,HueSaturation, Vignette } from '@react-three/postprocessing'
 
 export default function Experience() {
   const worldConfig = testWorld as WorldConfig
@@ -26,12 +27,12 @@ export default function Experience() {
     <>
       {/* Dream atmosphere: background + fog must share one color so distant
           geometry melts into the sky (CSS background can never blend with fog) */}
-      {/* <color attach="background" args={['#bcc0fe']} />
+      <color attach="background" args={['#bcc0fe']} />
       <fog attach="fog" args={['#bcc0fe', 0, 100]} />
       <EffectComposer multisampling={1}>
         <HueSaturation saturation={-0.25} />
         <Vignette offset={0.25} darkness={0.8} />
-      </EffectComposer> */}
+      </EffectComposer>
       <axesHelper />
       <Lights />
       {/*  gravty set through Ecctrl in EcctrlWrapper */}
