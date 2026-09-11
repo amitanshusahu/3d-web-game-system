@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import { TestMap, TestMapSpawnZones } from '../Rendering/map/TestMap'
 import { OpenPlains, OpenPlainsSpawnZones } from '../Rendering/map/OpenPlains'
-import type { SpawnZone } from './worldTypes'
+import type { SpawnZone, WorldConfig } from './worldTypes'
 import { StrongHoldAnimated, StrongHoldSpawnZones } from '../Rendering/map/StrongHoldAnimated'
 
 export interface MapEntry {
@@ -37,13 +37,24 @@ export function getMapSpawnZones(mapId: string): SpawnZone[] {
 }
 
 /** Player spawn: a random point inside a random spawn zone of the given map */
-export function getPlayerSpawnPosition(mapId: string): [number, number, number] {
+export function getPlayerSpawnPosition(mapId: string, config?: WorldConfig): [number, number, number] {
+  if (config?.mode === 'open') {
+    if (config.playerSpawn) return config.playerSpawn
+    const openZones = config.spawnZones ?? [[0, 0, 20]]
+    return sampleSpawnZone(openZones)
+  }
+
   const zones = getMapSpawnZones(mapId)
 
   if (zones.length === 0) {
     console.warn(`[mapRegistry] No spawn zones for map "${mapId}", spawning at origin`)
     return SPAWN_ORIGIN
   }
+
+  return sampleSpawnZone(zones)
+}
+
+function sampleSpawnZone(zones: SpawnZone[]): [number, number, number] {
 
   const [x, z, radius, floorY = 0] = zones[Math.floor(Math.random() * zones.length)]
 

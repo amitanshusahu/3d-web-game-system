@@ -1,0 +1,124 @@
+{
+  "mode": "open",
+  "ground": { "size": 600 },
+  "playerSpawn": [0, 1, 40],
+  "objects": [
+    {
+      "model": "/models/ignore/structure/farm_house.glb",
+      "position": [0, 0.1, 0],
+      "rotationY": 0.4
+    },
+    {
+      "model": "/models/ignore/structure/house.glb",
+      "position": [28, 0.1, -14],
+      "rotationY": -0.9
+    },
+    {
+      "model": "/models/ignore/props/campfire.glb",
+      "position": [10, 0.1, 12]
+    },
+    {
+      "model": "/models/ignore/props/bench.glb",
+      "position": [13, 0.1, 14],
+      "rotationY": 2.2
+    },
+    {
+      "model": "/models/ignore/props/lantern.glb",
+      "position": [7, 0.1, 10]
+    },
+    {
+      "model": "/models/ignore/props/animated_old_chest.glb",
+      "position": [-8, 0.1, 6],
+      "rotationY": 0.7
+    },
+    {
+      "model": "/models/ignore/nature/oak_trees.glb",
+      "scatter": { "count": 60, "center": [-80, -40], "radius": 70 }
+    },
+    {
+      "model": "/models/ignore/nature/pine_tree.glb",
+      "scatter": { "count": 50, "center": [90, 60], "radius": 80 }
+    },
+    {
+      "model": "/models/ignore/nature/sakura_tree_1mb.glb",
+      "scatter": { "count": 12, "center": [-30, 80], "radius": 35 }
+    },
+    {
+      "model": "/models/ignore/nature/stylized_hand_painted_tree_toon.glb",
+      "scatter": { "count": 15, "center": [40, -90], "radius": 45 }
+    },
+    {
+      "model": "/models/ignore/nature/bush.glb",
+      "scatter": { "count": 40, "radius": 150 }
+    },
+    {
+      "model": "/models/ignore/nature/flower_bush.glb",
+      "scatter": { "count": 25, "center": [0, 40], "radius": 40 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/nature/flowers.glb",
+      "scatter": { "count": 30, "center": [10, 20], "radius": 45 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/nature/mushroom.glb",
+      "scatter": { "count": 20, "center": [-60, 30], "radius": 30 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/fantacy/blue_scrub_bush.glb",
+      "scatter": { "count": 20, "center": [70, -40], "radius": 40 }
+    },
+    {
+      "model": "/models/ignore/fantacy/glowing_mushroom.glb",
+      "scatter": { "count": 15, "center": [-90, 70], "radius": 25 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/nature/rock_b.glb",
+      "scatter": { "count": 25, "radius": 180 }
+    },
+    {
+      "model": "/models/ignore/nature/obj_nat_rock_01.glb",
+      "scatter": { "count": 15, "center": [-120, -100], "radius": 50 }
+    },
+    {
+      "model": "/models/ignore/terrain/grass.glb",
+      "scatter": { "count": 60, "radius": 120 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/creatures/deer.glb",
+      "scatter": { "count": 5, "center": [-50, -60], "radius": 40 }
+    },
+    {
+      "model": "/models/ignore/creatures/unicorn.glb",
+      "position": [20, 0.1, 30]
+    },
+    {
+      "model": "/models/ignore/creatures/armored_horse.glb",
+      "position": [-15, 0.1, -10],
+      "rotationY": 1.8
+    },
+    {
+      "model": "/models/ignore/creatures/animated_bird_pigeon.glb",
+      "scatter": { "count": 8, "center": [0, -30], "radius": 60 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/creatures/velkhana.glb",
+      "position": [-140, 0.1, 120],
+      "scale": 0.5
+    },
+    {
+      "model": "/models/ignore/special/crystal.glb",
+      "scatter": { "count": 8, "center": [110, 90], "radius": 30 },
+      "physics": "decor"
+    },
+    {
+      "model": "/models/ignore/special/portal.glb",
+      "position": [60, 0.1, 60]
+    }
+  ]
+}

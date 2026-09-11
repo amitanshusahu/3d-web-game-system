@@ -6,6 +6,7 @@ import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 import { usePlayerHudStore } from '../../store/playerHudStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { getPlayerSpawnPosition } from '../World/mapRegistry'
+import type { WorldConfig } from '../World/worldTypes'
 import CharacterModel from '../Rendering/models/CharacterModel'
 
 const MOUSE_SENSITIVITY = 0.0025
@@ -18,14 +19,15 @@ const CAPSULE_HALF_HEIGHT = 0.5
 
 interface EcctrlWrapperProps {
   mapId: string
+  config?: WorldConfig
 }
 
-export default function EcctrlWrapper({ mapId }: EcctrlWrapperProps) {
+export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
   const ecctrlRef = useRef<EcctrlHandle>(null)
 
   const spawnPosition = useMemo(
-    () => getPlayerSpawnPosition(mapId),
-    [mapId],
+    () => getPlayerSpawnPosition(mapId, config),
+    [mapId, config],
   )
 
   useEffect(() => {

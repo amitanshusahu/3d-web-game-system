@@ -1,6 +1,20 @@
 /** [x, z, radius] plus an optional floor surface Y used for player spawn */
 export type SpawnZone = [x: number, z: number, radius: number, y?: number]
 
+/** Scatter `count` copies of a model inside a disk; each copy ground-snaps and overlap-checks like a zoned object */
+export interface ScatterConfig {
+  /** How many copies to place */
+  count: number
+  /** [x, z] center of the scatter disk (defaults to the world origin) */
+  center?: [number, number]
+  /** Radius of the scatter disk (defaults to 50) */
+  radius?: number
+  /** Minimum separation between copies in meters; 0 (default) = purely random */
+  spacing?: number
+  /** Layout seed; defaults to the model path so layouts are stable across reloads */
+  seed?: string
+}
+
 export interface WorldObjectConfig {
   model: string
   /** Explicit placement, skips spawn zone resolution */
@@ -14,9 +28,29 @@ export interface WorldObjectConfig {
   footprint?: [number, number, number]
   /** 'fixed' adds a static collider, 'decor' is visual only (default 'fixed') */
   physics?: 'fixed' | 'decor'
+  /** Scatter many copies across an area (forests, rock fields, herds) */
+  scatter?: ScatterConfig
 }
 
-export interface WorldConfig {
+export interface OpenGroundConfig {
+  /** Edge length of the square ground in meters (defaults to 2000) */
+  size?: number
+}
+
+/** Preset mode: a hand-built map from the registry, objects spawn into its zones */
+export interface PresetWorldConfig {
+  mode?: 'preset'
   map: string
   objects: WorldObjectConfig[]
 }
+
+/** Open mode: fully dynamic map — flat ground plus whatever the objects describe (forest, houses, creatures...) */
+export interface OpenWorldConfig {
+  mode: 'open'
+  ground?: OpenGroundConfig
+  playerSpawn?: [number, number, number]
+  spawnZones?: SpawnZone[]
+  objects: WorldObjectConfig[]
+}
+
+export type WorldConfig = PresetWorldConfig | OpenWorldConfig
