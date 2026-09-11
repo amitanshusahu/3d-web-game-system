@@ -54,6 +54,7 @@ export function WorldObject({ config, defaultZone, spawnZones }: {
     const zone = spawnZones[(config.zone ?? defaultZone) % spawnZones.length]
     const probe = new rapier.Cuboid(bounds.half[0], bounds.half[1], bounds.half[2])
     const identityRotation = { x: 0, y: 0, z: 0, w: 1 }
+    const spawnDebug = []
 
     for (let attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
       const x = zone[0] + (Math.random() * 2 - 1) * zone[2]
@@ -69,8 +70,7 @@ export function WorldObject({ config, defaultZone, spawnZones }: {
       // (probe lifted slightly so resting exactly on the floor doesn't count as overlap)
       const probeCenter = { x, y: position[1] + bounds.centerY + bounds.half[1] + 0.05, z }
       if (world.intersectionWithShape(probeCenter, identityRotation, probe)) continue;
-      // @ts-ignore
-      (window.__spawnDebug ??= []).push({ model: config.model, position, attempt: attempt + 1 })
+      spawnDebug.push({ model: config.model, position, attempt: attempt + 1 })
       setPlacement({ position, rotationY: config.rotationY ?? Math.random() * Math.PI * 2 })
       return
     }
@@ -78,12 +78,13 @@ export function WorldObject({ config, defaultZone, spawnZones }: {
     // No clear spot found: fall back to the zone center on the ground
     const ray = new rapier.Ray({ x: zone[0], y: RAY_ORIGIN_Y, z: zone[1] }, { x: 0, y: -1, z: 0 })
     const hit = world.castRay(ray, RAY_LENGTH, true);
-    //@ts-ignore
-    (window.__spawnDebug ??= []).push({ model: config.model, fallback: true, zone })
+    spawnDebug.push({ model: config.model, fallback: true, zone })
     setPlacement({
       position: [zone[0], RAY_ORIGIN_Y - (hit?.timeOfImpact ?? RAY_ORIGIN_Y) - bounds.bottomOffset, zone[1]],
       rotationY: config.rotationY ?? 0,
     })
+
+    console.log('[WorldObject] Spawn debug:', spawnDebug)
   }, [config, bounds, world, rapier, spawnZones, defaultZone])
 
   if (!placement) return null

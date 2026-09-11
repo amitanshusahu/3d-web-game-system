@@ -5,6 +5,7 @@ import { StrongHoldAnimated, StrongHoldSpawnZones } from '../Rendering/map/Stron
 
 export interface MapEntry {
   component: ComponentType
+  /** Spawn zones in the map component's local space; scaled to world space by mapScale */
   spawnZones: SpawnZone[],
   mapScale?: number
 }
@@ -20,9 +21,26 @@ const PLAYER_SPAWN_CLEARANCE = 1
 
 const SPAWN_ORIGIN: [number, number, number] = [0, PLAYER_SPAWN_CLEARANCE, 0]
 
+/** Uniformly scale a map's local-space spawn zones into world space */
+export function scaleSpawnZones(zones: SpawnZone[], scale: number): SpawnZone[] {
+  if (scale === 1) return zones
+  return zones.map(([x, z, radius, y]): SpawnZone => (
+    y === undefined
+      ? [x * scale, z * scale, radius * scale]
+      : [x * scale, z * scale, radius * scale, y * scale]
+  ))
+}
+
+/** Spawn zones of the given map in world space (zones scale with the map's mapScale) */
+export function getMapSpawnZones(mapId: string): SpawnZone[] {
+  const entry = MAP_REGISTRY[mapId]
+  if (!entry) return []
+  return scaleSpawnZones(entry.spawnZones, entry.mapScale ?? 1)
+}
+
 /** Player spawn: a random point inside a random spawn zone of the given map */
 export function getPlayerSpawnPosition(mapId: string): [number, number, number] {
-  const zones = MAP_REGISTRY[mapId]?.spawnZones ?? []
+  const zones = getMapSpawnZones(mapId)
 
   if (zones.length === 0) {
     console.warn(`[mapRegistry] No spawn zones for map "${mapId}", spawning at origin`)
