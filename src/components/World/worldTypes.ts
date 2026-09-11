@@ -1,4 +1,5 @@
-export type SpawnZone = [x: number, z: number, radius: number]
+/** [x, z, radius] plus an optional floor surface Y used for player spawn */
+export type SpawnZone = [x: number, z: number, radius: number, y?: number]
 
 export interface WorldObjectConfig {
   model: string

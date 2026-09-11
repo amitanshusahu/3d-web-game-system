@@ -35,7 +35,7 @@ export default function Experience() {
       {/*  gravty set through Ecctrl in EcctrlWrapper */}
       <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
         <World config={testWorld} />
-        <EcctrlWrapper />
+        <EcctrlWrapper mapId={testWorld.map} />
       </Physics>
     </>
   );

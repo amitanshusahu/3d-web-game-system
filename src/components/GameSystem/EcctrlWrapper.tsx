@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 
 import { usePlayerHudStore } from '../../store/playerHudStore'
+import { usePlayerStore } from '../../store/playerStore'
+import { getPlayerSpawnPosition } from '../World/mapRegistry'
 import CharacterModel from '../Rendering/models/CharacterModel'
 
 const MOUSE_SENSITIVITY = 0.0025
@@ -14,8 +16,23 @@ const RUN_SPEED = 8
 const CAPSULE_RADIUS = 0.5
 const CAPSULE_HALF_HEIGHT = 0.5
 
-export default function EcctrlWrapper() {
+interface EcctrlWrapperProps {
+  mapId: string
+}
+
+export default function EcctrlWrapper({ mapId }: EcctrlWrapperProps) {
   const ecctrlRef = useRef<EcctrlHandle>(null)
+
+  const spawnPosition = useMemo(
+    () => getPlayerSpawnPosition(mapId),
+    [mapId],
+  )
+
+  useEffect(() => {
+    usePlayerStore.getState().setPlayerPosition(
+      new THREE.Vector3(...spawnPosition),
+    )
+  }, [spawnPosition])
 
   const pressedKeysRef = useRef<Set<string>>(new Set())
 
@@ -148,12 +165,14 @@ export default function EcctrlWrapper() {
     usePlayerHudStore.getState().setPlayerHud({
       isGrounded: controller.isOnGround,
     })
+
+    usePlayerStore.getState().setPlayerPosition(bodyPosition)
   })
 
   return (
     <Ecctrl
       ref={ecctrlRef}
-      position={[20, 2, 20]}
+      position={spawnPosition}
       capsuleRadius={CAPSULE_RADIUS}
       capsuleHalfHeight={CAPSULE_HALF_HEIGHT}
       maxWalkVel={WALK_SPEED}

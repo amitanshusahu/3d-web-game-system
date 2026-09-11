@@ -14,6 +14,8 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import { RigidBody, TrimeshCollider } from '@react-three/rapier'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
 
+import type { SpawnZone } from '../../World/worldTypes'
+
 type ActionName = 'Scene'
 
 interface GLTFAction extends THREE.AnimationClip {
@@ -52,16 +54,16 @@ type GLTFResult = GLTF & {
 /**
  * Spawn zones: known-clear surfaces of the floating stronghold for randomly
  * placing world objects, derived from the rasterized top surface of the GLB
- * (bind pose, sky excluded). Format: [x, z, radius].
+ * (bind pose, sky excluded). Format: [x, z, radius, floorY].
  * Keep-outs excluded: gate front (x -2.5..2, z 3..8.5, y ~2), courtyard steps,
  * chain/rope spans between the islands, flag poles on the east islands.
  */
-export const StrongHoldSpawnZones: Array<[number, number, number]> = [
-  [3.9, -2.5, 0.7],   // east hanging island platform (y ~ -1.5), largest flat area
-  [-0.7, -5.0, 0.6],  // south deck top (y ~ 9.3)
-  [-4.5, 1.5, 0.7],   // north deck top (y ~ 8.5)
-  [-4.9, 5.4, 0.4],   // keep tower top (y ~ 13.1)
-  [10.4, -3.9, 0.4],  // far east island ledge (y ~ -2.6)
+export const StrongHoldSpawnZones: SpawnZone[] = [
+  [3.9, -2.5, 0.7, -1.5],   // east hanging island platform (largest flat area)
+  [-0.7, -5.0, 0.6, 9.3],   // south deck top
+  [-4.5, 1.5, 0.7, 8.5],    // north deck top
+  [-4.9, 5.4, 0.4, 13.1],   // keep tower top
+  [10.4, -3.9, 0.4, -2.6],  // far east island ledge
 ]
 
 export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
