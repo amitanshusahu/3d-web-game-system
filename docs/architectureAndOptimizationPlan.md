@@ -33,12 +33,12 @@ Do P0-P1 before anything else. P5 is explicitly **do not do now**.
 
 ## P0 — Fastest wins (do first, easy + high impact)
 
-- [ ] **1. Default all scatter to `physics: 'decor'`.** In `worldTypes.ts` treat missing `physics` on scattered copies as decor. Only hero-adjacent interactables get colliders (see P3 tiers). This alone removes ~200 RigidBodies from forestWorld.
-- [ ] **2. Skip ground-snap on OpenPlains.** Ground is flat `y=-1`. In `WorldObject.tsx`: `if (config.mode === 'open' && flat) position.y = offsetY, no castRay, no intersectionWithShape`. Keep raycast path only for `preset` maps.
-- [ ] **3. Cache bounds per model URL, not per copy.** `Map<string, Bounds>` module cache in `WorldObject.tsx`. `Box3.setFromObject` once per URL. Add `footprint` override in JSON for trees/rocks to skip Box3 entirely.
-- [ ] **4. Use `spacing` in scatter.** You already have `planScatterSpots({spacing})` — set `spacing: 3-5` for trees, `1-2` for grass/bush so copies don't overlap and you don't need physics overlap checks.
-- [ ] **5. Preload only P0.** `useGLTF.preload(ground + player capsule)` in `Experience.tsx`. Remove blanket preloads. Everything else streams via `Suspense`.
-- [ ] **6. Kill per-frame cost.** Remove `<axesHelper/>`, set `multisampling={0}` (desktop still fine, huge fill-rate win), keep `HueSaturation+Vignette` only — no Bloom/SSAO on scatter maps. `anisotropy=4` not 8 on ground.
+- [x] **1. Default all scatter to `physics: 'decor'`.** In `worldTypes.ts` treat missing `physics` on scattered copies as decor. Only hero-adjacent interactables get colliders (see P3 tiers). This alone removes ~200 RigidBodies from forestWorld.
+- [x] **2. Skip ground-snap on OpenPlains.** Ground is flat `y=-1`. In `WorldObject.tsx`: `if (config.mode === 'open' && flat) position.y = offsetY, no castRay, no intersectionWithShape`. Keep raycast path only for `preset` maps.
+- [x] **3. Cache bounds per model URL, not per copy.** `Map<string, Bounds>` module cache in `WorldObject.tsx`. `Box3.setFromObject` once per URL. Add `footprint` override in JSON for trees/rocks to skip Box3 entirely.
+- [x] **4. Use `spacing` in scatter.** You already have `planScatterSpots({spacing})` — set `spacing: 3-5` for trees, `1-2` for grass/bush so copies don't overlap and you don't need physics overlap checks.
+- [x] **5. Preload only P0.** `useGLTF.preload(ground + player capsule)` in `Experience.tsx`. Remove blanket preloads. Everything else streams via `Suspense`.
+- [x] **6. Kill per-frame cost.** Remove `<axesHelper/>`, set `multisampling={0}` (desktop still fine, huge fill-rate win), keep `HueSaturation+Vignette` only — no Bloom/SSAO on scatter maps. `anisotropy=4` not 8 on ground.
 - [ ] **7. Delete build bloat.** `public/**/*.bak`, `public/models/ignore/*` not referenced by any world. Anything in `public/` ships to dist. Check with `grep -r "models/" src/components/World`.
 
 Expected: cold load from "freeze + fallback stampede" to "ground + player instantly, scatter pops in".

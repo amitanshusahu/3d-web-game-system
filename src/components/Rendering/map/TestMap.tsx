@@ -277,8 +277,6 @@ export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElemen
     )
 }
 
-useGLTF.preload('/models/testMap.glb')
-
 type GLTFResult = GLTF & {
     nodes: {
         RampJump: THREE.Mesh

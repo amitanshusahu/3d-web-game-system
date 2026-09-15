@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import * as THREE from 'three'
 import { Clone, useGLTF } from '@react-three/drei'
 import { RigidBody, useRapier } from '@react-three/rapier'
-import type { SpawnZone, WorldObjectConfig } from './worldTypes'
+import { resolvePhysics, type SpawnZone, type WorldObjectConfig } from './worldTypes'
 
 const MAX_PLACEMENT_ATTEMPTS = 20
 const RAY_ORIGIN_Y = 60
 const RAY_LENGTH = 120
+/** OpenPlains collider top — the visible ground plane sits 1m lower at y=-1 */
+const FLAT_GROUND_Y = 0
 
 interface Placement {
   position: [number, number, number]
@@ -17,35 +19,61 @@ interface Bounds {
   half: [number, number, number]
   centerY: number
   bottomOffset: number
-  scale: number
 }
 
-export function WorldObject({ config, defaultZone, spawnZones, scatterSpot }: {
+/** Unscaled bounding data cached per model URL so Box3.setFromObject runs once per asset, not once per copy */
+interface RawBounds {
+  halfXZ: number
+  halfY: number
+  centerY: number
+  bottomOffset: number
+}
+
+const boundsCache = new Map<string, RawBounds>()
+
+function readRawBounds(url: string, scene: THREE.Object3D): RawBounds {
+  const cached = boundsCache.get(url)
+  if (cached) return cached
+  const box = new THREE.Box3().setFromObject(scene)
+  const size = box.getSize(new THREE.Vector3())
+  const raw: RawBounds = {
+    halfXZ: Math.max(Math.abs(box.min.x), Math.abs(box.max.x), Math.abs(box.min.z), Math.abs(box.max.z)),
+    halfY: size.y / 2,
+    centerY: box.getCenter(new THREE.Vector3()).y,
+    bottomOffset: box.min.y,
+  }
+  boundsCache.set(url, raw)
+  return raw
+}
+
+export function WorldObject({ config, defaultZone, spawnZones, scatterSpot, flatGround }: {
   config: WorldObjectConfig
   defaultZone: number
   spawnZones: SpawnZone[]
   /** Pre-planned scatter copy: deterministic x/z + rotation, skips the random zone search */
   scatterSpot?: { x: number; z: number; rotationY: number }
+  /** Open mode ground is a flat plane, so placement needs no physics queries */
+  flatGround?: boolean
 }) {
   const { scene } = useGLTF(config.model)
   const { world, rapier } = useRapier()
   const [placement, setPlacement] = useState<Placement | null>(null)
 
-  const bounds = useMemo<Bounds>(() => {
-    const scale = config.scale ?? 1
+  // Bounds only feed ground-snap and overlap probing, so flat open maps skip
+  // them entirely — no Box3.setFromObject per copy
+  const bounds = useMemo<Bounds | null>(() => {
+    if (flatGround) return null
     if (config.footprint) {
-      return { half: config.footprint, centerY: 0, bottomOffset: 0, scale }
+      return { half: config.footprint, centerY: 0, bottomOffset: 0 }
     }
-    const box = new THREE.Box3().setFromObject(scene)
-    const size = box.getSize(new THREE.Vector3())
-    const halfXZ = Math.max(Math.abs(box.min.x), Math.abs(box.max.x), Math.abs(box.min.z), Math.abs(box.max.z)) * scale
+    const scale = config.scale ?? 1
+    const raw = readRawBounds(config.model, scene)
     return {
-      half: [halfXZ + 0.1, (size.y * scale) / 2 + 0.1, halfXZ + 0.1],
-      centerY: box.getCenter(new THREE.Vector3()).y * scale,
-      bottomOffset: box.min.y * scale,
-      scale,
+      half: [raw.halfXZ * scale + 0.1, raw.halfY * scale + 0.1, raw.halfXZ * scale + 0.1],
+      centerY: raw.centerY * scale,
+      bottomOffset: raw.bottomOffset * scale,
     }
-  }, [scene, config])
+  }, [scene, config, flatGround])
 
   useEffect(() => {
     // Scatter copies prefer their own offsetY, falling back to the object-level one
@@ -56,6 +84,29 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot }: {
       return
     }
 
+    // Flat ground: place directly at the fixed surface height — no castRay,
+    // no intersectionWithShape, no retries
+    if (flatGround) {
+      if (scatterSpot) {
+        setPlacement({
+          position: [scatterSpot.x, FLAT_GROUND_Y + offsetY, scatterSpot.z],
+          rotationY: config.rotationY ?? scatterSpot.rotationY,
+        })
+        return
+      }
+      const zone = spawnZones[(config.zone ?? defaultZone) % spawnZones.length]
+      setPlacement({
+        position: [
+          zone[0] + (Math.random() * 2 - 1) * zone[2],
+          FLAT_GROUND_Y + offsetY,
+          zone[1] + (Math.random() * 2 - 1) * zone[2],
+        ],
+        rotationY: config.rotationY ?? Math.random() * Math.PI * 2,
+      })
+      return
+    }
+
+    if (!bounds) return
     const probe = new rapier.Cuboid(bounds.half[0], bounds.half[1], bounds.half[2])
     const identityRotation = { x: 0, y: 0, z: 0, w: 1 }
     let cancelled = false
@@ -132,12 +183,12 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot }: {
       cancelled = true
       if (timeout) clearTimeout(timeout)
     }
-  }, [config, bounds, world, rapier, spawnZones, defaultZone, scatterSpot])
+  }, [config, bounds, world, rapier, spawnZones, defaultZone, scatterSpot, flatGround])
 
   if (!placement) return null
 
-  const model = <Clone object={scene} scale={bounds.scale} />
-  if (config.physics === 'decor') {
+  const model = <Clone object={scene} scale={config.scale ?? 1} />
+  if (resolvePhysics(config) === 'decor') {
     return <group position={placement.position} rotation={[0, placement.rotationY, 0]}>{model}</group>
   }
   return (

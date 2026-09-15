@@ -38,23 +38,23 @@ const forestWorld: WorldConfig = {
     },
     {
       "model": "/models/ignore/nature/oak_trees.glb",
-      "scatter": { "count": 10, "center": [-80, -40], "radius": 70 },
+      "scatter": { "count": 10, "center": [-80, -40], "radius": 70, "spacing": 4 },
       "scale": 10
     },
     {
       "model": "/models/ignore/nature/oak_trees.glb",
-      "scatter": { "count": 12, "center": [-30, 80], "radius": 35 },
+      "scatter": { "count": 12, "center": [-30, 80], "radius": 35, "spacing": 3 },
       "scale": 10
     },
     {
       "model": "/models/ignore/terrain/grass.glb",
-      "scatter": { "count": 60, "radius": 120 },
+      "scatter": { "count": 60, "radius": 120, "spacing": 2 },
       "physics": "decor",
       "offsetY": -1
     },
     {
       "model": "/models/ignore/creatures/deer.glb",
-      "scatter": { "count": 5, "center": [-50, -60], "radius": 40 },
+      "scatter": { "count": 5, "center": [-50, -60], "radius": 40, "spacing": 5 },
       "scale": 10
     },
     {
@@ -74,7 +74,7 @@ const forestWorld: WorldConfig = {
     },
     {
       "model": "/models/ignore/special/crystal.glb",
-      "scatter": { "count": 8, "center": [110, 90], "radius": 30 },
+      "scatter": { "count": 8, "center": [110, 90], "radius": 30, "spacing": 3 },
       "physics": "decor"
     },
     {
@@ -84,46 +84,46 @@ const forestWorld: WorldConfig = {
     },
     {
       "model": "/models/ignore/nature/rock_b.glb",
-      "scatter": { "count": 5, "radius": 180 },
+      "scatter": { "count": 5, "radius": 180, "spacing": 5 },
       "scale": 0.5
     },
 
     {
       "model": "/models/ignore/nature/stylized_hand_painted_tree_toon.glb",
-      "scatter": { "count": 15, "center": [40, -90], "radius": 45 },
+      "scatter": { "count": 15, "center": [40, -90], "radius": 45, "spacing": 4 },
       "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/bush.glb",
-      "scatter": { "count": 40, "radius": 150 },
+      "scatter": { "count": 40, "radius": 150, "spacing": 2 },
       "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/flower_bush.glb",
-      "scatter": { "count": 25, "center": [0, 40], "radius": 40 },
+      "scatter": { "count": 25, "center": [0, 40], "radius": 40, "spacing": 1.5 },
       "physics": "decor",
       "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/flowers.glb",
-      "scatter": { "count": 30, "center": [10, 20], "radius": 45 },
+      "scatter": { "count": 30, "center": [10, 20], "radius": 45, "spacing": 1 },
       "physics": "decor",
       "offsetY": -1
     },
     {
       "model": "/models/ignore/nature/mushroom.glb",
-      "scatter": { "count": 20, "center": [-60, 30], "radius": 30 },
+      "scatter": { "count": 20, "center": [-60, 30], "radius": 30, "spacing": 1 },
       "physics": "decor",
       "offsetY": -1
     },
     {
       "model": "/models/ignore/fantacy/blue_scrub_bush.glb",
-      "scatter": { "count": 20, "center": [70, -40], "radius": 40 },
+      "scatter": { "count": 20, "center": [70, -40], "radius": 40, "spacing": 1.5 },
       "offsetY": -1
     },
     {
       "model": "/models/ignore/fantacy/glowing_mushroom.glb",
-      "scatter": { "count": 15, "center": [-90, 70], "radius": 25 },
+      "scatter": { "count": 15, "center": [-90, 70], "radius": 25, "spacing": 1 },
       "physics": "decor",
       "offsetY": -1
     },

@@ -6,6 +6,12 @@ import type { WorldConfig } from '../World/worldTypes'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
 import { EffectComposer,HueSaturation, Vignette } from '@react-three/postprocessing'
+import { useGLTF, useTexture } from '@react-three/drei'
+import { GROUND_TEXTURES } from '../Rendering/map/OpenPlains'
+
+// P0 only: player + ground before first paint, everything else streams via Suspense
+useGLTF.preload('/models/capsule.glb')
+useTexture.preload(GROUND_TEXTURES)
 
 export default function Experience() {
   const worldConfig = testWorld as WorldConfig
@@ -29,11 +35,10 @@ export default function Experience() {
           geometry melts into the sky (CSS background can never blend with fog) */}
       <color attach="background" args={['#bcc0fe']} />
       <fog attach="fog" args={['#bcc0fe', 0, 100]} />
-      <EffectComposer multisampling={1}>
+      <EffectComposer multisampling={0}>
         <HueSaturation saturation={-0.25} />
         <Vignette offset={0.25} darkness={0.8} />
       </EffectComposer>
-      <axesHelper />
       <Lights />
       {/*  gravty set through Ecctrl in EcctrlWrapper */}
       <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>

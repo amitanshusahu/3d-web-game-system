@@ -58,6 +58,7 @@ function OpenWorld({ config, ...props }: ThreeElements['group'] & { config: Open
               config={object}
               defaultZone={index}
               spawnZones={spawnZones}
+              flatGround
             />
           )
         }
@@ -68,6 +69,7 @@ function OpenWorld({ config, ...props }: ThreeElements['group'] & { config: Open
             defaultZone={index}
             spawnZones={spawnZones}
             scatterSpot={spot}
+            flatGround
           />
         ))
       })}

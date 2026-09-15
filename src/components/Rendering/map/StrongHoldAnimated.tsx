@@ -184,5 +184,3 @@ export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
     </group>
   )
 }
-
-useGLTF.preload('/models/ignore/map/the_last_stronghold_animated_floating.glb')

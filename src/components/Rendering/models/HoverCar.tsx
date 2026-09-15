@@ -1179,5 +1179,3 @@ export function HoverCar(props: JSX.IntrinsicElements['group']) {
     </RigidBody>
   )
 }
-
-useGLTF.preload('/models/cyberpunk_hovercar.glb')

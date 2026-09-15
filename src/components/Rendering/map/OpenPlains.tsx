@@ -2,6 +2,13 @@ import { useLoader, type ThreeElements } from '@react-three/fiber'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { TextureLoader, RepeatWrapping, SRGBColorSpace } from 'three'
 
+export const GROUND_TEXTURES = [
+    '/texture/ground/optimized/road_damaged_diff.png',
+    '/texture/ground/optimized/road_damaged_nor_gl.png',
+    '/texture/ground/optimized/road_damaged_rough.png',
+    '/texture/ground/optimized/road_damaged_ao.png',
+]
+
 const DEFAULT_SIZE = 2000
 const WALL_HEIGHT = 4
 const WALL_THICKNESS = 1
@@ -16,12 +23,7 @@ export const OpenPlainsSpawnZones: Array<[number, number, number]> = [
 
 export function OpenPlains({ size = DEFAULT_SIZE, ...props }: ThreeElements['group'] & { size?: number }) {
     const half = size / 2
-    const [diffuse, normal, roughness, ao] = useLoader(TextureLoader, [
-        '/texture/ground/optimized/road_damaged_diff.png',
-        '/texture/ground/optimized/road_damaged_nor_gl.png',
-        '/texture/ground/optimized/road_damaged_rough.png',
-        '/texture/ground/optimized/road_damaged_ao.png',
-    ])
+    const [diffuse, normal, roughness, ao] = useLoader(TextureLoader, GROUND_TEXTURES)
 
     diffuse.colorSpace = SRGBColorSpace;
     const textureRepeat = size / 10;
@@ -29,7 +31,7 @@ export function OpenPlains({ size = DEFAULT_SIZE, ...props }: ThreeElements['gro
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         texture.repeat.set(textureRepeat, textureRepeat)
-        texture.anisotropy = 8
+        texture.anisotropy = 4
     })
 
     return (

@@ -30,7 +30,7 @@ export interface WorldObjectConfig {
   scale?: number
   /** Collision probe half extents override; defaults to the model bounding box */
   footprint?: [number, number, number]
-  /** 'fixed' adds a static collider, 'decor' is visual only (default 'fixed') */
+  /** 'fixed' adds a static collider, 'decor' is visual only (default 'fixed', scattered copies default 'decor') */
   physics?: 'fixed' | 'decor'
   /** Scatter many copies across an area (forests, rock fields, herds) */
   scatter?: ScatterConfig
@@ -58,3 +58,12 @@ export interface OpenWorldConfig {
 }
 
 export type WorldConfig = PresetWorldConfig | OpenWorldConfig
+
+/**
+ * Collision mode for an object: scattered copies default to visual-only decor
+ * (a forest of trees should not each be a rigid body), everything else
+ * defaults to a fixed collider.
+ */
+export function resolvePhysics(config: WorldObjectConfig): 'fixed' | 'decor' {
+  return config.physics ?? (config.scatter ? 'decor' : 'fixed')
+}

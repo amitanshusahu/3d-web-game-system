@@ -1,4 +1,3 @@
-import { useGLTF } from '@react-three/drei'
 import { type ThreeElements } from '@react-three/fiber'
 
 export default function CharacterModel(props: ThreeElements['group']) {
@@ -8,6 +7,4 @@ export default function CharacterModel(props: ThreeElements['group']) {
     </group>
   )
 }
-
-useGLTF.preload('/models/capsule.glb')
 
