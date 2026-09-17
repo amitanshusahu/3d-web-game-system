@@ -25,6 +25,7 @@
     "react": "^19.2.8",
     "react-3-fiber": ".",
     "react-dom": "^19.2.8",
+    "redaxios": "^0.5.1",
     "tailwindcss": "^4.3.3",
     "three": "^0.186.0",
     "zod": "^4.6.2",

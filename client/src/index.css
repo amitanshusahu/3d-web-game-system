@@ -1,10 +1,4 @@
-/* * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
+/* html,
 body,
 #root {
   width: 100%;
@@ -16,6 +10,8 @@ body,
     rgba(124, 156, 254, 1) 100%
   );
 } */
+
+@import "tailwindcss";
 
 canvas {
   display: block;
