@@ -7,7 +7,7 @@ const forestWorld: WorldConfig = {
   "objects": [
     {
       "model": "/models/ignore/structure/house.glb",
-      "position": [28, -1.5, -14],
+      "position": [28, 0, -14],
       "scale": 0.01
     },
     // {
@@ -17,22 +17,22 @@ const forestWorld: WorldConfig = {
     // },
     {
       "model": "/models/ignore/props/campfire.glb",
-      "position": [10, -1, 12]
+      "position": [10, 0, 12]
     },
     {
       "model": "/models/ignore/props/bench.glb",
-      "position": [13, -1, 14],
+      "position": [13, 0, 14],
       "rotationY": 2.2,
       "scale": 0.5
     },
     {
       "model": "/models/ignore/props/lantern.glb",
-      "position": [7, -1, 10],
+      "position": [7, 0, 10],
       "scale": 0.002
     },
     {
       "model": "/models/ignore/props/animated_old_chest.glb",
-      "position": [-8, -1, 6],
+      "position": [-8, 0, 6],
       "rotationY": 0.7,
       "scale": 0.02
     },
@@ -50,7 +50,7 @@ const forestWorld: WorldConfig = {
       "model": "/models/ignore/terrain/grass.glb",
       "scatter": { "count": 60, "radius": 120, "spacing": 2 },
       "physics": "decor",
-      "offsetY": -1
+      "offsetY": 0
     },
     {
       "model": "/models/ignore/creatures/deer.glb",
@@ -59,17 +59,17 @@ const forestWorld: WorldConfig = {
     },
     {
       "model": "/models/ignore/creatures/unicorn.glb",
-      "position": [20, 0.1, 30]
+      "position": [20, 0, 30]
     },
     {
       "model": "/models/ignore/creatures/armored_horse.glb",
-      "position": [-15, 1.3, -10],
+      "position": [-15, 0, -10],
       "rotationY": 1.8,
       "scale": 3
     },
     {
       "model": "/models/ignore/creatures/velkhana.glb",
-      "position": [-140, 0.1, 120],
+      "position": [-140, 0, 120],
       "scale": 1
     },
     {
@@ -79,7 +79,7 @@ const forestWorld: WorldConfig = {
     },
     {
       "model": "/models/ignore/special/portal.glb",
-      "position": [60, 0.1, 60],
+      "position": [60, 0, 60],
       "scale": 0.008
     },
     {
@@ -91,18 +91,18 @@ const forestWorld: WorldConfig = {
     {
       "model": "/models/ignore/nature/stylized_hand_painted_tree_toon.glb",
       "scatter": { "count": 15, "center": [40, -90], "radius": 45, "spacing": 4 },
-      "offsetY": -1
+      "offsetY": 0
     },
     {
       "model": "/models/ignore/nature/bush.glb",
       "scatter": { "count": 40, "radius": 150, "spacing": 2 },
-      "offsetY": -1
+      "offsetY": 0
     },
     {
       "model": "/models/ignore/nature/flower_bush.glb",
       "scatter": { "count": 25, "center": [0, 40], "radius": 40, "spacing": 1.5 },
       "physics": "decor",
-      "offsetY": -1
+      "offsetY": 0
     },
     {
       "model": "/models/ignore/nature/flowers.glb",
@@ -114,18 +114,18 @@ const forestWorld: WorldConfig = {
       "model": "/models/ignore/nature/mushroom.glb",
       "scatter": { "count": 20, "center": [-60, 30], "radius": 30, "spacing": 1 },
       "physics": "decor",
-      "offsetY": -1
+      "offsetY": 0
     },
     {
       "model": "/models/ignore/fantacy/blue_scrub_bush.glb",
       "scatter": { "count": 20, "center": [70, -40], "radius": 40, "spacing": 1.5 },
-      "offsetY": -1
+      "offsetY": 0
     },
     {
       "model": "/models/ignore/fantacy/glowing_mushroom.glb",
       "scatter": { "count": 15, "center": [-90, 70], "radius": 25, "spacing": 1 },
       "physics": "decor",
-      "offsetY": -1
+      "offsetY": 0
     },
   ]
 }

@@ -36,7 +36,7 @@ export function OpenPlains({ size = DEFAULT_SIZE, ...props }: ThreeElements['gro
 
     return (
         <group {...props} dispose={null}>
-            <RigidBody type="fixed" colliders={false} position={[0, -1, 0]}>
+            <RigidBody type="fixed" colliders={false} position={[0, 0, 0]}>
                 <CuboidCollider args={[half, 1, half]} />
                 <mesh receiveShadow rotation-x={-Math.PI / 2}>
                     <planeGeometry args={[size, size]} />
