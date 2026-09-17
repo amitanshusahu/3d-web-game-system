@@ -1,15 +1,49 @@
-import { validateInput } from "@/lib/inputValidation";
-import { loginSchema } from "@/types/auth/auth.model";
-import { Router, type Request, type Response } from "express";
-import { loginUser } from "./auth.service";
+import type { NextFunction, Request, Response } from "express";
+import { googleAuthUser, loginUser, signupUser } from "./auth.service";
 
-
-export async function loginController(req: Request, res: Response): Promise<Response> {
+export async function signupController(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const data = await validateInput(loginSchema);
-    const result = await loginUser(data);
-    return res.status(200).json(result);
+    const data = await signupUser(req.body);
+    res.status(201).json({
+      success: true,
+      message: "Account created successfully",
+      data,
+    });
   } catch (error) {
-    return res.status(500).json({ message: "Invalid input" });
+    next(error);
   }
+}
+
+export async function loginController(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const data = await loginUser(req.body);
+    res.status(200).json({
+      success: true,
+      message: "Logged in successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function googleAuthController(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const data = await googleAuthUser(req.body);
+    res.status(200).json({
+      success: true,
+      message: "Logged in with Google successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export function meController(req: Request, res: Response): void {
+  res.status(200).json({
+    success: true,
+    message: "User fetched successfully",
+    data: req.user,
+  });
 }

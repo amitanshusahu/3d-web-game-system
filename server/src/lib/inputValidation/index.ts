@@ -1,10 +1,13 @@
-import type { ZodSchema } from "zod";
-import z from "zod";
+import type { NextFunction, Request, Response } from "express";
+import type { ZodType } from "zod";
 
-export async function validateInput<T extends ZodSchema>(schema: T): Promise<z.infer<T>> {
-  const data = await schema.parseAsync(schema);
-  if (!data) {
-    throw new Error("Invalid input");
-  }
-  return data;
+export function validateBody<T extends ZodType>(schema: T) {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    try {
+      req.body = await schema.parseAsync(req.body);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 }

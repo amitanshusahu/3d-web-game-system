@@ -2,7 +2,7 @@ import { cpSync, existsSync, readdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dir, '..');
-const source = path.join(root, 'server', 'src', 'types');
+const source = path.join(root, 'server', 'src', 'sharedTypes');
 const target = path.join(root, 'client', 'src', 'sharedTypes');
 
 if (!existsSync(source)) {
