@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = path.resolve(import.meta.dir, '..');
 const source = path.join(root, 'server', 'src', 'types');
-const target = path.join(root, 'client', 'src', 'types');
+const target = path.join(root, 'client', 'src', 'sharedTypes');
 
 if (!existsSync(source)) {
   console.error(`clone:types: source directory not found: ${path.relative(root, source)}`);
