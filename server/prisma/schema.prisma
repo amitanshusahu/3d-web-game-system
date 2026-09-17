@@ -12,12 +12,50 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  userDreams UserDream[]
+  userLikes  UserLikes[]
+}
+
+model Dream {
+  id     String @id @default(cuid())
+  title  String
+  prompt String
+  likes  Int    @default(0)
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  userDreams UserDream[]
+  userLikes  UserLikes[]
+}
+
+model UserDream {
+  id      String @id @default(cuid())
+  userId  String
+  dreamId String
+
+  user  User  @relation(fields: [userId], references: [id])
+  dream Dream @relation(fields: [dreamId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserLikes {
+  id      String @id @default(cuid())
+  userId  String
+  dreamId String
+
+  user  User  @relation(fields: [userId], references: [id])
+  dream Dream @relation(fields: [dreamId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
