@@ -1,8 +1,8 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { BorderBeam } from 'border-beam'
-import { getChatErrorMessage, useCreateChat } from '../../hooks/useChat'
-import { getToken } from '../../lib/auth'
+import { getChatErrorMessage, useCreateChat } from '../../../hooks/useChat'
+import { getToken } from '../../../lib/auth'
 
 const DRAFT_KEY = 'dream-draft'
 const MAX_LENGTH = 1000
@@ -19,30 +19,56 @@ function autoresize(el: HTMLTextAreaElement) {
   el.style.height = `${Math.min(el.scrollHeight, 200)}px`
 }
 
-export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean }) {
+interface LandingChatBoxProps {
+  hideSuggestion?: boolean
+  suggestionsAlign?: 'left' | 'center'
+  initialValue?: string
+  controlledValue?: string
+  onControlledChange?: (value: string) => void
+}
+
+export function LandingChatBox({
+  hideSuggestion,
+  suggestionsAlign = 'left',
+  initialValue = '',
+  controlledValue,
+  onControlledChange,
+}: LandingChatBoxProps) {
   const navigate = useNavigate()
   const createChat = useCreateChat()
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const countRef = useRef<HTMLSpanElement>(null)
   const sendRef = useRef<HTMLButtonElement>(null)
+  const isControlled = controlledValue !== undefined
+
+  function currentValue() {
+    if (isControlled) return controlledValue ?? ''
+    return inputRef.current?.value ?? ''
+  }
 
   function syncChrome() {
     const el = inputRef.current
     if (!el) return
     autoresize(el)
+    const value = isControlled ? (controlledValue ?? '') : el.value
     const counter = countRef.current
-    if (counter) counter.textContent = `${el.value.length}/${MAX_LENGTH}`
+    if (counter) counter.textContent = `${value.length}/${MAX_LENGTH}`
     const btn = sendRef.current
     if (btn) {
-      const empty = el.value.trim().length === 0
+      const empty = value.trim().length === 0
       const disabled = empty || createChat.isPending
       btn.disabled = disabled
       btn.classList.toggle('opacity-40', disabled)
     }
   }
 
+  useEffect(() => {
+    syncChrome()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlledValue])
+
   function submit() {
-    const value = inputRef.current?.value.trim() ?? ''
+    const value = currentValue().trim()
     if (value.length === 0 || createChat.isPending) return
     if (!getToken()) {
       try {
@@ -57,12 +83,19 @@ export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean })
   }
 
   function applySuggestion(text: string) {
+    if (isControlled) {
+      onControlledChange?.(text)
+      requestAnimationFrame(() => inputRef.current?.focus())
+      return
+    }
     const el = inputRef.current
     if (!el) return
     el.value = text
     el.focus()
     syncChrome()
   }
+
+  const suggestionsJustify = suggestionsAlign === 'center' ? 'justify-center' : 'justify-start'
 
   return (
     <div className='w-full'>
@@ -76,8 +109,16 @@ export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean })
             ref={inputRef}
             rows={3}
             maxLength={MAX_LENGTH}
-            defaultValue=''
+            defaultValue={isControlled ? undefined : initialValue}
+            value={isControlled ? controlledValue : undefined}
             onInput={syncChrome}
+            onChange={
+              isControlled
+                ? (event) => {
+                    onControlledChange?.(event.target.value)
+                  }
+                : undefined
+            }
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault()
@@ -140,7 +181,7 @@ export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean })
 
       {
         !hideSuggestion && (
-          <div className='mt-12 flex flex-wrap items-start justify-start gap-2'>
+          <div className={`mt-12 flex flex-wrap items-start gap-2 ${suggestionsJustify}`}>
             {SUGGESTIONS.map((s) => (
               <button
                 key={s}

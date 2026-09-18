@@ -1,9 +1,16 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import type { Chat } from '../../../api/chat'
 import type { authUser } from '../../../sharedTypes/auth/auth.model'
+import Logo from '../../../assets/Logo'
 import LogoLong from '../../../assets/LogoLong'
-import { ArrowLeftIcon, SignOutIcon } from "@phosphor-icons/react"
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  CompassIcon,
+  PlusIcon,
+  SignOutIcon,
+} from '@phosphor-icons/react'
 
 interface ChatHistorySidebarProps {
   chats: Chat[]
@@ -18,6 +25,8 @@ interface ChatGroup {
   label: string
   items: Chat[]
 }
+
+const COLLAPSED_KEY = 'dream-sidebar-collapsed'
 
 function startOfDay(date: Date): Date {
   const d = new Date(date)
@@ -62,6 +71,9 @@ function groupChats(chats: Chat[]): ChatGroup[] {
     })
 }
 
+const iconBtn =
+  'flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 backdrop-blur transition hover:border-blue-300/40 hover:text-white'
+
 export function ChatHistorySidebar({
   chats,
   isLoading,
@@ -72,23 +84,93 @@ export function ChatHistorySidebar({
 }: ChatHistorySidebarProps) {
   const groups = useMemo(() => groupChats(chats), [chats])
   const initial = (user?.name ?? user?.email ?? '?').trim().charAt(0).toUpperCase() || '?'
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return sessionStorage.getItem(COLLAPSED_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
 
-  return (
-    <aside className='flex h-screen w-72 shrink-0 flex-col border-r border-white/10 bg-zinc-950 text-white'>
-      <div className='p-4 flex gap-4 justify-between items-center'>
-        <LogoLong className='h-6' />
-        <button>
-          <ArrowLeftIcon className='h-5 w-5' />
+  function toggle() {
+    setCollapsed((prev) => {
+      try {
+        sessionStorage.setItem(COLLAPSED_KEY, prev ? '0' : '1')
+      } catch {
+        /* storage unavailable — collapse state just won't persist */
+      }
+      return !prev
+    })
+  }
+
+  if (collapsed) {
+    return (
+      <aside className='sticky top-3 z-20 m-3 flex h-[calc(100vh-1.5rem)] w-17 shrink-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-black/60 py-3 text-white backdrop-blur-xl transition-all'>
+        <div className='flex w-10 items-center justify-center border-b border-white/10 pt-2 py-4 mb-3'>
+          <Logo className='w-8' />
+        </div>
+        <button type='button' onClick={toggle} title='Expand sidebar' aria-label='Expand sidebar' className={iconBtn}>
+          <CaretRightIcon className='h-4 w-4' />
         </button>
-      </div>
-      <div className='p-3'>
         <Link
           to='/chat/new'
-          className='block rounded-lg border border-white/15 px-3 py-2 text-center text-sm font-semibold hover:bg-white/10'
+          title='New dream'
+          aria-label='New dream'
+          className='flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black transition hover:bg-blue-200'
         >
-          + new dream
+          <PlusIcon className='h-5 w-5' weight='bold' />
         </Link>
-        <button>explore dreams</button>
+        <Link to='/explore' title='Explore dreams' aria-label='Explore dreams' className={iconBtn}>
+          <CompassIcon className='h-5 w-5' />
+        </Link>
+        <div className='min-h-0 flex-1' />
+        {user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt='' title={user.name ?? user.email} className='h-10 w-10 rounded-full object-cover' />
+        ) : (
+          <span
+            title={user?.name ?? user?.email ?? 'Dreamer'}
+            className='flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-sm font-semibold'
+          >
+            {initial}
+          </span>
+        )}
+        <button type='button' onClick={onLogout} title='Log out' aria-label='Log out' className={iconBtn}>
+          <SignOutIcon className='h-4 w-4' />
+        </button>
+      </aside>
+    )
+  }
+
+  return (
+    <aside className='sticky top-3 z-20 m-3 flex h-[calc(100vh-1.5rem)] w-72 shrink-0 flex-col gap-2 rounded-2xl border border-white/10 bg-black/60 text-white backdrop-blur-xl transition-all px-1'>
+      <div className='flex items-center justify-between px-4 pt-4 pb-4'>
+        <LogoLong className='h-6' />
+        <button
+          type='button'
+          onClick={toggle}
+          title='Collapse sidebar'
+          aria-label='Collapse sidebar'
+          className='flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/60 backdrop-blur transition hover:border-blue-300/40 hover:text-white'
+        >
+          <CaretLeftIcon className='h-4 w-4' />
+        </button>
+      </div>
+
+      <div className='flex flex-col gap-2 px-3 pb-4'>
+        <Link
+          to='/chat/new'
+          className='flex items-center justify-center gap-2 rounded-xl border border-blue-400/40 bg-white/5 px-3 py-2.5 text-sm font-semibold backdrop-blur transition hover:border-blue-300/60 hover:bg-white/10'
+        >
+          <PlusIcon className='h-4 w-4' weight='bold' />
+          new dream
+        </Link>
+        <Link
+          to='/explore'
+          className='flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white/70 backdrop-blur transition hover:border-white/30 hover:text-white'
+        >
+          <CompassIcon className='h-4 w-4' />
+          explore dreams
+        </Link>
       </div>
 
       <div className='min-h-0 flex-1 overflow-y-auto px-3 pb-3'>
@@ -111,7 +193,9 @@ export function ChatHistorySidebar({
                       to='/chat/$chatid'
                       params={{ chatid: chat.id }}
                       title={chat.title}
-                      className={`block truncate rounded-lg px-2 py-1.5 text-sm ${isActive ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      className={`block truncate rounded-xl border px-2.5 py-1.5 text-sm backdrop-blur transition ${isActive
+                          ? 'border-blue-300/30 bg-white/10 text-white'
+                          : 'border-transparent text-white/70 hover:border-white/10 hover:bg-white/5 hover:text-white'
                         }`}
                     >
                       {chat.title}
@@ -124,7 +208,7 @@ export function ChatHistorySidebar({
         ))}
       </div>
 
-      <div className='flex items-center gap-2 border-t border-white/10 p-3'>
+      <div className='mx-3 mb-4 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur'>
         {user?.avatarUrl ? (
           <img src={user.avatarUrl} alt='' className='h-8 w-8 shrink-0 rounded-full object-cover' />
         ) : (
@@ -137,8 +221,11 @@ export function ChatHistorySidebar({
           <p className='truncate text-xs text-white/50'>{user?.email ?? ''}</p>
         </div>
         <button
+          type='button'
           onClick={onLogout}
-          className='shrink-0 rounded-lg border border-white/20 px-3 py-1.5 text-xs hover:bg-white/10'
+          title='Log out'
+          aria-label='Log out'
+          className='flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/60 transition hover:border-white/30 hover:text-white'
         >
           <SignOutIcon className='h-4 w-4' />
         </button>

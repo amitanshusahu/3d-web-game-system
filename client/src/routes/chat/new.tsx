@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { useLogout, useMe } from '../../hooks/useAuth'
-import { getChatErrorMessage, useChats, useCreateChat } from '../../hooks/useChat'
+import { useChats } from '../../hooks/useChat'
 import { getToken } from '../../lib/auth'
 import { ChatHistorySidebar } from '../../components/ui/Chat'
 import { TopDreamsGrid } from '../../components/ui/Dream'
+import { LandingChatBox } from '../../components/ui/landing/LandingChatBox'
 
 export const Route = createFileRoute('/chat/new')({
   beforeLoad: () => {
@@ -28,64 +29,32 @@ function RouteComponent() {
       return ''
     }
   })
-  const createChat = useCreateChat()
-
-  const canSubmit = message.trim().length > 0 && !createChat.isPending
-
-  function handleSubmit() {
-    if (!canSubmit) return
-    createChat.mutate(message.trim())
-  }
 
   return (
-    <div className='flex min-h-screen w-full bg-black text-white relative'>
-      <div className="z-10">
-        <ChatHistorySidebar
-          chats={chatsQuery.data ?? []}
-          isLoading={chatsQuery.isPending}
-          isError={chatsQuery.isError}
-          user={meQuery.data ?? null}
-          onLogout={logout}
-        />
-      </div>
-      <img
-        src="/img/bg.jpg"
-        alt=''
-        aria-hidden='true'
-        className='pointer-events-none fixed inset-0 h-full w-full object-cover'
+    <div className='relative flex min-h-screen w-full bg-black text-white'>
+      <ChatHistorySidebar
+        chats={chatsQuery.data ?? []}
+        isLoading={chatsQuery.isPending}
+        isError={chatsQuery.isError}
+        user={meQuery.data ?? null}
+        onLogout={logout}
       />
-      <div className='pointer-events-none fixed inset-0 bg-linear-to-b from-black/70 via-black/30 to-black/80' />`
-      <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' />
-      <div className='flex flex-1 flex-col items-center justify-center gap-4 px-6 py-6 sm:px-12 h-screen z-10'>
-        <div className="flex justify-end w-full">
-          <button>credits</button>
-        </div>
-        <div className='flex flex-1 flex-col items-center justify-center gap-4 overflow-y-auto'>
-          <h1>Type Your Dreamworld</h1>
-          <textarea
-            cols={60}
-            rows={10}
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-                handleSubmit()
-              }
-            }}
-            className='border p-4 resize-none text-white bg-black'
-            placeholder='i dream a world where lives a dragon'
-          />
-          {createChat.isError && (
-            <p className='text-sm text-red-400'>{getChatErrorMessage(createChat.error)}</p>
-          )}
-          <button
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className='rounded-lg bg-white px-6 py-2 text-sm font-semibold text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            {createChat.isPending ? 'dreaming...' : 'enter dream'}
-          </button>
-          <div className='mt-6 flex flex-col items-center gap-4'>
+      <div className='relative min-w-0 flex-1'>
+        <img
+          src='/img/bg.jpg'
+          alt=''
+          aria-hidden='true'
+          className='pointer-events-none fixed inset-0 h-full w-full object-cover'
+        />
+        <div className='pointer-events-none fixed inset-0 bg-linear-to-b from-black/70 via-black/50 to-black/80' />
+        <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' />
+
+        <div className='relative z-10 flex min-h-screen flex-col items-center px-6 sm:px-12'>
+          <div className='flex w-full justify-end pt-6'>
+            <button>credits</button>
+          </div>
+
+          <div className='mt-16 flex w-full flex-col items-center gap-4'>
             <p className='text-xs uppercase tracking-widest text-white/40'>top dreams</p>
             <TopDreamsGrid />
             <Link
@@ -94,6 +63,27 @@ function RouteComponent() {
             >
               explore more dreams
             </Link>
+          </div>
+
+          <div className='flex w-full max-w-3xl flex-col items-center pt-20 pb-16'>
+            <h1 className='mb-8 text-center text-4xl  tracking-tight text-white sm:text-5xl'>
+              What&apos;s Your <span className='text-blue-400'>Dream</span> ?
+            </h1>
+            <LandingChatBox
+              suggestionsAlign='center'
+              controlledValue={message}
+              onControlledChange={setMessage}
+            />
+            {/* <div className='mt-16 flex w-full flex-col items-center gap-4'>
+              <p className='text-xs uppercase tracking-widest text-white/40'>top dreams</p>
+              <TopDreamsGrid />
+              <Link
+                to='/explore'
+                className='rounded-lg border border-white/20 px-6 py-2 text-sm font-semibold text-white hover:bg-white/10'
+              >
+                explore more dreams
+              </Link>
+            </div> */}
           </div>
         </div>
       </div>
