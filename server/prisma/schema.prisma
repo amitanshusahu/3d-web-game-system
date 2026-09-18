@@ -20,34 +20,49 @@ model User {
   googleId  String? @unique
   avatarUrl String?
 
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  userDreams UserDream[]
-  userLikes  UserLikes[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  userLikes UserLikes[]
+  dreams    Dream[]
 }
 
-model Dream {
+model UserChat {
   id     String @id @default(cuid())
   title  String
-  prompt String
-  likes  Int    @default(0)
+  userId String
 
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  userDreams UserDream[]
-  userLikes  UserLikes[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  userChatHistories UserChatHistory[]
+  dreams            Dream[]
 }
 
-model UserDream {
-  id      String @id @default(cuid())
-  userId  String
-  dreamId String
+model UserChatHistory {
+  id         String @id @default(cuid())
+  userChatId String
+  message    String
+  response   String
 
-  user  User  @relation(fields: [userId], references: [id])
-  dream Dream @relation(fields: [dreamId], references: [id])
+  userChat UserChat @relation(fields: [userChatId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Dream {
+  id         String @id @default(cuid())
+  userChatId String
+  title      String
+  prompt     String
+  likes      Int    @default(0)
+  authorId   String
+
+  userChat UserChat @relation(fields: [userChatId], references: [id])
+  author   User     @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  userLikes UserLikes[]
 }
 
 model UserLikes {

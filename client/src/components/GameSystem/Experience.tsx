@@ -13,8 +13,8 @@ import { GROUND_TEXTURES } from '../Rendering/map/OpenPlains'
 useGLTF.preload('/models/capsule.glb')
 useTexture.preload(GROUND_TEXTURES)
 
-export default function Experience() {
-  const worldConfig = testWorld as WorldConfig
+export default function Experience({ config }: { config?: WorldConfig }) {
+  const worldConfig = config ?? (testWorld as WorldConfig)
   const mapId = worldConfig.mode === 'open' ? 'openPlains' : worldConfig.map
 
   /**
