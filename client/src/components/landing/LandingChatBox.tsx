@@ -85,7 +85,7 @@ export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean })
               }
             }}
             placeholder='i dream a world where lives a dragon…'
-            className='max-h-[200px] w-full resize-none bg-transparent px-5 pt-4 text-base leading-relaxed text-white outline-none placeholder:text-white/35 sm:text-lg'
+            className='max-h-50 w-full resize-none bg-transparent px-5 pt-4 text-base leading-relaxed text-white outline-none placeholder:text-white/35 sm:text-lg'
           />
           <div className='flex items-center justify-between border-t border-white/10 px-4 pt-3 pb-2'>
             <div className='flex items-center gap-3 px-4 pb-3 pt-1'>

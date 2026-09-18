@@ -29,8 +29,8 @@ function LandingPage() {
         aria-hidden='true'
         className='pointer-events-none fixed inset-0 h-full w-full object-cover'
       />
-      <div className='pointer-events-none fixed inset-0 bg-gradient-to-r from-black/100 via-black/5 to-transparent' />
-      {/* <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' /> */}
+      {/* <div className='pointer-events-none fixed inset-0 bg-linear-to-r from-black via-black/5 to-transparent' />`
+      <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' /> */}
 
       <header className='relative z-10 flex items-center justify-between px-5 py-5 sm:px-10'>
         <Link to='/' className='flex items-center gap-2.5'>
