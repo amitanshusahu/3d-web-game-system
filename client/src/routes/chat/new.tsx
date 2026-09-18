@@ -15,7 +15,15 @@ export const Route = createFileRoute('/chat/new')({
 
 function RouteComponent() {
   const logout = useLogout()
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(() => {
+    try {
+      const draft = sessionStorage.getItem('dream-draft')
+      if (draft) sessionStorage.removeItem('dream-draft')
+      return draft ?? ''
+    } catch {
+      return ''
+    }
+  })
   const createChat = useCreateChat()
 
   const canSubmit = message.trim().length > 0 && !createChat.isPending

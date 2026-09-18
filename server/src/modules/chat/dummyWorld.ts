@@ -55,7 +55,7 @@ const dummyWorld = {
       position: [20, 0, 30],
     },
     {
-      model: "/models/ignore/creatures/velkhana.glb",
+      model: "/models/ignore/creatures/armored_horse_edited.glb",
       position: [-15, 0, -10],
       rotationY: 1.8,
       scale: 3,
