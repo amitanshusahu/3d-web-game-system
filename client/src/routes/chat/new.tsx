@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { useLogout, useMe } from '../../hooks/useAuth'
 import { getChatErrorMessage, useChats, useCreateChat } from '../../hooks/useChat'
 import { getToken } from '../../lib/auth'
 import { ChatHistorySidebar } from '../../components/ui/Chat'
+import { TopDreamsGrid } from '../../components/ui/Dream'
 
 export const Route = createFileRoute('/chat/new')({
   beforeLoad: () => {
@@ -70,6 +71,16 @@ function RouteComponent() {
         >
           {createChat.isPending ? 'dreaming...' : 'enter dream'}
         </button>
+        <div className='mt-6 flex flex-col items-center gap-4'>
+          <p className='text-xs uppercase tracking-widest text-white/40'>top dreams</p>
+          <TopDreamsGrid />
+          <Link
+            to='/explore'
+            className='rounded-lg border border-white/20 px-6 py-2 text-sm font-semibold text-white hover:bg-white/10'
+          >
+            explore more dreams
+          </Link>
+        </div>
       </div>
     </div>
   )

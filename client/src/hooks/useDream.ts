@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getDreamApi, publishDreamApi } from "../api/dream";
+import { getDreamApi, listDreamsApi, publishDreamApi } from "../api/dream";
 import { getApiErrorMessage } from "../lib/api";
 import type { publishDreamParams } from "../sharedTypes/dream/dream.model";
 
@@ -9,6 +9,18 @@ export function usePublishDream(chatId: string) {
   return useMutation({
     mutationFn: ({ title, tags }: { title: string; tags: string[] }) =>
       publishDreamApi({ userChatId: chatId, title, tags } satisfies publishDreamParams),
+  });
+}
+
+export function useDreams() {
+  return useQuery({
+    queryKey: [...DREAM_QUERY_KEY, "list"],
+    queryFn: async () => {
+      const response = await listDreamsApi();
+      return response.data;
+    },
+    retry: false,
+    staleTime: 30 * 1000,
   });
 }
 
