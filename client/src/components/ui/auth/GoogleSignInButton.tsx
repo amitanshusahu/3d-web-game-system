@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useGoogleAuth } from "../../hooks/useAuth";
+import { useGoogleAuth } from "../../../hooks/useAuth";
 
 const GSI_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
