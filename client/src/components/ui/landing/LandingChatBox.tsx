@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { BorderBeam } from 'border-beam'
 import { getChatErrorMessage, useCreateChat } from '../../../hooks/useChat'
@@ -37,49 +37,29 @@ export function LandingChatBox({
   const navigate = useNavigate()
   const createChat = useCreateChat()
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const countRef = useRef<HTMLSpanElement>(null)
-  const sendRef = useRef<HTMLButtonElement>(null)
   const isControlled = controlledValue !== undefined
-
-  function currentValue() {
-    if (isControlled) return controlledValue ?? ''
-    return inputRef.current?.value ?? ''
-  }
-
-  function syncChrome() {
-    const el = inputRef.current
-    if (!el) return
-    autoresize(el)
-    const value = isControlled ? (controlledValue ?? '') : el.value
-    const counter = countRef.current
-    if (counter) counter.textContent = `${value.length}/${MAX_LENGTH}`
-    const btn = sendRef.current
-    if (btn) {
-      const empty = value.trim().length === 0
-      const disabled = empty || createChat.isPending
-      btn.disabled = disabled
-      btn.classList.toggle('opacity-40', disabled)
-    }
-  }
+  const [uncontrolledValue, setUncontrolledValue] = useState(initialValue)
+  const value = isControlled ? (controlledValue ?? '') : uncontrolledValue
+  const disabled = value.trim().length === 0 || createChat.isPending
 
   useEffect(() => {
-    syncChrome()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controlledValue])
+    const el = inputRef.current
+    if (el) autoresize(el)
+  }, [value])
 
   function submit() {
-    const value = currentValue().trim()
-    if (value.length === 0 || createChat.isPending) return
+    const trimmed = value.trim()
+    if (trimmed.length === 0 || createChat.isPending) return
     if (!getToken()) {
       try {
-        sessionStorage.setItem(DRAFT_KEY, value)
+        sessionStorage.setItem(DRAFT_KEY, trimmed)
       } catch {
         /* storage unavailable — continue to signup anyway */
       }
       void navigate({ to: '/auth/signup' })
       return
     }
-    createChat.mutate(value)
+    createChat.mutate(trimmed)
   }
 
   function applySuggestion(text: string) {
@@ -88,11 +68,12 @@ export function LandingChatBox({
       requestAnimationFrame(() => inputRef.current?.focus())
       return
     }
+    setUncontrolledValue(text)
     const el = inputRef.current
-    if (!el) return
-    el.value = text
-    el.focus()
-    syncChrome()
+    if (el) {
+      el.value = text
+      el.focus()
+    }
   }
 
   const suggestionsJustify = suggestionsAlign === 'center' ? 'justify-center' : 'justify-start'
@@ -111,13 +92,14 @@ export function LandingChatBox({
             maxLength={MAX_LENGTH}
             defaultValue={isControlled ? undefined : initialValue}
             value={isControlled ? controlledValue : undefined}
-            onInput={syncChrome}
             onChange={
               isControlled
                 ? (event) => {
                     onControlledChange?.(event.target.value)
                   }
-                : undefined
+                : (event) => {
+                    setUncontrolledValue(event.target.value)
+                  }
             }
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
@@ -141,18 +123,17 @@ export function LandingChatBox({
                 </kbd>
                 new line
               </span>
-              <span ref={countRef} className='ml-auto text-xs tabular-nums text-white/30 sm:ml-0'>
-                0/{MAX_LENGTH}
+              <span className='ml-auto text-xs tabular-nums text-white/30 sm:ml-0'>
+                {value.length}/{MAX_LENGTH}
               </span>
             </div>
             <div>
               <button
-                ref={sendRef}
                 type='button'
                 onClick={submit}
-                disabled
+                disabled={disabled}
                 aria-label='Create your dream world'
-                className='ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-black opacity-40 transition hover:bg-blue-200 disabled:cursor-not-allowed sm:ml-0'
+                className={`ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition hover:bg-blue-200 disabled:cursor-not-allowed sm:ml-0 ${disabled ? 'opacity-40' : ''}`}
               >
                 {createChat.isPending ? (
                   <span className='h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black' />
