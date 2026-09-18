@@ -1,4 +1,4 @@
-const forestWorld = {
+const dummyWorld = {
   mode: "open",
   ground: { size: 600 },
   playerSpawn: [0, 1, 40],
@@ -55,7 +55,7 @@ const forestWorld = {
       position: [20, 0, 30],
     },
     {
-      model: "/models/ignore/creatures/armored_horse.glb",
+      model: "/models/ignore/creatures/armored_horse_edited.glb",
       position: [-15, 0, -10],
       rotationY: 1.8,
       scale: 3,
@@ -122,4 +122,4 @@ const forestWorld = {
   ],
 };
 
-export default forestWorld;
+export default dummyWorld;

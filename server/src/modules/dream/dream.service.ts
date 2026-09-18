@@ -1,49 +1,80 @@
-import type { NextFunction, Request, Response } from "express";
 import { ApiError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
+import type { publishDreamParams } from "@/sharedTypes/dream/dream.model";
 
-function titleFromPrompt(prompt: string): string {
-  const firstLine = prompt.split("\n")[0]?.trim() ?? "";
-  const cleaned = firstLine.replace(/^(i dream (of )?(a world )?|a world (where|with) )/i, "").trim();
-  const source = cleaned.length > 0 ? cleaned : firstLine;
-  return source.length > 60 ? `${source.slice(0, 57)}...` : source || "Untitled dream";
+function withTagNames<T extends { dreamTags: { tag: { name: string } }[] }>(dream: T) {
+  const { dreamTags, ...rest } = dream;
+  return { ...rest, tags: dreamTags.map((dt) => dt.tag.name) };
 }
 
-export async function createDream(userId: string, prompt: string) {
-  const title = titleFromPrompt(prompt);
-
-  return prisma.$transaction(async (tx) => {
-    const dream = await tx.dream.create({
-      data: { title, prompt },
-    });
-
-    await tx.userDream.create({
-      data: { userId, dreamId: dream.id },
-    });
-
-    return dream;
+export async function publishDream(userId: string, input: publishDreamParams) {
+  const chat = await prisma.userChat.findFirst({
+    where: { id: input.userChatId, userId },
+    include: {
+      userChatHistories: { orderBy: { createdAt: "asc" } },
+      dream: true,
+    },
   });
+
+  if (!chat) {
+    throw new ApiError(404, "Chat not found");
+  }
+
+  if (chat.dream) {
+    throw new ApiError(409, "Dream already posted for this chat");
+  }
+
+  const firstMessage = chat.userChatHistories[0]?.message;
+  if (!firstMessage) {
+    throw new ApiError(400, "Chat has no messages to publish");
+  }
+
+  const tags = [...new Set(input.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))];
+
+  const dream = await prisma.$transaction(async (tx) => {
+    const created = await tx.dream.create({
+      data: { userChatId: chat.id, title: input.title, prompt: firstMessage, authorId: userId },
+    });
+
+    for (const name of tags) {
+      const tag = await tx.tags.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      });
+      await tx.dreamTags.create({
+        data: { dreamId: created.id, tagId: tag.id },
+      });
+    }
+
+    return tx.dream.findUniqueOrThrow({
+      where: { id: created.id },
+      include: { dreamTags: { include: { tag: true } } },
+    });
+  });
+
+  return withTagNames(dream);
 }
 
 export async function getDreamForUser(userId: string, dreamId: string) {
-  const link = await prisma.userDream.findFirst({
-    where: { userId, dreamId },
-    include: { dream: true },
+  const dream = await prisma.dream.findFirst({
+    where: { id: dreamId, authorId: userId },
+    include: { dreamTags: { include: { tag: true } } },
   });
 
-  if (!link) {
+  if (!dream) {
     throw new ApiError(404, "Dream not found");
   }
 
-  return link.dream;
+  return withTagNames(dream);
 }
 
 export async function listDreamsForUser(userId: string) {
-  const links = await prisma.userDream.findMany({
-    where: { userId },
-    include: { dream: true },
+  const dreams = await prisma.dream.findMany({
+    where: { authorId: userId },
+    include: { dreamTags: { include: { tag: true } } },
     orderBy: { createdAt: "desc" },
   });
 
-  return links.map((link) => link.dream);
+  return dreams.map(withTagNames);
 }

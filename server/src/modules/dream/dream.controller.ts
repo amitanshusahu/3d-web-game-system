@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
-import { getDreamForUser, listDreamsForUser, createDream } from "./dream.service";
+import { getDreamForUser, listDreamsForUser, publishDream } from "./dream.service";
 
-export async function createDreamController(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function publishDreamController(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const dream = await createDream(req.user!.id, req.body.prompt);
+    const dream = await publishDream(req.user!.id, req.body);
     res.status(201).json({
       success: true,
-      message: "Dream created successfully",
+      message: "Dream published successfully",
       data: dream,
     });
   } catch (error) {
