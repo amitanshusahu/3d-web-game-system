@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useLogout } from '../../hooks/useAuth'
-import { getDreamErrorMessage, useCreateDream } from '../../hooks/useDream'
+import { getChatErrorMessage, useCreateChat } from '../../hooks/useChat'
 import { getToken } from '../../lib/auth'
 
 export const Route = createFileRoute('/chat/new')({
@@ -15,14 +15,14 @@ export const Route = createFileRoute('/chat/new')({
 
 function RouteComponent() {
   const logout = useLogout()
-  const [prompt, setPrompt] = useState('')
-  const createDream = useCreateDream()
+  const [message, setMessage] = useState('')
+  const createChat = useCreateChat()
 
-  const canSubmit = prompt.trim().length > 0 && !createDream.isPending
+  const canSubmit = message.trim().length > 0 && !createChat.isPending
 
   function handleSubmit() {
     if (!canSubmit) return
-    createDream.mutate(prompt.trim())
+    createChat.mutate(message.trim())
   }
 
   return (
@@ -37,8 +37,8 @@ function RouteComponent() {
       <textarea
         cols={60}
         rows={10}
-        value={prompt}
-        onChange={(event) => setPrompt(event.target.value)}
+        value={message}
+        onChange={(event) => setMessage(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
             handleSubmit()
@@ -47,15 +47,15 @@ function RouteComponent() {
         className='border p-4 resize-none text-white bg-black'
         placeholder='i dream a world where lives a dragon'
       />
-      {createDream.isError && (
-        <p className='text-sm text-red-400'>{getDreamErrorMessage(createDream.error)}</p>
+      {createChat.isError && (
+        <p className='text-sm text-red-400'>{getChatErrorMessage(createChat.error)}</p>
       )}
       <button
         onClick={handleSubmit}
         disabled={!canSubmit}
         className='rounded-lg bg-white px-6 py-2 text-sm font-semibold text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50'
       >
-        {createDream.isPending ? 'dreaming...' : 'enter dream'}
+        {createChat.isPending ? 'dreaming...' : 'enter dream'}
       </button>
     </div>
   )

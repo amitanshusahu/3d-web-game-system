@@ -1,18 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { createDreamApi, generateWorldApi, getDreamApi } from "../api/dream";
+import { getDreamApi, publishDreamApi } from "../api/dream";
 import { getApiErrorMessage } from "../lib/api";
-import type { WorldConfig } from "../components/World/worldTypes";
+import type { publishDreamParams } from "../sharedTypes/dream/dream.model";
 
 export const DREAM_QUERY_KEY = ["dreams"] as const;
 
-export function useCreateDream() {
-  const navigate = useNavigate();
+export function usePublishDream(chatId: string) {
   return useMutation({
-    mutationFn: (prompt: string) => createDreamApi(prompt),
-    onSuccess: (response) => {
-      void navigate({ to: "/chat/$chatid", params: { chatid: response.data.id } });
-    },
+    mutationFn: ({ title, tags }: { title: string; tags: string[] }) =>
+      publishDreamApi({ userChatId: chatId, title, tags } satisfies publishDreamParams),
   });
 }
 
@@ -28,18 +24,6 @@ export function useDream(id: string) {
   });
 }
 
-export function useGenerateWorld(dreamId?: string, prompt?: string) {
-  return useQuery<WorldConfig>({
-    queryKey: ["world", dreamId ?? prompt ?? "default"],
-    queryFn: async () => {
-      const response = await generateWorldApi(dreamId, prompt);
-      return response.data as WorldConfig;
-    },
-    retry: false,
-    staleTime: Infinity,
-  });
-}
-
 export function getDreamErrorMessage(error: unknown): string {
-  return getApiErrorMessage(error, "Failed to create dream");
+  return getApiErrorMessage(error, "Failed to publish dream");
 }

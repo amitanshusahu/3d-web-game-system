@@ -16,7 +16,7 @@ export default function PlayerHud() {
       <>
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             left: '50%',
             top: '50%',
             width: 6,
@@ -31,7 +31,7 @@ export default function PlayerHud() {
         />
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             left: 16,
             bottom: 16,
             padding: '6px 12px',
@@ -54,7 +54,7 @@ export default function PlayerHud() {
     <div
       onClick={requestPointerLock}
       style={{
-        position: 'fixed',
+        position: 'absolute',
         inset: 0,
         display: 'flex',
         alignItems: 'center',
