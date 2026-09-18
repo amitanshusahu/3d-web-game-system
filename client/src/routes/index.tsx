@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { LandingChatBox } from '../components/landing/LandingChatBox'
+import { LandingChatBox } from '../components/ui/landing/LandingChatBox'
 import { getToken } from '../lib/auth'
 import LogoLong from '../assets/LogoLong'
 

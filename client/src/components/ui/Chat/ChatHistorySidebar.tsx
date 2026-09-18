@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
 import type { Chat } from '../../../api/chat'
 import type { authUser } from '../../../sharedTypes/auth/auth.model'
+import LogoLong from '../../../assets/LogoLong'
+import { ArrowLeftIcon, SignOutIcon } from "@phosphor-icons/react"
 
 interface ChatHistorySidebarProps {
   chats: Chat[]
@@ -73,6 +75,12 @@ export function ChatHistorySidebar({
 
   return (
     <aside className='flex h-screen w-72 shrink-0 flex-col border-r border-white/10 bg-zinc-950 text-white'>
+      <div className='p-4 flex gap-4 justify-between items-center'>
+        <LogoLong className='h-6' />
+        <button>
+          <ArrowLeftIcon className='h-5 w-5' />
+        </button>
+      </div>
       <div className='p-3'>
         <Link
           to='/chat/new'
@@ -80,6 +88,7 @@ export function ChatHistorySidebar({
         >
           + new dream
         </Link>
+        <button>explore dreams</button>
       </div>
 
       <div className='min-h-0 flex-1 overflow-y-auto px-3 pb-3'>
@@ -102,9 +111,8 @@ export function ChatHistorySidebar({
                       to='/chat/$chatid'
                       params={{ chatid: chat.id }}
                       title={chat.title}
-                      className={`block truncate rounded-lg px-2 py-1.5 text-sm ${
-                        isActive ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                      }`}
+                      className={`block truncate rounded-lg px-2 py-1.5 text-sm ${isActive ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        }`}
                     >
                       {chat.title}
                     </Link>
@@ -132,7 +140,7 @@ export function ChatHistorySidebar({
           onClick={onLogout}
           className='shrink-0 rounded-lg border border-white/20 px-3 py-1.5 text-xs hover:bg-white/10'
         >
-          log out
+          <SignOutIcon className='h-4 w-4' />
         </button>
       </div>
     </aside>

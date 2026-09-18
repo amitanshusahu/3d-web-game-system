@@ -1,7 +1,7 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import z from 'zod'
-import GoogleSignInButton from '../../components/auth/GoogleSignInButton'
+import GoogleSignInButton from '../../components/ui/auth/GoogleSignInButton'
 import { useSignup } from '../../hooks/useAuth'
 import { getApiErrorMessage } from '../../lib/api'
 import { getToken } from '../../lib/auth'

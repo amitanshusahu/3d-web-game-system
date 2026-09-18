@@ -49,3 +49,7 @@ canvas {
 .smooth {
   background: linear-gradient(in oklch to right, black, transparent);
 }
+
+button {
+  cursor: pointer;
+}
