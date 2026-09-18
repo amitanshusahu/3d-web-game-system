@@ -111,7 +111,7 @@ export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean })
                 onClick={submit}
                 disabled
                 aria-label='Create your dream world'
-                className='ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-black opacity-40 transition hover:bg-cyan-200 disabled:cursor-not-allowed sm:ml-0'
+                className='ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-black opacity-40 transition hover:bg-blue-200 disabled:cursor-not-allowed sm:ml-0'
               >
                 {createChat.isPending ? (
                   <span className='h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black' />
@@ -146,7 +146,7 @@ export function LandingChatBox({ hideSuggestion }: { hideSuggestion?: boolean })
                 key={s}
                 type='button'
                 onClick={() => applySuggestion(s)}
-                className='max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-white/60 backdrop-blur transition hover:border-cyan-300/40 hover:text-white sm:max-w-[320px]'
+                className='max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-white/60 backdrop-blur transition hover:border-blue-300/40 hover:text-white sm:max-w-[320px]'
               >
                 {s}
               </button>

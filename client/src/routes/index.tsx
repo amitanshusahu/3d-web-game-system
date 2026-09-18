@@ -48,7 +48,7 @@ function LandingPage() {
           </Link>
           <Link
             to='/auth/signup'
-            className='rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-cyan-100'
+            className='rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-blue-100'
           >
             Start dreaming
           </Link>
