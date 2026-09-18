@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { LandingChatBox } from '../components/landing/LandingChatBox'
 import { getToken } from '../lib/auth'
+import LogoLong from '../assets/LogoLong'
 
 
 export const Route = createFileRoute('/')({
@@ -34,10 +35,11 @@ function LandingPage() {
 
       <header className='relative z-10 flex items-center justify-between px-5 py-5 sm:px-10'>
         <Link to='/' className='flex items-center gap-2.5'>
-          <span className='flex h-8 w-8 items-center justify-center rounded-lg bg-white text-base text-black'>
+          {/* <span className='flex h-8 w-8 items-center justify-center rounded-lg bg-white text-base text-black'>
             ✦
           </span>
-          <span className='text-lg font-semibold tracking-tight'>Dreamworld</span>
+          <span className='text-lg font-semibold tracking-tight'>Dreamworld</span> */}
+          <LogoLong className='h-7.5' />
         </Link>
         <nav className='flex items-center gap-2 sm:gap-3'>
           <Link
