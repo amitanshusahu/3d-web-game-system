@@ -13,6 +13,16 @@ body,
 
 @import "tailwindcss";
 
+* {
+  font-family: "DM Sans", sans-serif;
+}
+
 canvas {
   display: block;
+}
+
+.hero-bg {
+  background-image: url("/img/bg.png");
+  background-position: center;
+  background-size: cover;
 }
