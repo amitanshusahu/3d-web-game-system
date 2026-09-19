@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheckIcon, CloudArrowUpIcon, SpinnerGapIcon, WarningCircleIcon, XIcon } from '@phosphor-icons/react'
 
-interface PostDreamModalProps {
+interface PostDreamDrawerProps {
+  open: boolean
   isPending: boolean
   isError: boolean
   isSuccess: boolean
@@ -10,7 +11,7 @@ interface PostDreamModalProps {
   onClose: () => void
 }
 
-export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, onPublish, onClose }: PostDreamModalProps) {
+export function PostDreamDrawer({ open, isPending, isError, isSuccess, errorMessage, onPublish, onClose }: PostDreamDrawerProps) {
   const titleRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState('')
   const [tags, setTags] = useState('')
@@ -18,16 +19,17 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
   const titleEmpty = title.trim().length === 0
 
   useEffect(() => {
-    titleRef.current?.focus()
-  }, [])
+    if (open) titleRef.current?.focus()
+  }, [open])
 
   useEffect(() => {
+    if (!open) return
     function onKey(event: KeyboardEvent) {
       if (event.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [open, onClose])
 
   function submit() {
     setTouched(true)
@@ -40,17 +42,24 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
   }
 
   return (
-    <div
-      className='fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center'
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
-      role='dialog'
-      aria-modal='true'
-      aria-label='Publish dream'
-    >
-      <div className='w-full max-w-md rounded-2xl border border-white/10 bg-[#111113] p-6 text-white shadow-2xl'>
-        <div className='flex items-start justify-between gap-3'>
+    <div className={`fixed inset-0 z-50 ${open ? '' : 'pointer-events-none'}`} aria-hidden={!open}>
+      <div
+        className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
+          open ? 'opacity-100' : 'opacity-0'
+        }`}
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) onClose()
+        }}
+      />
+      <aside
+        role='dialog'
+        aria-modal='true'
+        aria-label='Publish dream'
+        className={`absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-white/10 bg-[#111113] text-white shadow-2xl transition-transform duration-300 ease-out ${
+          open ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className='flex items-start justify-between gap-3 border-b border-white/10 p-6 pb-5'>
           <div className='flex items-center gap-3'>
             <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black'>
               <CloudArrowUpIcon className='h-5 w-5' weight='bold' />
@@ -71,7 +80,7 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
           </button>
         </div>
 
-        <div className='mt-5 space-y-3.5'>
+        <div className='flex-1 space-y-3.5 overflow-y-auto p-6'>
           <label className='block'>
             <span className='mb-1.5 block text-[12px] font-medium text-white/60'>Title</span>
             <input
@@ -86,6 +95,7 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
               }}
               placeholder='A name for your dream…'
               aria-label='Dream title'
+              tabIndex={open ? 0 : -1}
               className={`w-full rounded-xl border bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 transition focus:outline-none ${
                 touched && titleEmpty
                   ? 'border-red-400/50 focus:border-red-400/70'
@@ -108,6 +118,7 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
               }}
               placeholder='sunset, floating islands, cozy…'
               aria-label='Dream tags'
+              tabIndex={open ? 0 : -1}
               className='w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 transition focus:border-white/30 focus:outline-none'
             />
           </label>
@@ -126,10 +137,11 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
           )}
         </div>
 
-        <div className='mt-6 flex justify-end gap-2'>
+        <div className='flex justify-end gap-2 border-t border-white/10 p-6 pt-5'>
           <button
             type='button'
             onClick={onClose}
+            tabIndex={open ? 0 : -1}
             className='rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition hover:border-white/25 hover:text-white'
           >
             Cancel
@@ -138,13 +150,14 @@ export function PostDreamModal({ isPending, isError, isSuccess, errorMessage, on
             type='button'
             onClick={submit}
             disabled={isPending}
+            tabIndex={open ? 0 : -1}
             className='flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-blue-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50'
           >
             {isPending && <SpinnerGapIcon className='h-4 w-4 animate-spin' />}
             {isPending ? 'Publishing…' : 'Publish'}
           </button>
         </div>
-      </div>
+      </aside>
     </div>
   )
 }

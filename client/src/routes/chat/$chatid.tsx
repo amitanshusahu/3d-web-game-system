@@ -7,7 +7,7 @@ import { useLogout, useMe } from '../../hooks/useAuth'
 import {
   ChatHistorySidebar,
   ChatSidebar,
-  PostDreamModal,
+  PostDreamDrawer,
   WorldViewport,
   objectCount,
   parseWorld,
@@ -36,7 +36,7 @@ function App() {
   const chatQuery = useChat(chatid)
   const sendMessage = useSendMessage(chatid)
   const publishDream = usePublishDream(chatid)
-  const [showPostModal, setShowPostModal] = useState(false)
+  const [showPostDrawer, setShowPostDrawer] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false)
 
@@ -124,7 +124,7 @@ function App() {
             ) : (
               <button
                 type='button'
-                onClick={() => setShowPostModal(true)}
+                onClick={() => setShowPostDrawer(true)}
                 title='Publish dream'
                 aria-label='Publish dream'
                 className={buttonStyle}
@@ -164,26 +164,25 @@ function App() {
         />
       </section>
 
-      {showPostModal && (
-        <PostDreamModal
-          isPending={publishDream.isPending}
-          isError={publishDream.isError}
-          isSuccess={publishDream.isSuccess}
-          errorMessage={publishDream.isError ? getDreamErrorMessage(publishDream.error) : null}
-          onPublish={(input) =>
-            publishDream.mutate(input, {
-              onSuccess: () => {
-                setShowPostModal(false)
-                void chatQuery.refetch()
-              },
-            })
-          }
-          onClose={() => {
-            publishDream.reset()
-            setShowPostModal(false)
-          }}
-        />
-      )}
+      <PostDreamDrawer
+        open={showPostDrawer}
+        isPending={publishDream.isPending}
+        isError={publishDream.isError}
+        isSuccess={publishDream.isSuccess}
+        errorMessage={publishDream.isError ? getDreamErrorMessage(publishDream.error) : null}
+        onPublish={(input) =>
+          publishDream.mutate(input, {
+            onSuccess: () => {
+              setShowPostDrawer(false)
+              void chatQuery.refetch()
+            },
+          })
+        }
+        onClose={() => {
+          publishDream.reset()
+          setShowPostDrawer(false)
+        }}
+      />
     </div>
   )
 }
