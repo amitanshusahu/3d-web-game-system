@@ -36,6 +36,13 @@ export interface WorldObjectConfig {
   scatter?: ScatterConfig
 }
 
+export interface WorldEnvironmentConfig {
+  terrain?: 'grass' | 'soil'
+  weather?: 'clear' | 'rain' | 'snow' | 'forest' | 'desert'
+  time?: 'day' | 'night'
+  fogColor?: string
+}
+
 export interface OpenGroundConfig {
   /** Edge length of the square ground in meters (defaults to 2000) */
   size?: number
@@ -45,7 +52,7 @@ export interface OpenGroundConfig {
 export interface PresetWorldConfig {
   mode?: 'preset'
   map: string
-  objects: WorldObjectConfig[]
+  objects: WorldObjectConfig[],
 }
 
 /** Open mode: fully dynamic map — flat ground plus whatever the objects describe (forest, houses, creatures...) */
@@ -54,7 +61,8 @@ export interface OpenWorldConfig {
   ground?: OpenGroundConfig
   playerSpawn?: [number, number, number]
   spawnZones?: SpawnZone[]
-  objects: WorldObjectConfig[]
+  objects: WorldObjectConfig[],
+  environment?: WorldEnvironmentConfig,
 }
 
 export type WorldConfig = PresetWorldConfig | OpenWorldConfig

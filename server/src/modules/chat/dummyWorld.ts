@@ -120,6 +120,11 @@ const dummyWorld = {
       offsetY: 0,
     },
   ],
+  environment: {
+    terrain: "grass",
+    weather: "rain",
+    time: "night"
+  },
 };
 
 export default dummyWorld;
