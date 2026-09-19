@@ -41,23 +41,9 @@ export function ChatSidebar({
         >
           <SidebarSimpleIcon className='h-5 w-5' />
         </button>
-        <div className='min-w-0 flex-1'>
+        <div className='max-w-[60%] flex-1'>
           <h2 className='truncate text-[13.5px] font-semibold leading-tight'>{title}</h2>
-          <p className='flex items-center gap-1.5 text-[11px] text-white/40'>
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${sendPending ? 'animate-pulse bg-amber-300' : 'bg-emerald-400'}`}
-            />
-            {sendPending ? 'Dreaming…' : 'Ready'}
-          </p>
         </div>
-        <Link
-          to='/chat/new'
-          title='New dream'
-          aria-label='New dream'
-          className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 transition hover:border-white/25 hover:text-white'
-        >
-          <PlusIcon className='h-4 w-4' weight='bold' />
-        </Link>
       </header>
 
       <div className='flex min-h-0 flex-1 flex-col'>

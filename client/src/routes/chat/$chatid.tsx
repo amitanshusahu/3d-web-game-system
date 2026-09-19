@@ -16,7 +16,7 @@ import {
   ArrowClockwiseIcon,
   CheckIcon,
   CloudArrowUpIcon,
-  SidebarSimpleIcon,
+  CornersOutIcon,
 } from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/chat/$chatid')({
@@ -37,7 +37,7 @@ function App() {
   const sendMessage = useSendMessage(chatid)
   const publishDream = usePublishDream(chatid)
   const [showPostModal, setShowPostModal] = useState(false)
-  const [historyOpen, setHistoryOpen] = useState(true)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false)
 
   const histories = chatQuery.data?.userChatHistories ?? []
@@ -49,6 +49,17 @@ function App() {
 
   const historyList = chatsQuery.data ?? []
   const user = meQuery.data ?? null
+
+  const buttonStyle = ["relative text-white text-sm",
+    "px-4 py-1 rounded-xl cursor-pointer transition-all duration-200 ease-out",
+    "border border-[#54A1FD] bg-[radial-gradient(95%_60%_at_50%_75%,#005FD6_0%,#209BFF_100%)]",
+    "shadow-[0px_4px_48px_-12px_#1187FF,inset_0px_1px_8px_-4px_#FFFFFF]",
+    "active:scale-95 active:rotate-1",
+    "after:absolute after:top-[1px] after:right-[10%] after:w-[60%] after:h-[1px]",
+    "after:bg-gradient-to-r after:from-transparent after:via-white/50 after:to-transparent",
+    "hover:brightness-110",
+    "flex items-center gap-2.5",
+  ].join(" ")
 
   return (
     <div className='flex gap-4 h-screen w-full flex-col overflow-hidden bg-black text-white lg:flex-row'>
@@ -87,63 +98,42 @@ function App() {
       )}
 
       <main className='relative order-1 flex h-[38vh] min-h-0 shrink-0 flex-col border-b border-white/10 lg:order-2 lg:h-auto lg:min-w-0 lg:flex-1 lg:border-b-0'>
-        <header className='flex h-14 shrink-0 items-center gap-1.5 border-b border-white/10 bg-[#0a0a0a] px-3'>
+        <header className='flex justify-between h-14 shrink-0 items-center gap-1.5 border-b border-white/10 bg-[#0a0a0a] px-3'>
           <button
             type='button'
-            onClick={() => setMobileHistoryOpen(true)}
-            title='Open dream history'
-            aria-label='Open dream history'
-            className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/60 transition hover:bg-white/5 hover:text-white lg:hidden'
           >
-            <SidebarSimpleIcon className='h-5 w-5' />
-          </button>
-          <button
-            type='button'
-            onClick={() => setHistoryOpen((v) => !v)}
-            title={historyOpen ? 'Hide dream history' : 'Show dream history'}
-            aria-label={historyOpen ? 'Hide dream history' : 'Show dream history'}
-            className='hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/60 transition hover:bg-white/5 hover:text-white lg:flex'
-          >
-            <SidebarSimpleIcon className='h-5 w-5' />
+            <CornersOutIcon className='text-white/60 w-6 h-6' />
           </button>
 
-          <div className='min-w-0 flex-1 px-1'>
-            <h1 className='truncate text-[13.5px] font-semibold leading-tight'>{title}</h1>
-            <p className='flex items-center gap-1.5 text-[11px] text-white/40'>
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${sendMessage.isPending ? 'animate-pulse bg-amber-300' : 'bg-emerald-400'}`}
-              />
-              {sendMessage.isPending ? 'Dreaming…' : `${histories.length} ${histories.length === 1 ? 'edit' : 'edits'}`}
-            </p>
-          </div>
-
-          <button
-            type='button'
-            onClick={() => void chatQuery.refetch()}
-            disabled={refreshing}
-            title='Refresh world'
-            aria-label='Refresh world'
-            className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:border-white/25 hover:text-white disabled:opacity-50'
-          >
-            <ArrowClockwiseIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
-          {alreadyPosted ? (
-            <span className='flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3.5 text-[13px] font-medium text-emerald-300'>
-              <CheckIcon className='h-4 w-4' weight='bold' />
-              Published
-            </span>
-          ) : (
+          <div className="flex gap-2">
             <button
               type='button'
-              onClick={() => setShowPostModal(true)}
-              title='Publish dream'
-              aria-label='Publish dream'
-              className='flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-white px-3.5 text-[13px] font-semibold text-black transition hover:bg-blue-100 active:scale-[0.98]'
+              onClick={() => void chatQuery.refetch()}
+              disabled={refreshing}
+              title='Refresh world'
+              aria-label='Refresh world'
+              className='flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:border-white/25 hover:text-white disabled:opacity-50'
             >
-              <CloudArrowUpIcon className='h-4 w-4' weight='bold' />
-              Publish
+              <ArrowClockwiseIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
-          )}
+            {alreadyPosted ? (
+              <span className='flex h-8 shrink-0 items-center gap-1.5 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3.5 text-[13px] font-medium text-emerald-300'>
+                <CheckIcon className='h-4 w-4' weight='bold' />
+                Published
+              </span>
+            ) : (
+              <button
+                type='button'
+                onClick={() => setShowPostModal(true)}
+                title='Publish dream'
+                aria-label='Publish dream'
+                className={buttonStyle}
+              >
+                <CloudArrowUpIcon className='h-4 w-4' weight='bold' />
+                Publish
+              </button>
+            )}
+          </div>
         </header>
 
         <div className='relative min-h-0 flex-1'>

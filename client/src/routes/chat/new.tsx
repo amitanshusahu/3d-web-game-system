@@ -45,7 +45,7 @@ function RouteComponent() {
           aria-hidden='true'
           className='pointer-events-none fixed inset-0 h-full w-full object-cover'
         />
-        <div className='pointer-events-none fixed inset-0 bg-linear-to-b from-black via-blue-900/80 to-black' />
+        <div className='pointer-events-none fixed inset-0 bg-linear-to-b from-black via-[#002c50]/90 to-black' />
         <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' />
 
         <div className='relative z-10 flex min-h-screen flex-col items-center px-6 sm:px-12'>

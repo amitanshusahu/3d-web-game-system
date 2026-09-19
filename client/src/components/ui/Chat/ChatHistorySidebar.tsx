@@ -76,6 +76,17 @@ function groupChats(chats: Chat[]): ChatGroup[] {
 const iconBtn =
   'flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 backdrop-blur transition hover:border-blue-300/40 hover:text-white'
 
+const accentButtonStyle = ["relative text-white text-sm",
+  "px-4 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ease-out",
+  "border border-[#54A1FD] bg-[radial-gradient(95%_60%_at_50%_75%,#005FD6_0%,#209BFF_100%)]",
+  "shadow-[0px_4px_48px_-12px_#1187FF,inset_0px_1px_8px_-4px_#FFFFFF]",
+  "active:scale-95 active:rotate-1",
+  "after:absolute after:top-[1px] after:right-[10%] after:w-[60%] after:h-[1px]",
+  "after:bg-gradient-to-r after:from-transparent after:via-white/50 after:to-transparent",
+  "hover:brightness-110",
+  "flex items-center gap-2 justify-center",
+].join(" ")
+
 export function ChatHistorySidebar({
   chats,
   isLoading,
@@ -168,7 +179,8 @@ export function ChatHistorySidebar({
       <div className='flex flex-col gap-2 px-3 pb-4'>
         <Link
           to='/chat/new'
-          className='flex items-center justify-center gap-2 rounded-xl border border-blue-400/40 bg-white/5 px-3 py-2.5 text-sm font-semibold backdrop-blur transition hover:border-blue-300/60 hover:bg-white/10'
+          // className='flex items-center justify-center gap-2 rounded-xl border border-blue-400/40 bg-white/5 px-3 py-2.5 text-sm font-semibold backdrop-blur transition hover:border-blue-300/60 hover:bg-white/10'
+          className={accentButtonStyle}
         >
           <PlusIcon className='h-4 w-4' weight='bold' />
           new dream
@@ -203,8 +215,8 @@ export function ChatHistorySidebar({
                       params={{ chatid: chat.id }}
                       title={chat.title}
                       className={`block truncate rounded-xl border px-2.5 py-1.5 text-sm backdrop-blur transition ${isActive
-                          ? 'border-blue-300/30 bg-white/10 text-white'
-                          : 'border-transparent text-white/70 hover:border-white/10 hover:bg-white/5 hover:text-white'
+                        ? 'border-blue-300/30 bg-white/10 text-white'
+                        : 'border-transparent text-white/70 hover:border-white/10 hover:bg-white/5 hover:text-white'
                         }`}
                     >
                       {chat.title}
