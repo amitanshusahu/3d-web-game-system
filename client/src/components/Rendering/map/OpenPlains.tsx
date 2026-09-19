@@ -3,10 +3,10 @@ import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { TextureLoader, RepeatWrapping, SRGBColorSpace } from 'three'
 
 export const GROUND_TEXTURES = [
-    '/texture/ground/optimized/road_damaged_diff.png',
-    '/texture/ground/optimized/road_damaged_nor_gl.png',
-    '/texture/ground/optimized/road_damaged_rough.png',
-    '/texture/ground/optimized/road_damaged_ao.png',
+    '/texture/ground/soil/diff.png',
+    '/texture/ground/soil/nor_gl.png',
+    '/texture/ground/soil/rough.png',
+    '/texture/ground/soil/ao.png',
 ]
 
 const DEFAULT_SIZE = 2000
