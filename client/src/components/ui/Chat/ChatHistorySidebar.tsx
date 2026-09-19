@@ -18,6 +18,8 @@ interface ChatHistorySidebarProps {
   isError: boolean
   activeChatId?: string | null
   user?: authUser | null
+  collapsed?: boolean
+  onToggle?: () => void
   onLogout: () => void
 }
 
@@ -80,20 +82,27 @@ export function ChatHistorySidebar({
   isError,
   activeChatId,
   user,
+  collapsed,
+  onToggle,
   onLogout,
 }: ChatHistorySidebarProps) {
   const groups = useMemo(() => groupChats(chats), [chats])
   const initial = (user?.name ?? user?.email ?? '?').trim().charAt(0).toUpperCase() || '?'
-  const [collapsed, setCollapsed] = useState(() => {
+  const [internalCollapsed, setInternalCollapsed] = useState(() => {
     try {
       return sessionStorage.getItem(COLLAPSED_KEY) === '1'
     } catch {
       return false
     }
   })
+  const isCollapsed = collapsed ?? internalCollapsed
 
   function toggle() {
-    setCollapsed((prev) => {
+    if (onToggle) {
+      onToggle()
+      return
+    }
+    setInternalCollapsed((prev) => {
       try {
         sessionStorage.setItem(COLLAPSED_KEY, prev ? '0' : '1')
       } catch {
@@ -103,9 +112,9 @@ export function ChatHistorySidebar({
     })
   }
 
-  if (collapsed) {
+  if (isCollapsed) {
     return (
-      <aside className='sticky top-3 z-20 m-3 flex h-[calc(100vh-1.5rem)] w-17 shrink-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-black/60 py-3 text-white backdrop-blur-xl transition-all'>
+      <aside className='sticky top-3 z-20 flex h-[calc(100vh-1.5rem)] w-17 shrink-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-black/60 py-3 text-white backdrop-blur-xl transition-all'>
         <div className='flex w-10 items-center justify-center border-b border-white/10 pt-2 py-4 mb-3'>
           <Logo className='w-8' />
         </div>

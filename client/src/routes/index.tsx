@@ -15,31 +15,19 @@ export const Route = createFileRoute('/')({
 })
 
 function LandingPage() {
-
-  const imgLinks = [
-    "/img/bg.jpg",
-    "https://w.wallhaven.cc/full/yx/wallhaven-yx6dyk.jpg",
-    "https://w.wallhaven.cc/full/85/wallhaven-85xjy1.jpg",
-    "https://w.wallhaven.cc/full/vp/wallhaven-vpeew3.jpg",
-  ]
-
   return (
     <div className='relative flex min-h-screen flex-col overflow-hidden bg-black text-white'>
       <img
-        src={imgLinks[0]}
+        src="/img/bg.jpg"
         alt=''
         aria-hidden='true'
         className='pointer-events-none fixed inset-0 h-full w-full object-cover'
       />
-      {/* <div className='pointer-events-none fixed inset-0 bg-linear-to-r from-black via-black/5 to-transparent' />`
-      <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' /> */}
+      {/* <div className='pointer-events-none fixed inset-0 bg-linear-to-r from-black via-black/5 to-transparent' />` */}
+      {/* <div className='pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,transparent_0%,rgba(0,0,0,0.5)_100%)]' /> */}
 
       <header className='relative z-10 flex items-center justify-between px-5 py-5 sm:px-10'>
         <Link to='/' className='flex items-center gap-2.5'>
-          {/* <span className='flex h-8 w-8 items-center justify-center rounded-lg bg-white text-base text-black'>
-            ✦
-          </span>
-          <span className='text-lg font-semibold tracking-tight'>Dreamworld</span> */}
           <LogoLong className='h-7.5' />
         </Link>
         <nav className='flex items-center gap-2 sm:gap-3'>
