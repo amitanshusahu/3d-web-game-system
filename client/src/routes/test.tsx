@@ -33,7 +33,7 @@ const MODELS: ModelEntry[] = [
   { group: 'creatures', label: 'phoenix_bird', path: '/models/ignore/creatures/phoenix_bird.glb' },
   { group: 'creatures', label: 'ryuri', path: '/models/ignore/creatures/ryuri.glb' },
   { group: 'creatures', label: 'skeleton_dragon', path: '/models/ignore/creatures/skeleton_dragon.glb' },
-  { group: 'creatures', label: 'skeleton_dragon_opt', path: '/models/ignore/creatures/skeleton_dragon_opt.glb' },
+  { group: 'creatures', label: 'skeleton_dragon_opt', path: '/models/ignore/original-backup/creatures/skeleton_dragon_exported.glb' },
   { group: 'creatures', label: 'the_human_deer_animated_horror', path: '/models/ignore/creatures/the_human_deer_animated_horror.glb' },
   { group: 'creatures', label: 'unicorn', path: '/models/ignore/creatures/unicorn.glb' },
   { group: 'creatures', label: 'unicorn_wip', path: '/models/ignore/creatures/unicorn_wip.glb' },
