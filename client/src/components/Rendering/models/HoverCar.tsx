@@ -2,11 +2,13 @@ import { useRef, type JSX } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { Mesh, type Group } from 'three'
 import { RigidBody } from '@react-three/rapier'
+import { useKtx2LoaderExtender } from '../../../lib/ktx2'
 
 
 export function HoverCar(props: JSX.IntrinsicElements['group']) {
   const group = useRef<Group | null>(null)
-  const { nodes, materials } = useGLTF('/models/cyberpunk_hovercar.glb')
+  const extendWithKtx2 = useKtx2LoaderExtender()
+  const { nodes, materials } = useGLTF('/models/cyberpunk_hovercar.glb', true, true, extendWithKtx2)
 
   return (
     <RigidBody type="fixed" colliders="hull" position={[0, 0, 0]}>

@@ -7,6 +7,7 @@ import { CuboidCollider, CylinderCollider, InstancedRigidBodies, type RapierRigi
 import { useCustomGravity } from 'ecctrl/gravity'
 import { useLoader } from '@react-three/fiber'
 import { TextureLoader, RepeatWrapping } from 'three'
+import { useKtx2LoaderExtender } from '../../../lib/ktx2'
 
 type TimeScaleValue = number | RefObject<number>
 
@@ -61,7 +62,8 @@ export const TestMapSpawnZones: Array<[number, number, number]> = [
 
 export function TestMap({ paused = false, timeScale = 1, ...props }: ThreeElements['group'] & { paused?: boolean; timeScale?: TimeScaleValue }) {
     // Map models GLTF
-    const { nodes, materials } = useGLTF('/models/testMap.glb') as unknown as GLTFResult
+    const extendWithKtx2 = useKtx2LoaderExtender()
+    const { nodes, materials } = useGLTF('/models/testMap.glb', true, true, extendWithKtx2) as unknown as GLTFResult
     materials.GridTexture.side = THREE.FrontSide;
 
     // Create material variants

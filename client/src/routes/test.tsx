@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { OrbitControls, useAnimations, useGLTF, Grid } from '@react-three/drei'
+import { useKtx2LoaderExtender } from '../lib/ktx2'
 import { Physics, CuboidCollider, RigidBody } from '@react-three/rapier'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 import Lights from '../components/Rendering/Lights'
@@ -20,13 +21,13 @@ interface ModelEntry {
 }
 
 const MODELS: ModelEntry[] = [
-  { group: 'root', label: 'bazaar_track', path: '/models/ignore/bazaar_track.glb' },
+  { group: 'map', label: 'bazaar_track', path: '/models/ignore/map/bazaar_track.glb' },
   { group: 'root', label: 'derby_car._free', path: '/models/ignore/derby_car._free.glb' },
   { group: 'root', label: 'drone', path: '/models/ignore/drone.glb' },
-  { group: 'root', label: 'fast_racing_3d_-_night_city', path: '/models/ignore/fast_racing_3d_-_night_city.glb' },
+  { group: 'map', label: 'fast_racing_3d_-_night_city', path: '/models/ignore/map/fast_racing_3d_-_night_city.glb' },
   { group: 'root', label: 'forest_guardian', path: '/models/ignore/forest_guardian.glb' },
   { group: 'root', label: 'nilou_1_genshin_impact', path: '/models/ignore/nilou_1_genshin_impact.glb' },
-  { group: 'root', label: 'ryuri', path: '/models/ignore/ryuri.glb' },
+  { group: 'creatures', label: 'ryuri', path: '/models/ignore/creatures/ryuri.glb' },
   { group: 'root', label: 'yelan_genshin_impact', path: '/models/ignore/yelan_genshin_impact.glb' },
   { group: 'creatures', label: 'animated_bird_pigeon', path: '/models/ignore/creatures/animated_bird_pigeon.glb' },
   { group: 'creatures', label: 'armored_horse', path: '/models/ignore/creatures/armored_horse.glb' },
@@ -104,7 +105,8 @@ function TestSubject({
   onAnimations: (names: string[]) => void
 }) {
   const group = useRef<THREE.Group>(null)
-  const gltf = useGLTF(path, true)
+  const extendWithKtx2 = useKtx2LoaderExtender()
+  const gltf = useGLTF(path, true, true, extendWithKtx2)
   const { actions, names } = useAnimations(gltf.animations, group)
 
   useEffect(() => {

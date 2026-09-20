@@ -57,13 +57,18 @@ Vite `public/` = no hashing, no immutable cache, no compression, 421MB copied in
 - [ ] **2. Compress every GLB with `gltf-transform`.** gzip does almost nothing on GLB (already binary) — Draco + KTX2 + resize matters 10x more.
   ```bash
   npm i -g @gltf-transform/cli
+  and install ktx-software.deb
   gltf-transform inspect public/models/ignore/nature/oak_trees.glb
+  
   # pipeline per file:
   gltf-transform dedup in.glb tmp.glb
   gltf-transform resize --width 1024 --height 1024 tmp.glb tmp2.glb   # scatter: 512, hero/map: 1024
   gltf-transform ktx2 tmp2.glb tmp3.glb --slots baseColor,normal,roughness
   gltf-transform draco tmp3.glb out-draco.glb --method edgebreaker
   # verify in https://gltf.report, check black-material regression (docs/BlackGlbFix.md)
+
+  # simply for scattering props
+  gltf-transform optimize input.glb output.glb --compress draco --texture-compress ktx2 --flatten false --join false
   ```
 - [ ] **3. Enforce budgets (desktop, invisible hero).**
   - scatter (tree/grass/bush/rock/flower/mushroom): **<500KB ideal, <1MB max, <10k tris, 1 material, 1x 512 KTX2**.

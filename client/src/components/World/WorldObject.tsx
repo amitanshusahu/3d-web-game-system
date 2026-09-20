@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import * as THREE from 'three'
 import { Clone, useGLTF } from '@react-three/drei'
 import { RigidBody, useRapier } from '@react-three/rapier'
+import { useKtx2LoaderExtender } from '../../lib/ktx2'
 import { resolvePhysics, type SpawnZone, type WorldObjectConfig } from './worldTypes'
 
 const MAX_PLACEMENT_ATTEMPTS = 20
@@ -55,7 +56,8 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot, flat
   /** Open mode ground is a flat plane, so placement needs no physics queries */
   flatGround?: boolean
 }) {
-  const { scene } = useGLTF(config.model)
+  const extendWithKtx2 = useKtx2LoaderExtender()
+  const { scene } = useGLTF(config.model, true, true, extendWithKtx2)
   const { world, rapier } = useRapier()
   const [placement, setPlacement] = useState<Placement | null>(null)
 

@@ -11,6 +11,7 @@ import * as THREE from 'three'
 import { useEffect, useMemo, useRef, type JSX } from 'react'
 import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
+import { useKtx2LoaderExtender } from '../../../lib/ktx2'
 import { RigidBody, TrimeshCollider } from '@react-three/rapier'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
 
@@ -68,7 +69,8 @@ export const StrongHoldSpawnZones: SpawnZone[] = [
 
 export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
   const group = useRef<THREE.Group | null>(null);
-  const { scene, animations } = useGLTF('/models/ignore/map/the_last_stronghold_animated_floating.glb')
+  const extendWithKtx2 = useKtx2LoaderExtender()
+  const { scene, animations } = useGLTF('/models/ignore/map/the_last_stronghold_animated_floating.glb', true, true, extendWithKtx2)
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
   const { actions } = useAnimations(animations, group)
