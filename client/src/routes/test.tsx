@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { OrbitControls, useAnimations, useGLTF, Grid } from '@react-three/drei'
+import { MODEL_REGISTRY } from '../objectRegistry'
 import { useKtx2LoaderExtender } from '../lib/ktx2'
 import { Physics, CuboidCollider, RigidBody } from '@react-three/rapier'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
@@ -14,78 +15,22 @@ export const Route = createFileRoute('/test')({
 
 type CamMode = 'orbit' | 'fps'
 
+function groupOf(path: string): string {
+  const parts = path.split('/')
+  return parts.length > 3 ? parts[parts.length - 2] : 'root'
+}
+
 interface ModelEntry {
   label: string
   path: string
   group: string
 }
 
-const MODELS: ModelEntry[] = [
-  { group: 'creatures', label: 'animated_bird_pigeon', path: '/models/ignore/creatures/animated_bird_pigeon.glb' },
-  { group: 'creatures', label: 'animated-haunted-zombie', path: '/models/ignore/creatures/animated-haunted-zombie.glb' },
-  { group: 'creatures', label: 'armored_horse', path: '/models/ignore/creatures/armored_horse.glb' },
-  { group: 'creatures', label: 'armored_horse_edited', path: '/models/ignore/creatures/armored_horse_edited.glb' },
-  { group: 'creatures', label: 'deer', path: '/models/ignore/creatures/deer.glb' },
-  { group: 'creatures', label: 'deer.bak', path: '/models/ignore/creatures/deer.bak.glb' },
-  { group: 'creatures', label: 'dragon_animated', path: '/models/ignore/creatures/dragon_animated.glb' },
-  { group: 'creatures', label: 'forest_guardian', path: '/models/ignore/creatures/forest_guardian.glb' },
-  { group: 'creatures', label: 'nilou_1_genshin_impact', path: '/models/ignore/creatures/nilou_1_genshin_impact.glb' },
-  { group: 'creatures', label: 'phoenix_bird', path: '/models/ignore/creatures/phoenix_bird.glb' },
-  { group: 'creatures', label: 'ryuri', path: '/models/ignore/creatures/ryuri.glb' },
-  { group: 'creatures', label: 'skeleton_dragon', path: '/models/ignore/creatures/skeleton_dragon.glb' },
-  { group: 'creatures', label: 'skeleton_dragon_opt', path: '/models/ignore/original-backup/creatures/skeleton_dragon_exported.glb' },
-  { group: 'creatures', label: 'the_human_deer_animated_horror', path: '/models/ignore/creatures/the_human_deer_animated_horror.glb' },
-  { group: 'creatures', label: 'unicorn', path: '/models/ignore/creatures/unicorn.glb' },
-  { group: 'creatures', label: 'unicorn_wip', path: '/models/ignore/creatures/unicorn_wip.glb' },
-  { group: 'creatures', label: 'velkhana', path: '/models/ignore/creatures/velkhana.glb' },
-  { group: 'creatures', label: 'yelan_genshin_impact', path: '/models/ignore/creatures/yelan_genshin_impact.glb' },
-  { group: 'fantacy', label: 'blue_scrub_bush', path: '/models/ignore/fantacy/blue_scrub_bush.glb' },
-  { group: 'fantacy', label: 'glowing_mushroom', path: '/models/ignore/fantacy/glowing_mushroom.glb' },
-  { group: 'map', label: 'backrooms_vr', path: '/models/ignore/map/backrooms_vr.glb' },
-  { group: 'map', label: 'bazaar_track', path: '/models/ignore/map/bazaar_track.glb' },
-  { group: 'map', label: 'cloud_station', path: '/models/ignore/map/cloud_station.glb' },
-  { group: 'map', label: 'enchanted_forest_environment', path: '/models/ignore/map/enchanted_forest_environment.glb' },
-  { group: 'map', label: 'fast_racing_3d_-_night_city', path: '/models/ignore/map/fast_racing_3d_-_night_city.glb' },
-  { group: 'map', label: 'mobile_home', path: '/models/ignore/map/mobile_home.glb' },
-  { group: 'map', label: 'neo-tokyo', path: '/models/ignore/map/neo-tokyo.glb' },
-  { group: 'map', label: 'robin_hood_in_sherwood_forest', path: '/models/ignore/map/robin_hood_in_sherwood_forest.glb' },
-  { group: 'map', label: 'the_last_stronghold_animated_floating', path: '/models/ignore/map/the_last_stronghold_animated_floating.glb' },
-  { group: 'nature', label: 'bush', path: '/models/ignore/nature/bush.glb' },
-  { group: 'nature', label: 'flower_bush', path: '/models/ignore/nature/flower_bush.glb' },
-  { group: 'nature', label: 'flowers', path: '/models/ignore/nature/flowers.glb' },
-  { group: 'nature', label: 'mushroom', path: '/models/ignore/nature/mushroom.glb' },
-  { group: 'nature', label: 'oak_trees', path: '/models/ignore/nature/oak_trees.glb' },
-  { group: 'nature', label: 'obj_nat_rock_01', path: '/models/ignore/nature/obj_nat_rock_01.glb' },
-  { group: 'nature', label: 'pine_tree', path: '/models/ignore/nature/pine_tree.glb' },
-  { group: 'nature', label: 'rock_b', path: '/models/ignore/nature/rock_b.glb' },
-  { group: 'nature', label: 'sakura_tree_1mb', path: '/models/ignore/nature/sakura_tree_1mb.glb' },
-  { group: 'nature', label: 'stylized_hand_painted_tree_toon', path: '/models/ignore/nature/stylized_hand_painted_tree_toon.glb' },
-  { group: 'props', label: 'animated_old_chest', path: '/models/ignore/props/animated_old_chest.glb' },
-  { group: 'props', label: 'bench', path: '/models/ignore/props/bench.glb' },
-  { group: 'props', label: 'campfire', path: '/models/ignore/props/campfire.glb' },
-  { group: 'props', label: 'chair', path: '/models/ignore/props/chair.glb' },
-  { group: 'props', label: 'lantern', path: '/models/ignore/props/lantern.glb' },
-  { group: 'props', label: 'sci_fi_chest_treasurechestchallenge.', path: '/models/ignore/props/sci_fi_chest_treasurechestchallenge..glb' },
-  { group: 'props', label: 'table', path: '/models/ignore/props/table.glb' },
-  { group: 'root', label: 'derby_car._free', path: '/models/ignore/derby_car._free.glb' },
-  { group: 'root', label: 'drone', path: '/models/ignore/drone.glb' },
-  { group: 'special', label: 'crystal', path: '/models/ignore/special/crystal.glb' },
-  { group: 'special', label: 'portal', path: '/models/ignore/special/portal.glb' },
-  { group: 'special', label: 'portal-animated', path: '/models/ignore/special/portal-animated.glb' },
-  { group: 'structure', label: 'ancient_ruins_pack', path: '/models/ignore/structure/ancient_ruins_pack.glb' },
-  { group: 'structure', label: 'city_ruins_environment', path: '/models/ignore/structure/city_ruins_environment.glb' },
-  { group: 'structure', label: 'farm_house', path: '/models/ignore/structure/farm_house.glb' },
-  { group: 'structure', label: 'high_school', path: '/models/ignore/structure/high_school.glb' },
-  { group: 'structure', label: 'house', path: '/models/ignore/structure/house.glb' },
-  { group: 'structure', label: 'house_asset', path: '/models/ignore/structure/house_asset.glb' },
-  { group: 'structure', label: 'kickelhahn_tower', path: '/models/ignore/structure/kickelhahn_tower.glb' },
-  { group: 'structure', label: 'old_brick_building__lowpoly', path: '/models/ignore/structure/old_brick_building__lowpoly.glb' },
-  { group: 'terrain', label: 'grass', path: '/models/ignore/terrain/grass.glb' },
-  { group: 'terrain', label: 'moist-stones', path: '/models/ignore/terrain/moist-stones.glb' },
-  { group: 'terrain', label: 'pile_burned_trash', path: '/models/ignore/terrain/pile_burned_trash.glb' },
-  { group: 'terrain', label: 'sand_rock_pack', path: '/models/ignore/terrain/sand_rock_pack.glb' },
-  { group: 'terrain', label: 'water_wave_long', path: '/models/ignore/terrain/water_wave_long.glb' },
-]
+/** Playground list derived from the client-owned registry (path entries only).
+ * Component entries (e.g. skeleton_dragon) render through WorldObject, not here. */
+const MODELS: ModelEntry[] = Object.entries(MODEL_REGISTRY)
+  .filter((entry): entry is [string, Extract<(typeof MODEL_REGISTRY)[string], { kind: 'path' }>] => entry[1].kind === 'path')
+  .map(([label, entry]) => ({ label, path: entry.path, group: groupOf(entry.path) }))
 
 const GROUPS = [...new Set(MODELS.map((m) => m.group))]
 

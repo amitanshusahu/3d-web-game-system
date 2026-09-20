@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
 import { Clone, useGLTF } from '@react-three/drei'
 import { RigidBody, useRapier } from '@react-three/rapier'
 import { useKtx2LoaderExtender } from '../../lib/ktx2'
+import { listObjectModels, resolveObjectModel, type ObjectModelEntry } from '../../objectRegistry'
 import { resolvePhysics, type SpawnZone, type WorldObjectConfig } from './worldTypes'
 
 const MAX_PLACEMENT_ATTEMPTS = 20
@@ -47,35 +48,22 @@ function readRawBounds(url: string, scene: THREE.Object3D): RawBounds {
   return raw
 }
 
-export function WorldObject({ config, defaultZone, spawnZones, scatterSpot, flatGround }: {
-  config: WorldObjectConfig
+interface PlacementInput {
   defaultZone: number
   spawnZones: SpawnZone[]
   /** Pre-planned scatter copy: deterministic x/z + rotation, skips the random zone search */
   scatterSpot?: { x: number; z: number; rotationY: number }
   /** Open mode ground is a flat plane, so placement needs no physics queries */
   flatGround?: boolean
-}) {
-  const extendWithKtx2 = useKtx2LoaderExtender()
-  const { scene } = useGLTF(config.model, true, true, extendWithKtx2)
+}
+
+function useObjectPlacement(
+  config: WorldObjectConfig,
+  bounds: Bounds | null,
+  { defaultZone, spawnZones, scatterSpot, flatGround }: PlacementInput,
+): Placement | null {
   const { world, rapier } = useRapier()
   const [placement, setPlacement] = useState<Placement | null>(null)
-
-  // Bounds only feed ground-snap and overlap probing, so flat open maps skip
-  // them entirely — no Box3.setFromObject per copy
-  const bounds = useMemo<Bounds | null>(() => {
-    if (flatGround) return null
-    if (config.footprint) {
-      return { half: config.footprint, centerY: 0, bottomOffset: 0 }
-    }
-    const scale = config.scale ?? 1
-    const raw = readRawBounds(config.model, scene)
-    return {
-      half: [raw.halfXZ * scale + 0.1, raw.halfY * scale + 0.1, raw.halfXZ * scale + 0.1],
-      centerY: raw.centerY * scale,
-      bottomOffset: raw.bottomOffset * scale,
-    }
-  }, [scene, config, flatGround])
 
   useEffect(() => {
     // Scatter copies prefer their own offsetY, falling back to the object-level one
@@ -187,15 +175,100 @@ export function WorldObject({ config, defaultZone, spawnZones, scatterSpot, flat
     }
   }, [config, bounds, world, rapier, spawnZones, defaultZone, scatterSpot, flatGround])
 
-  if (!placement) return null
+  return placement
+}
 
-  const model = <Clone object={scene} scale={config.scale ?? 1} />
+function PlacedFrame({ config, placement, children }: {
+  config: WorldObjectConfig
+  placement: Placement
+  children: ReactNode
+}) {
   if (resolvePhysics(config) === 'decor') {
-    return <group position={placement.position} rotation={[0, placement.rotationY, 0]}>{model}</group>
+    return <group position={placement.position} rotation={[0, placement.rotationY, 0]}>{children}</group>
   }
   return (
     <RigidBody type="fixed" colliders="cuboid" position={placement.position} rotation={[0, placement.rotationY, 0]}>
-      {model}
+      {children}
     </RigidBody>
   )
+}
+
+type PathEntry = Extract<ObjectModelEntry, { kind: 'path' }>
+type ComponentEntry = Extract<ObjectModelEntry, { kind: 'component' }>
+
+function footprintBounds(footprint: [number, number, number]): Bounds {
+  return { half: footprint, centerY: 0, bottomOffset: 0 }
+}
+
+/** Component entries have no GLTF scene to measure: use an explicit footprint,
+ * falling back to a unit probe so preset-mode placement still proceeds */
+function componentBounds(config: WorldObjectConfig, entry: ComponentEntry): Bounds {
+  return footprintBounds(config.footprint ?? entry.footprint ?? [1, 1, 1])
+}
+
+function PathWorldObject({ config, entry, ...input }: PlacementInput & {
+  config: WorldObjectConfig
+  entry: PathEntry
+}) {
+  const extendWithKtx2 = useKtx2LoaderExtender()
+  const { scene } = useGLTF(entry.path, true, true, extendWithKtx2)
+  const scale = config.scale ?? entry.defaultScale ?? 1
+
+  // Bounds only feed ground-snap and overlap probing, so flat open maps skip
+  // them entirely — no Box3.setFromObject per copy
+  const bounds = useMemo<Bounds | null>(() => {
+    if (input.flatGround) return null
+    const footprint = config.footprint ?? entry.footprint
+    if (footprint) return footprintBounds(footprint)
+    const raw = readRawBounds(entry.path, scene)
+    return {
+      half: [raw.halfXZ * scale + 0.1, raw.halfY * scale + 0.1, raw.halfXZ * scale + 0.1],
+      centerY: raw.centerY * scale,
+      bottomOffset: raw.bottomOffset * scale,
+    }
+  }, [scene, config, entry, scale, input.flatGround])
+
+  const placement = useObjectPlacement(config, bounds, input)
+  if (!placement) return null
+
+  return (
+    <PlacedFrame config={config} placement={placement}>
+      <Clone object={scene} scale={scale} />
+    </PlacedFrame>
+  )
+}
+
+function ComponentWorldObject({ config, entry, ...input }: PlacementInput & {
+  config: WorldObjectConfig
+  entry: ComponentEntry
+}) {
+  const scale = config.scale ?? entry.defaultScale ?? 1
+  const bounds = useMemo<Bounds | null>(
+    () => (input.flatGround ? null : componentBounds(config, entry)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [config.footprint, config.scale, entry, input.flatGround],
+  )
+  const placement = useObjectPlacement(config, bounds, input)
+  if (!placement) return null
+
+  const Component = entry.component
+  return (
+    <PlacedFrame config={config} placement={placement}>
+      <Component scale={scale} />
+    </PlacedFrame>
+  )
+}
+
+export function WorldObject({ config, ...input }: PlacementInput & {
+  config: WorldObjectConfig
+}) {
+  const entry = resolveObjectModel(config.model)
+  if (!entry) {
+    console.warn(`[WorldObject] Unknown model "${config.model}". Known models: ${listObjectModels().join(', ')}`)
+    return null
+  }
+  if (entry.kind === 'component') {
+    return <ComponentWorldObject config={config} entry={entry} {...input} />
+  }
+  return <PathWorldObject config={config} entry={entry} {...input} />
 }

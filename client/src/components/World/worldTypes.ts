@@ -18,6 +18,7 @@ export interface ScatterConfig {
 }
 
 export interface WorldObjectConfig {
+  /** Registry name resolved client-side via MODEL_REGISTRY (e.g. "house"), never a path */
   model: string
   /** Explicit placement, skips spawn zone resolution */
   position?: [number, number, number]

@@ -31,14 +31,14 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-export function Model(props: JSX.IntrinsicElements['group']) {
+export function SkeletonDragon(props: JSX.IntrinsicElements['group']) {
   const group = useRef<THREE.Group | null>(null);
-  const { scene, animations } = useGLTF('/skeleton_dragon.glb')
+  const { scene, animations } = useGLTF('/models/ignore/creatures/skeleton_dragon.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
   const { actions } = useAnimations(animations, group)
   return (
-    <group ref={group} {...props} dispose={null} scale={100}>
+    <group ref={group} {...props} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="Skeleton_dragonfbx" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
@@ -61,4 +61,4 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/skeleton_dragon.glb')
+useGLTF.preload('/models/ignore/creatures/skeleton_dragon.glb')
