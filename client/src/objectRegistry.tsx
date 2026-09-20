@@ -28,7 +28,7 @@ export const MODEL_REGISTRY: Record<string, ObjectModelEntry> = {
   phoenix_bird: { kind: 'path', path: '/models/ignore/creatures/phoenix_bird.glb' },
   ryuri: { kind: 'path', path: '/models/ignore/creatures/ryuri.glb' },
   skeleton_dragon: { kind: 'component', component: SkeletonDragon },
-  skeleton_dragon_opt: { kind: 'path', path: '/models/ignore/original-backup/creatures/skeleton_dragon_exported.glb' },
+  skeleton_dragon_opt: { kind: 'path', path: '/models/ignore/original-backup/creatures/skeleton_dragon.glb' },
   the_human_deer_animated_horror: { kind: 'path', path: '/models/ignore/creatures/the_human_deer_animated_horror.glb' },
   unicorn: { kind: 'path', path: '/models/ignore/creatures/unicorn.glb' },
   unicorn_wip: { kind: 'path', path: '/models/ignore/creatures/unicorn_wip.glb' },

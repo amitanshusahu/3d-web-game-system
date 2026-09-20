@@ -45,9 +45,9 @@ export default function Rain() {
   useEffect(() => () => geometry.dispose(), [geometry])
 
   useEffect(() => {
-    const rain = new Howl({ src: getSfx('rain'), loop: true, volume: 0.35 })
+    const rain = new Howl({ src: getSfx('rain'), loop: true, volume: 0.2 })
     rain.play()
-    const bolts = getSfx('thunder').map((src) => new Howl({ src: [src], volume: 0.7, preload: true }))
+    const bolts = getSfx('thunder').map((src) => new Howl({ src: [src], volume: 0.5, preload: true }))
     let cancelled = false
     const pending: Array<ReturnType<typeof setTimeout>> = []
     const strike = () => {

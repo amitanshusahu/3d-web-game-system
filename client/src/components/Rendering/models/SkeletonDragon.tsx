@@ -8,15 +8,17 @@ Title: Skeleton Dragon
 */
 
 import * as THREE from 'three'
-import { useGraph } from '@react-three/fiber'
+import { useFrame, useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useKtx2LoaderExtender } from '../../../lib/ktx2'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
-import { useMemo, useRef, type JSX } from 'react'
+import { useEffect, useMemo, useRef, type ComponentProps } from 'react'
 import { BallCollider, RigidBody } from '@react-three/rapier'
+import { Howl } from 'howler'
+import { usePlayerStore } from '../../../store/playerStore'
 
 // attack_4 -> roar, attack_5 -> fly roar, soar -> soar, travelrun -> run, travelmove -> walk, travelidle -> idle , stunidle ->  idle / seems like eating
-type ActionName = 'attack_4' | 'attack_5' | 'soar' |'travelrun' | 'travelmove' | 'travelidle' | 'stunidle';
+type ActionName = 'attack_4' | 'attack_5' | 'soar' | 'travelrun' | 'travelmove' | 'travelidle' | 'stunidle'
 
 interface GLTFAction extends THREE.AnimationClip {
   name: ActionName
@@ -33,36 +35,272 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-interface SkeletonDragonProps {
-  type?: 'flying' | 'idle',
-  collider?: boolean,
-  scale?: number,
-  props: JSX.IntrinsicElements['group']
+type SkeletonDragonProps = ComponentProps<'group'> & {
+  mode?: 'flying' | 'idle'
+  collider?: boolean
+  alertRadius?: number
+  calmRadius?: number
 }
 
-export function SkeletonDragon({ type, collider, scale, ...props }: SkeletonDragonProps) {
-  const group = useRef<THREE.Group | null>(null);
+type DragonMode = 'idle' | 'roar' | 'fly'
+
+const MAX_HEAR_DISTANCE = 100
+const FLY_WORLD_HEIGHT = 150
+const ROAR_BASE_VOLUME = 7
+const GROWL_BASE_VOLUME = 4
+const FLAP_BASE_VOLUME = 15
+const DISTANT_BASE_VOLUME = 5
+
+function volumeForDistance(dist: number, base: number) {
+  const t = Math.max(0, 1 - dist / MAX_HEAR_DISTANCE)
+  return Math.pow(t, 1.6) * base
+}
+
+function panForPosition(target: THREE.Vector3, camera: THREE.Camera) {
+  const toTarget = target.clone().sub(camera.position)
+  const len = toTarget.length()
+  if (len < 0.001) return 0
+  toTarget.normalize()
+  const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0)
+  return THREE.MathUtils.clamp(toTarget.dot(right), -1, 1) * 0.9
+}
+
+function setHowlPan(howl: Howl, pan: number, id?: number) {
+  const withStereo = howl as unknown as { stereo?: (pan: number, id?: number) => void }
+  withStereo.stereo?.(pan, id)
+}
+
+export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 30, calmRadius = 60, ...props }: SkeletonDragonProps) {
+  const group = useRef<THREE.Group | null>(null)
+  const lift = useRef<THREE.Group | null>(null)
   const extendWithKtx2 = useKtx2LoaderExtender()
   const { scene, animations } = useGLTF('/models/ignore/creatures/skeleton_dragon.glb', true, true, extendWithKtx2)
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
-  useAnimations(animations, group)
-  const SCALE_MULTIPLIER = 4;
-  const SCALE = scale ? scale * SCALE_MULTIPLIER : SCALE_MULTIPLIER;
-  const ABDOMEN_RADIUS = SCALE * 0.6;
-  const ABDOMEN_HEIGHT = SCALE * 0.5;
+  const { actions } = useAnimations(animations, group)
+
+  const tmpVec = useMemo(() => new THREE.Vector3(), [])
+  const actionsRef = useRef(actions)
+  actionsRef.current = actions
+
+  const numericScale = typeof scale === 'number' ? scale : 1
+  const SCALE = numericScale * 2
+  // const ABDOMEN_RADIUS = SCALE * 0.6
+  // const ABDOMEN_HEIGHT = SCALE * 0.5
+  const FLY_LIFT = FLY_WORLD_HEIGHT / SCALE * 0.1
+
+  const modeRef = useRef<DragonMode>(mode === 'flying' ? 'fly' : 'idle')
+  const flyLiftRef = useRef(mode === 'flying' ? FLY_LIFT : 0)
+  const flyStartedAtRef = useRef(0)
+  const sequenceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const initialModeRef = useRef(mode)
+  const alertRadiusRef = useRef(alertRadius)
+  const calmRadiusRef = useRef(calmRadius)
+  alertRadiusRef.current = alertRadius
+  calmRadiusRef.current = calmRadius
+
+  const soundsRef = useRef<{
+    growls: Howl[]
+    roar: Howl
+    flap: Howl
+    distant: Howl
+    flapId: number | null
+  } | null>(null)
+
+  const playAction = (name: ActionName, loop: boolean) => {
+    const all = actionsRef.current
+    const next = all[name]
+    if (!next) return
+    for (const [key, action] of Object.entries(all)) {
+      if (key !== name && action?.isRunning()) action.fadeOut(0.35)
+    }
+    next.reset()
+    next.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, Infinity)
+    next.clampWhenFinished = !loop
+    next.fadeIn(0.35).play()
+  }
+
+  const clearSequence = () => {
+    if (sequenceTimeout.current) {
+      clearTimeout(sequenceTimeout.current)
+      sequenceTimeout.current = null
+    }
+  }
+
+  const stopFlap = () => {
+    const s = soundsRef.current
+    if (s && s.flapId !== null) {
+      s.flap.stop(s.flapId)
+      s.flapId = null
+    }
+  }
+
+  useEffect(() => {
+    const growls = [
+      new Howl({ src: ['/ignore/sounds/dragon/high-growl.mp3'], volume: GROWL_BASE_VOLUME, preload: true }),
+      new Howl({ src: ['/ignore/sounds/dragon/low-growl.mp3'], volume: GROWL_BASE_VOLUME, preload: true }),
+    ]
+    const roar = new Howl({ src: ['/ignore/sounds/dragon/dragon-roar-near.mp3'], volume: ROAR_BASE_VOLUME, preload: true })
+    const flap = new Howl({ src: ['/ignore/sounds/dragon/dragon-flaping-winds.mp3'], loop: true, volume: 0, preload: true })
+    const distant = new Howl({ src: ['/ignore/sounds/dragon/dragon-distant-howling.mp3'], volume: DISTANT_BASE_VOLUME, preload: true })
+    soundsRef.current = { growls, roar, flap, distant, flapId: null }
+    return () => {
+      if (sequenceTimeout.current) clearTimeout(sequenceTimeout.current)
+      const s = soundsRef.current
+      if (s) {
+        if (s.flapId !== null) s.flap.stop(s.flapId)
+        growls.forEach((h) => h.unload())
+        roar.unload()
+        flap.unload()
+        distant.unload()
+      }
+      soundsRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (initialModeRef.current === 'flying') {
+      modeRef.current = 'fly'
+      flyLiftRef.current = FLY_LIFT
+      playAction('attack_5', true)
+      return
+    }
+    modeRef.current = 'idle'
+    flyLiftRef.current = 0
+    playAction('stunidle', true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actions])
+
+  useEffect(() => {
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout>
+    const tmp = new THREE.Vector3()
+    const scheduleGrowl = () => {
+      timer = setTimeout(() => {
+        if (cancelled) return
+        const cur = soundsRef.current
+        const dragon = group.current
+        if (cur && dragon && modeRef.current === 'idle') {
+          dragon.getWorldPosition(tmp)
+          const player = usePlayerStore.getState().position
+          const dist = tmp.distanceTo(player)
+          if (dist < MAX_HEAR_DISTANCE) {
+            const far = dist > alertRadiusRef.current
+            if (far && Math.random() < 0.5) {
+              const id = cur.distant.play()
+              cur.distant.volume(volumeForDistance(dist, DISTANT_BASE_VOLUME), id)
+            } else {
+              const clip = cur.growls[Math.floor(Math.random() * cur.growls.length)]
+              if (clip) {
+                const id = clip.play()
+                clip.volume(volumeForDistance(dist, GROWL_BASE_VOLUME), id)
+              }
+            }
+          }
+        }
+        scheduleGrowl()
+      }, 7000 + Math.random() * 9000)
+    }
+    scheduleGrowl()
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [])
+
+  const triggerRoar = (dist: number, camera: THREE.Camera) => {
+    const s = soundsRef.current
+    modeRef.current = 'roar'
+    clearSequence()
+    playAction('attack_4', false)
+    if (s && group.current) {
+      group.current.getWorldPosition(tmpVec)
+      const id = s.roar.play()
+      s.roar.volume(volumeForDistance(dist, ROAR_BASE_VOLUME), id)
+      setHowlPan(s.roar, panForPosition(tmpVec, camera), id)
+    }
+    const roarClip = actionsRef.current['attack_4']?.getClip()
+    const roarMs = Math.max(1200, Math.min(3200, (roarClip?.duration ?? 2) * 1000))
+    sequenceTimeout.current = setTimeout(() => {
+      if (modeRef.current !== 'roar') return
+      modeRef.current = 'fly'
+      flyStartedAtRef.current = performance.now()
+      playAction('attack_5', false)
+      const s2 = soundsRef.current
+      if (s2 && s2.flapId === null) {
+        const id = s2.flap.play()
+        s2.flapId = id
+      }
+      const flyClip = actionsRef.current['attack_5']?.getClip()
+      const flyMs = Math.max(1000, Math.min(3000, (flyClip?.duration ?? 1.8) * 1000))
+      sequenceTimeout.current = setTimeout(() => {
+        if (modeRef.current === 'fly') playAction('attack_5', true)
+      }, flyMs)
+    }, roarMs)
+  }
+
+  const land = () => {
+    modeRef.current = 'idle'
+    clearSequence()
+    stopFlap()
+    playAction('stunidle', true)
+  }
+
+  useFrame((state, delta) => {
+    const dragon = group.current
+    if (!dragon) return
+    const s = soundsRef.current
+    dragon.getWorldPosition(tmpVec)
+    const player = usePlayerStore.getState().position
+    const dist = tmpVec.distanceTo(player)
+
+    if (modeRef.current === 'idle' && dist < alertRadiusRef.current) {
+      triggerRoar(dist, state.camera)
+    } else if (modeRef.current === 'fly') {
+      const airborneFor = performance.now() - flyStartedAtRef.current
+      if (dist > calmRadiusRef.current && airborneFor > 6000) land()
+    } else if (modeRef.current === 'roar' && dist > calmRadiusRef.current * 1.5) {
+      land()
+    }
+
+    const targetLift = modeRef.current === 'fly' ? FLY_LIFT : 0
+    flyLiftRef.current = THREE.MathUtils.damp(flyLiftRef.current, targetLift, 1.2, delta)
+    if (lift.current) lift.current.position.y = flyLiftRef.current
+
+    if (modeRef.current !== 'idle') {
+      const yaw = Math.atan2(player.x - tmpVec.x, player.z - tmpVec.z)
+      const current = dragon.rotation.y
+      let d = yaw - current
+      while (d > Math.PI) d -= Math.PI * 2
+      while (d < -Math.PI) d += Math.PI * 2
+      dragon.rotation.y = current + THREE.MathUtils.clamp(d, -1.5 * delta, 1.5 * delta)
+    }
+
+    if (s && s.flapId !== null) {
+      const v = volumeForDistance(dist, FLAP_BASE_VOLUME)
+      s.flap.volume(v, s.flapId)
+      setHowlPan(s.flap, panForPosition(tmpVec, state.camera), s.flapId)
+      if (v <= 0.001) {
+        s.flap.stop(s.flapId)
+        s.flapId = null
+      }
+    }
+  })
+
   const body = (
     <group ref={group} scale={SCALE} {...props} dispose={null}>
-      <group name="Sketchfab_Scene">
-        <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
-          <group name="Skeleton_dragonfbx" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
-            <group name="Object_2">
-              <group name="RootNode">
-                <group name="mob_deadland_skeleton_dragon" scale={2}>
-                  <group name="root" rotation={[-Math.PI / 2, 0, -Math.PI / 2]}>
-                    <group name="Object_7">
-                      <primitive object={nodes._rootJoint} />
-                      <skinnedMesh name="Object_10" geometry={nodes.Object_10.geometry} material={materials.Mob_deadland_skeleton_dragon} skeleton={nodes.Object_10.skeleton} />
+      <group ref={lift}>
+        <group name="Sketchfab_Scene">
+          <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
+            <group name="Skeleton_dragonfbx" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
+              <group name="Object_2">
+                <group name="RootNode">
+                  <group name="mob_deadland_skeleton_dragon" scale={2}>
+                    <group name="root" rotation={[-Math.PI / 2, 0, -Math.PI / 2]}>
+                      <group name="Object_7">
+                        <primitive object={nodes._rootJoint} />
+                        <skinnedMesh name="Object_10" geometry={nodes.Object_10.geometry} material={materials.Mob_deadland_skeleton_dragon} skeleton={nodes.Object_10.skeleton} />
+                      </group>
                     </group>
                   </group>
                 </group>
@@ -74,10 +312,11 @@ export function SkeletonDragon({ type, collider, scale, ...props }: SkeletonDrag
     </group>
   )
   if (!collider) return body
+  const { position, rotation } = props
   return (
-    <RigidBody type="fixed" colliders={false} {...props}>
+    <RigidBody type="fixed" colliders={false} position={position} rotation={rotation}>
       {body}
-      <BallCollider args={[ABDOMEN_RADIUS]} position={[0, ABDOMEN_HEIGHT, 0]} />
+      {/* <BallCollider args={[ABDOMEN_RADIUS]} position={[0, ABDOMEN_HEIGHT, 0]}/> */}
     </RigidBody>
   )
 }
