@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 
+import { useCameraShakeStore } from '../../store/cameraShakeStore'
 import { usePlayerHudStore } from '../../store/playerHudStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { getPlayerSpawnPosition } from '../World/mapRegistry'
@@ -149,9 +150,30 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
 
     const bodyPosition = controller.currPos
 
+    // Camera shake: the store only carries the stop time, so we sample the
+    // current strength here each frame and rebuild the camera from the physics
+    // body every tick (no drift, and the shake ends on its own).
+    const shake = useCameraShakeStore.getState()
+    let shakeAmount = 0
+    if (shake.shakeEndsAt !== null) {
+      const remaining = shake.shakeEndsAt - Date.now()
+      if (remaining <= 0) {
+        shake.stopShake()
+      } else {
+        // Trauma-style falloff: full strength on the first frame, easing to 0
+        // as the stop time approaches.
+        const trauma = remaining / shake.shakeDurationMs
+        shakeAmount = shake.intensity * trauma * trauma
+      }
+    }
+
+    const elapsed = state.clock.getElapsedTime()
+    const shakeX = shakeAmount === 0 ? 0 : (Math.sin(elapsed * 39.7) + Math.sin(elapsed * 17.3)) * 0.5 * shakeAmount
+    const shakeY = shakeAmount === 0 ? 0 : (Math.sin(elapsed * 47.1 + 1.3) + Math.sin(elapsed * 23.7 + 0.5)) * 0.5 * shakeAmount
+
     state.camera.position.set(
-      bodyPosition.x,
-      bodyPosition.y + EYE_HEIGHT_ABOVE_CENTER,
+      bodyPosition.x + shakeX,
+      bodyPosition.y + EYE_HEIGHT_ABOVE_CENTER + shakeY,
       bodyPosition.z,
     )
 
@@ -159,7 +181,8 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
     lookEuler.set(
       lookPitchRef.current,
       lookYawRef.current,
-      0,
+      // A touch of roll so the shake reads as a rumble, not just a bob.
+      shakeX * 0.4,
     )
     state.camera.quaternion.setFromEuler(lookEuler)
 

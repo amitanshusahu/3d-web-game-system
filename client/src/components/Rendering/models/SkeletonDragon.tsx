@@ -15,6 +15,7 @@ import { type GLTF, SkeletonUtils } from 'three-stdlib'
 import { useEffect, useMemo, useRef, type ComponentProps } from 'react'
 import { RigidBody } from '@react-three/rapier'
 import { Howl } from 'howler'
+import { useCameraShakeStore } from '../../../store/cameraShakeStore'
 import { usePlayerStore } from '../../../store/playerStore'
 import { useDialogueStore, type Dialogue } from '../../../store/dialogueStore'
 
@@ -57,6 +58,8 @@ const FLY_FORWARD_SPEED = 2
 const SOAR_ASCENT = FLY_WORLD_HEIGHT * 0.15
 const SOAR_MAX_MS = 20000
 const ROAR_BASE_VOLUME = 2
+const ROAR_SHAKE_INTENSITY = 3
+const ROAR_SHAKE_DELAY_MS = 2000
 const GROWL_BASE_VOLUME = 4
 const FLAP_BASE_VOLUME = 1
 const DISTANT_BASE_VOLUME = 1
@@ -109,6 +112,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
   const flyLiftRef = useRef(mode === 'flying' ? FLY_LIFT : 0)
   const soarStartedAtRef = useRef(0)
   const sequenceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const shakeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const initialModeRef = useRef(mode)
   const alertRadiusRef = useRef(alertRadius)
   const calmRadiusRef = useRef(calmRadius)
@@ -148,6 +152,10 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
       clearTimeout(sequenceTimeout.current)
       sequenceTimeout.current = null
     }
+    if (shakeTimeout.current) {
+      clearTimeout(shakeTimeout.current)
+      shakeTimeout.current = null
+    }
   }
 
   const stopFlap = () => {
@@ -168,6 +176,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     soundsRef.current = { growls, roar, flap, distant, flapId: null }
     return () => {
       if (sequenceTimeout.current) clearTimeout(sequenceTimeout.current)
+      if (shakeTimeout.current) clearTimeout(shakeTimeout.current)
       const s = soundsRef.current
       if (s) {
         if (s.flapId !== null) s.flap.stop(s.flapId)
@@ -238,6 +247,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
   const beginTakeoff = () => {
     modeRef.current = 'fly'
+    useCameraShakeStore.getState().stopShake()
     playAction('attack_5', false)
     const s = soundsRef.current
     if (s && s.flapId === null) {
@@ -256,6 +266,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     modeRef.current = 'departed'
     clearSequence()
     stopFlap()
+    useCameraShakeStore.getState().stopShake()
     const dlg = dialogueRef.current
     if (dlg) useDialogueStore.getState().closeDialogue(dlg.id)
     for (const action of Object.values(actionsRef.current)) action?.stop()
@@ -282,6 +293,18 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     }
     const roarClip = actionsRef.current['attack_4']?.getClip()
     const roarMs = Math.max(1200, Math.min(3200, (roarClip?.duration ?? 2) * 1000))
+    // The roar animation winds up before the impact lands, so hold the camera
+    // still for a beat after the roar starts, then shake for the remainder of
+    // the roar, scaling with how close the dragon is.
+    const closeness = Math.max(0.3, 1 - dist / alertRadiusRef.current)
+    shakeTimeout.current = setTimeout(() => {
+      shakeTimeout.current = null
+      if (modeRef.current !== 'roar') return
+      useCameraShakeStore.getState().startShake({
+        durationMs: Math.max(0, roarMs - ROAR_SHAKE_DELAY_MS),
+        intensity: ROAR_SHAKE_INTENSITY * closeness,
+      })
+    }, ROAR_SHAKE_DELAY_MS)
     sequenceTimeout.current = setTimeout(() => {
       if (modeRef.current !== 'roar') return
       beginTakeoff()
@@ -292,6 +315,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     modeRef.current = 'idle'
     clearSequence()
     stopFlap()
+    useCameraShakeStore.getState().stopShake()
     playAction('stunidle', true)
   }
 
