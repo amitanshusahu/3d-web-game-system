@@ -13,10 +13,15 @@ body,
 
 @import "tailwindcss";
 
+* {
+  font-family: "DM Sans", sans-serif;
+}
+
 @theme {
   --animate-dialogue-in: dialogue-in 0.3s ease-out;
   --animate-mission-in: mission-in 0.4s ease-out;
   --animate-hud-in: hud-in 0.35s ease-out;
+  --font-mono: "New Rocker", monospace;
 
   @keyframes dialogue-in {
     from {
@@ -55,10 +60,6 @@ body,
   }
 }
 
-* {
-  font-family: "DM Sans", sans-serif;
-}
-
 canvas {
   display: block;
 }
@@ -92,4 +93,8 @@ canvas {
 
 button {
   cursor: pointer;
+}
+
+.font-mono {
+  font-family: "New Rocker", monospace;
 }
