@@ -44,6 +44,22 @@ export interface WorldEnvironmentConfig {
   fogColor?: string
 }
 
+/** Circular ground trigger volume a player must enter to complete a mission */
+export interface MissionZone {
+  /** [x, y, z] trigger center in world space */
+  position: [number, number, number]
+  /** Trigger radius in meters */
+  radius: number
+}
+
+export interface MissionConfig {
+  /** Stable id, unique within a world; keys completion state */
+  id: string
+  name: string
+  description?: string
+  zone: MissionZone
+}
+
 export interface OpenGroundConfig {
   /** Edge length of the square ground in meters (defaults to 2000) */
   size?: number
@@ -54,6 +70,8 @@ export interface PresetWorldConfig {
   mode?: 'preset'
   map: string
   objects: WorldObjectConfig[],
+  /** Player-triggered objectives; zones are monitored every frame */
+  missions?: MissionConfig[],
 }
 
 /** Open mode: fully dynamic map — flat ground plus whatever the objects describe (forest, houses, creatures...) */
@@ -64,6 +82,8 @@ export interface OpenWorldConfig {
   spawnZones?: SpawnZone[]
   objects: WorldObjectConfig[],
   environment?: WorldEnvironmentConfig,
+  /** Player-triggered objectives; zones are monitored every frame */
+  missions?: MissionConfig[],
 }
 
 export type WorldConfig = PresetWorldConfig | OpenWorldConfig

@@ -32,6 +32,18 @@ export const worldEnvironmentSchema = z.object({
   fogColor: z.string().optional(),
 });
 
+export const missionZoneSchema = z.object({
+  position: vec3Schema,
+  radius: z.number().positive(),
+});
+
+export const missionSchema = z.object({
+  id: z.string().trim().min(1, "Mission id is required"),
+  name: z.string().trim().min(1, "Mission name is required"),
+  description: z.string().optional(),
+  zone: missionZoneSchema,
+});
+
 const openGroundSchema = z.object({
   size: z.number().positive().optional(),
 });
@@ -41,6 +53,7 @@ const baseWorldFields = {
   spawnZones: z.array(z.tuple([z.number(), z.number(), z.number(), z.number().optional()])).optional(),
   objects: z.array(worldObjectSchema),
   environment: worldEnvironmentSchema.optional(),
+  missions: z.array(missionSchema).optional(),
 };
 
 export const presetWorldSchema = z.object({
@@ -60,6 +73,8 @@ export const worldSchema = z.union([openWorldSchema, presetWorldSchema]);
 export type scatterConfig = z.infer<typeof scatterSchema>;
 export type worldObjectConfig = z.infer<typeof worldObjectSchema>;
 export type worldEnvironmentConfig = z.infer<typeof worldEnvironmentSchema>;
+export type missionZoneConfig = z.infer<typeof missionZoneSchema>;
+export type missionConfig = z.infer<typeof missionSchema>;
 export type presetWorldConfig = z.infer<typeof presetWorldSchema>;
 export type openWorldConfig = z.infer<typeof openWorldSchema>;
 export type worldConfig = z.infer<typeof worldSchema>;

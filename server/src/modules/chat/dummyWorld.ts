@@ -130,6 +130,26 @@ const dummyWorld = {
     weather: "rain",
     time: "night"
   },
+  missions: [
+    {
+      id: "mission_find_dragon",
+      name: "Find the Dragon",
+      description: "Discover the mysterious dragon.",
+      zone: {
+        position: [-60, 0, -60],
+        radius: 100
+      }
+    },
+    {
+      id: "mission_mushroom_forest",
+      name: "Visit the Magic Mushroom Forest",
+      description: "Explore the magical mushroom forest.",
+      zone: {
+        position: [-60, 0, 30],
+        radius: 40
+      }
+    }
+  ]
 };
 
 export default dummyWorld;

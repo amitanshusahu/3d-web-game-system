@@ -2,10 +2,12 @@ import { Physics } from '@react-three/rapier'
 import { useMemo } from 'react'
 import Lights from '../Rendering/Lights'
 import { World } from '../World/World'
+import MissionZones from '../World/MissionZones'
 import Fog from '../World/weather/Fog'
 import Weather from '../World/weather/Weather'
 import { getWeatherTheme } from '../World/weather/weatherRegistry'
 import type { WorldConfig } from '../World/worldTypes'
+import { useMissionStore } from '../../store/missionStore'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
 import { EffectComposer,HueSaturation, Vignette } from '@react-three/postprocessing'
@@ -33,6 +35,12 @@ export default function Experience({ config }: { config: WorldConfig }) {
     return () => clearTimeout(timeout);
   }, []);
 
+  const missions = useMemo(() => worldConfig.missions ?? [], [worldConfig.missions])
+
+  useEffect(() => {
+    useMissionStore.getState().setMissions(missions)
+  }, [missions])
+
   return (
     <>
       {/* note for me: background + fog must share one color so distant
@@ -54,6 +62,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
       {/*  note for me: gravty set through Ecctrl in EcctrlWrapper */}
       <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
         <World config={worldConfig} />
+        <MissionZones missions={missions} />
         <EcctrlWrapper mapId={mapId} config={worldConfig} />
       </Physics>
     </>
