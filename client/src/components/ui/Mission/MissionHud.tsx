@@ -31,12 +31,15 @@ export default function MissionHud() {
         <div className='pointer-events-none absolute inset-x-0 top-16 z-30 flex justify-center px-4'>
           <div
             key={version}
-            className='animate-mission-in rounded-xl border border-emerald-400/25 bg-emerald-500/15 px-5 py-2.5 text-center shadow-2xl backdrop-blur-md'
+            className='animate-mission-in flex items-center gap-3 rounded-xl border border-emerald-400/25 bg-emerald-500/15 px-4 py-2.5 shadow-2xl backdrop-blur-md'
           >
-            <p className='text-[10.5px] font-semibold uppercase tracking-widest text-emerald-300'>
-              Mission complete
-            </p>
-            <p className='mt-0.5 text-[14.5px] font-medium text-white'>{toast.name}</p>
+            <CheckCircleIcon className='h-7 w-7 shrink-0 text-emerald-400' weight='fill' />
+            <div>
+              <p className='text-[10.5px] font-semibold uppercase tracking-widest text-emerald-300'>
+                Mission complete
+              </p>
+              <p className='text-[14.5px] font-medium text-white'>{toast.name}</p>
+            </div>
           </div>
         </div>
       )}

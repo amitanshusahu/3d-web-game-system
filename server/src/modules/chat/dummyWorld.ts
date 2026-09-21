@@ -137,7 +137,7 @@ const dummyWorld = {
       description: "Discover the mysterious dragon.",
       zone: {
         position: [-60, 0, -60],
-        radius: 100
+        radius: 50
       }
     },
     {

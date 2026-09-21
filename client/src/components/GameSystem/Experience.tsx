@@ -62,7 +62,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
       {/*  note for me: gravty set through Ecctrl in EcctrlWrapper */}
       <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
         <World config={worldConfig} />
-        <MissionZones missions={missions} />
+        <MissionZones missions={missions} debug/>
         <EcctrlWrapper mapId={mapId} config={worldConfig} />
       </Physics>
     </>
