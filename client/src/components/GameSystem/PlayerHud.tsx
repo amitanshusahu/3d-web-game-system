@@ -1,23 +1,16 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { AlarmIcon, PlayIcon } from '@phosphor-icons/react'
 import MissionBoard from '../ui/Mission/MissionBoard'
+import TimeBar from '../ui/Hud/TimeBar'
 import { usePlayerHudStore } from '../../store/playerHudStore'
 
-const DEFAULT_OBJECTIVE = 'Explore the world before your alarm goes off'
 const DEFAULT_ALARM_MINUTES = 5
+/** Below this many seconds the timer turns amber, then rose once it expires. */
 const LOW_ALARM_SECONDS = 60
 
 interface PlayerHudProps {
-  /** The gamified objective shown in the top banner. */
-  objective?: string
   /** Length of the alarm countdown, in minutes. */
   alarmMinutes?: number
-}
-
-function formatClock(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
 function Key({ children }: { children: ReactNode }) {
@@ -38,83 +31,6 @@ function ControlHint({ keys, label }: { keys: string[]; label: string }) {
       </span>
       {label}
     </span>
-  )
-}
-
-function Crosshair() {
-  return (
-    <div className='pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2'>
-      <div className='flex h-7 w-7 items-center justify-center rounded-full border border-white/15'>
-        <span className='h-1 w-1 rounded-full bg-white/90' />
-      </div>
-    </div>
-  )
-}
-
-function StatusPill({ isGrounded }: { isGrounded: boolean }) {
-  return (
-    <div className='pointer-events-none absolute bottom-5 left-5 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 backdrop-blur-md'>
-      <span className={`h-1.5 w-1.5 rounded-full ${isGrounded ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-      <span className='text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70'>
-        {isGrounded ? 'Grounded' : 'Airborne'}
-      </span>
-    </div>
-  )
-}
-
-function ControlBar() {
-  return (
-    <div className='pointer-events-none absolute bottom-5 right-5 z-10 hidden items-center gap-5 text-[11px] text-white/45 lg:flex'>
-      <ControlHint keys={['W', 'A', 'S', 'D']} label='Move' />
-      <ControlHint keys={['Space']} label='Jump' />
-      <ControlHint keys={['Shift']} label='Run' />
-      <ControlHint keys={['Esc']} label='Release' />
-    </div>
-  )
-}
-
-interface ObjectiveBannerProps {
-  objective: string
-  remainingSeconds: number
-  progress: number
-  expired: boolean
-}
-
-function ObjectiveBanner({ objective, remainingSeconds, progress, expired }: ObjectiveBannerProps) {
-  const low = !expired && remainingSeconds <= LOW_ALARM_SECONDS
-  const clockColor = expired ? 'text-rose-300' : low ? 'text-amber-300' : 'text-white/70'
-  const barColor = expired
-    ? 'bg-rose-500'
-    : low
-      ? 'bg-amber-400'
-      : 'bg-gradient-to-r from-sky-400 to-emerald-400'
-
-  return (
-    <div className='pointer-events-none absolute inset-x-0 top-5 z-10 flex justify-center px-5'>
-      <div className='animate-hud-in w-full max-w-sm rounded-2xl border border-white/10 bg-black/40 px-4 py-3 shadow-2xl backdrop-blur-md'>
-        <div className='flex items-center gap-2'>
-          <AlarmIcon
-            className={`h-3.5 w-3.5 ${expired ? 'text-rose-300' : 'text-white/50'}`}
-            weight='bold'
-          />
-          <span className='text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50'>
-            {expired ? "Time's up" : 'Objective'}
-          </span>
-          <span className={`ml-auto text-[13px] font-semibold tabular-nums ${clockColor}`}>
-            {formatClock(remainingSeconds)}
-          </span>
-        </div>
-
-        <p className='mt-1.5 text-[13.5px] font-medium leading-snug text-white/90'>{objective}</p>
-
-        <div className='mt-3 h-1 w-full overflow-hidden rounded-full bg-white/10'>
-          <div
-            className={`h-full rounded-full transition-[width] duration-1000 ease-linear ${barColor}`}
-            style={{ width: `${progress * 100}%` }}
-          />
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -163,12 +79,8 @@ function StartOverlay({ alarmMinutes, onPlay }: StartOverlayProps) {
   )
 }
 
-export default function PlayerHud({
-  objective = DEFAULT_OBJECTIVE,
-  alarmMinutes = DEFAULT_ALARM_MINUTES,
-}: PlayerHudProps = {}) {
+export default function PlayerHud({ alarmMinutes = DEFAULT_ALARM_MINUTES }: PlayerHudProps = {}) {
   const isPointerLocked = usePlayerHudStore((state) => state.isPointerLocked)
-  const isGrounded = usePlayerHudStore((state) => state.isGrounded)
   const alarmEndsAt = usePlayerHudStore((state) => state.alarmEndsAt)
   const startAlarm = usePlayerHudStore((state) => state.startAlarm)
   const resetAlarm = usePlayerHudStore((state) => state.resetAlarm)
@@ -204,21 +116,13 @@ export default function PlayerHud({
   // second of a run (and against clock jumps) instead of overshooting 100%.
   const remainingMs =
     alarmEndsAt === null ? totalMs : Math.min(totalMs, Math.max(0, alarmEndsAt - now))
-  const remainingSeconds = Math.ceil(remainingMs / 1000)
   const expired = alarmEndsAt !== null && remainingMs <= 0
-  const progress = totalMs > 0 ? remainingMs / totalMs : 0
+  const low = !expired && remainingMs <= LOW_ALARM_SECONDS * 1000
+  const drainColor = expired ? '#fb7185' : low ? '#fbbf24' : '#6226c4'
 
   return (
-    <>
-      <Crosshair />
-      <ObjectiveBanner
-        objective={objective}
-        remainingSeconds={remainingSeconds}
-        progress={progress}
-        expired={expired}
-      />
-      <StatusPill isGrounded={isGrounded} />
-      <ControlBar />
-    </>
+    <div className='pointer-events-none absolute left-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
+      <TimeBar className='w-72' time={totalMs} remaining={remainingMs} drainColor={drainColor} />
+    </div>
   )
 }

@@ -163,11 +163,6 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
     )
     state.camera.quaternion.setFromEuler(lookEuler)
 
-    // Debug / HUD
-    usePlayerHudStore.getState().setPlayerHud({
-      isGrounded: controller.isOnGround,
-    })
-
     usePlayerStore.getState().setPlayerPosition(bodyPosition)
   })
 

@@ -15,13 +15,17 @@ export default function TimeBar({
   time = 0,
   drainColor = 'black',
   onComplete,
+  remaining,
 }: {
-  className?: string;
-  time: number;
-  drainColor?: string;
-  onComplete?: () => void;
+  className?: string
+  time: number
+  drainColor?: string
+  onComplete?: () => void
+  /** Controlled remaining time in ms. When set, TimeBar renders it instead of running its own countdown. */
+  remaining?: number
 }) {
-  const [remaining, setRemaining] = useState(time)
+  const controlled = remaining !== undefined
+  const [internalRemaining, setInternalRemaining] = useState(time)
   const startedAtRef = useRef(0)
   const onCompleteRef = useRef(onComplete)
 
@@ -30,12 +34,12 @@ export default function TimeBar({
   }, [onComplete])
 
   useEffect(() => {
-    if (time <= 0) return
+    if (controlled || time <= 0) return
 
     startedAtRef.current = performance.now()
     let frame = requestAnimationFrame(function tick() {
       const left = Math.max(0, time - (performance.now() - startedAtRef.current))
-      setRemaining(left)
+      setInternalRemaining(left)
       if (left > 0) {
         frame = requestAnimationFrame(tick)
       } else {
@@ -43,9 +47,14 @@ export default function TimeBar({
       }
     })
     return () => cancelAnimationFrame(frame)
-  }, [time])
+  }, [time, controlled])
 
-  const left = time > 0 ? Math.min(remaining, time) : 0
+  const left =
+    remaining !== undefined
+      ? Math.max(0, Math.min(remaining, time))
+      : time > 0
+        ? Math.min(internalRemaining, time)
+        : 0
   const progress = time > 0 ? left / time : 0
   const drainX = (BAR_START_X + (BAR_END_X - BAR_START_X) * progress) + 4
 

@@ -2,7 +2,6 @@ import { create } from 'zustand'
 
 interface PlayerHudValues {
   isPointerLocked: boolean
-  isGrounded: boolean
 }
 
 interface PlayerHudStore extends PlayerHudValues {
@@ -21,17 +20,11 @@ interface PlayerHudStore extends PlayerHudValues {
 
 export const usePlayerHudStore = create<PlayerHudStore>()((set, get) => ({
   isPointerLocked: false,
-  isGrounded: false,
   alarmEndsAt: null,
   setPlayerHud: (patch) => {
     const currentState = get()
     const nextIsPointerLocked = patch.isPointerLocked ?? currentState.isPointerLocked
-    const nextIsGrounded = patch.isGrounded ?? currentState.isGrounded
-    if (
-      nextIsPointerLocked === currentState.isPointerLocked &&
-      nextIsGrounded === currentState.isGrounded
-    )
-      return
+    if (nextIsPointerLocked === currentState.isPointerLocked) return
     set(patch)
   },
   startAlarm: (durationMs) => {

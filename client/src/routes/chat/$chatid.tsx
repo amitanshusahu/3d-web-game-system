@@ -164,11 +164,6 @@ function App() {
 
         <div ref={viewportRef} className='relative min-h-0 flex-1 bg-black'>
           <WorldViewport world={latestWorld} loadFailed={chatQuery.isError} />
-          {latestWorld && (
-            <div className='pointer-events-none absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-3 py-1 text-[11.5px] text-white/70 backdrop-blur'>
-              {objectCount(latestWorld)} {objectCount(latestWorld) === 1 ? 'object' : 'objects'}
-            </div>
-          )}
         </div>
       </main>
 

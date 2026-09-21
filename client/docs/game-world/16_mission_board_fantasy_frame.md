@@ -20,6 +20,8 @@
 5. `MissionHud` was trimmed to the in-game "Mission complete" toast only, so the
    full list lives on the pre-explore screen and nowhere else.
 6. `tsc -b` clean (only pre-existing errors in unrelated files), `oxlint` clean.
+7. *(follow-up)* Replaced the in-game `ObjectiveBanner` with a top-left
+   `TimeBar` — see §7.
 
 ## 1. Why the mission list moved
 
@@ -143,8 +145,40 @@ re-lock, where progress persists.
 4. **Two mission lists** — pick one home for the full list. Here it's the start
    overlay; `MissionHud` keeps only feedback.
 
+## 7. Follow-up: the in-game timer is now `TimeBar`
+
+The old top-center `ObjectiveBanner` (objective text + `5:00` clock + draining
+bar) is gone. During a run the alarm now renders as a `TimeBar` pinned **top-left**,
+so the countdown art matches the fantasy panels:
+
+```tsx
+<div className='pointer-events-none absolute left-5 top-5 z-10 drop-shadow-[…]'>
+  <TimeBar className='w-72' time={totalMs} remaining={remainingMs} drainColor={drainColor} />
+</div>
+```
+
+`TimeBar` was written to time *itself* — it runs its own `requestAnimationFrame`
+loop from `time` and calls `onComplete` at zero. To keep `playerHudStore` the one
+source of truth we added a single **optional, backward-compatible** prop:
+
+```tsx
+remaining?: number   // when set, render this value instead of the internal countdown
+```
+
+So `<TimeBar time={…} />` (the `/svg` demo) still self-animates, while the HUD
+drives it from `alarmEndsAt`. The `ObjectiveBanner`'s urgency colors survive as
+`drainColor`: violet `#6226c4` → amber `#fbbf24` under 60s → rose `#fb7185` at zero.
+
+Why not let `TimeBar` own the clock during play and delete the store's alarm? The
+store's timestamp self-corrects against tick drift and is the hook future
+scoring / "you failed the alarm" features hang off. One clock, two skins.
+
+> Note: the old `objective` prop was removed from `PlayerHud` — the objective
+> copy now lives in the pre-run `MissionBoard`, so nothing read it in-game.
+
 Related files: `src/components/ui/Hud/FantasyFrame.tsx`,
 `src/components/ui/Hud/SuccessDialogue.tsx`,
+`src/components/ui/Hud/TimeBar.tsx`,
 `src/components/ui/Mission/MissionBoard.tsx`,
 `src/components/ui/Mission/MissionHud.tsx`,
 `src/components/GameSystem/PlayerHud.tsx`,
