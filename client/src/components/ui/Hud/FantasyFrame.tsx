@@ -1,5 +1,56 @@
 import type { ReactNode } from 'react'
 
+export type FantasyTheme = 'purple' | 'red' | 'green'
+
+interface FantasyPalette {
+  primary: string
+  primaryAlt: string
+  primaryDeep: string
+  dark: string
+  darkest: string
+  black: string
+  dragon: string
+  stroke: string
+  frameDark: string
+}
+
+/** Frame palettes keyed by theme. `purple` preserves the original artwork colours. */
+const THEMES: Record<FantasyTheme, FantasyPalette> = {
+  purple: {
+    primary: '#6226C4',
+    primaryAlt: '#5C27B1',
+    primaryDeep: '#5D24BC',
+    dark: '#16092C',
+    darkest: '#101116',
+    black: '#0B0514',
+    dragon: '#4D1D9A',
+    stroke: '#43216D',
+    frameDark: '#160B25',
+  },
+  red: {
+    primary: '#C81E1E',
+    primaryAlt: '#A81A1A',
+    primaryDeep: '#B81C1C',
+    dark: '#2C0909',
+    darkest: '#160606',
+    black: '#140303',
+    dragon: '#8E1414',
+    stroke: '#6D1616',
+    frameDark: '#250A0A',
+  },
+  green: {
+    primary: '#1FA84F',
+    primaryAlt: '#178A40',
+    primaryDeep: '#1C9A48',
+    dark: '#0A2C15',
+    darkest: '#06170C',
+    black: '#03140A',
+    dragon: '#147A38',
+    stroke: '#165C33',
+    frameDark: '#0B2413',
+  },
+}
+
 /** Inner panel height (SVG units). 67 keeps the original SuccessDialogue proportions. */
 const BASE_BOX_HEIGHT = 67
 const BASE_VIEW_HEIGHT = 115
@@ -15,6 +66,8 @@ interface FantasyFrameProps {
   contentClassName?: string
   /** Height of the inner panel in SVG units — raise it for a taller box. */
   boxHeight?: number
+  /** Colour theme for the frame artwork. Defaults to the original purple. */
+  theme?: FantasyTheme
   children: ReactNode
 }
 
@@ -22,8 +75,10 @@ export default function FantasyFrame({
   className = 'w-125',
   contentClassName = 'items-center justify-center px-6 pt-6 text-center font-mono text-sm font-semibold text-white',
   boxHeight = BASE_BOX_HEIGHT,
+  theme = 'purple',
   children,
 }: FantasyFrameProps) {
+  const palette = THEMES[theme]
   // Taller boxes keep every ornament pinned to an edge: the bottom wings ride
   // down with the panel while the top ornaments and dragon stay put.
   const dy = boxHeight - BASE_BOX_HEIGHT
@@ -153,7 +208,7 @@ export default function FantasyFrame({
             </g>
             <g id="Vector 21">
               <g filter="url(#filter0_i_2023_362)">
-                <path d="M149.599 18.2074C148.943 18.0549 147.871 18.2074 147.871 18.2074L146.597 19.7711C146.597 19.7711 145.581 19.6288 144.959 19.7711C144.295 19.9232 143.413 20.553 143.413 20.553L142.321 22.2035C142.321 22.2035 141.674 22.8087 141.321 23.2459C140.911 23.7528 140.411 24.6359 140.411 24.6359C140.411 24.6359 138.634 26.0141 137.682 27.0683C137.018 27.803 136.135 29.0663 136.135 29.0663C135.79 29.1604 135.608 29.2462 135.316 29.5006L134.68 30.8037C134.68 30.8037 134.616 30.9829 134.68 31.0643C134.765 31.1729 135.043 31.0643 135.043 31.0643L135.316 30.5431C135.316 30.5431 135.43 30.5241 135.498 30.5431C135.739 30.6103 135.407 31.1512 135.407 31.1512L134.952 32.1936C134.999 32.4106 135.072 32.433 135.316 32.3674L135.771 31.4987C135.842 31.449 135.882 31.4523 135.953 31.4987L135.68 32.5411C135.68 32.5411 135.718 32.628 135.771 32.628C135.825 32.628 135.953 32.5411 135.953 32.5411L136.317 31.4118C136.388 31.3419 136.428 31.3493 136.499 31.4118V32.3674C136.499 32.3674 136.602 32.4542 136.681 32.4542C136.76 32.4542 136.863 32.3674 136.863 32.3674V31.3249C136.966 31.2649 137.028 31.2708 137.136 31.3249L137.227 32.1068C137.318 32.1936 137.409 32.1936 137.5 32.0199V30.8037V29.5875C137.5 29.5875 138.344 29.0751 138.864 28.7188C140.033 27.9192 141.684 26.4602 141.684 26.4602C141.684 26.4602 142.262 26.2933 142.594 26.1127C142.903 25.945 143.322 25.5915 143.322 25.5915L142.594 30.5431C142.594 30.5431 142.23 31.4789 142.139 32.1068C142.047 32.7453 142.139 33.7573 142.139 33.7573V36.5372C142.139 36.5372 142.598 38.4202 143.049 39.5776C143.332 40.3041 143.868 41.4019 143.868 41.4019C143.868 41.4019 143.912 43.2708 144.141 44.4424C144.406 45.8033 145.232 47.8304 145.232 47.8304C144.945 48.6256 144.855 49.1801 144.868 50.4365C145.348 51.5744 145.764 51.8138 146.597 52.0001C146.597 52.0001 147.126 50.4854 147.143 49.4809C147.154 48.8328 146.961 47.8304 146.961 47.8304L147.143 43.7474L147.871 45.3111V46.0929C147.871 46.0929 147.607 46.771 147.507 47.2223C147.27 48.284 147.507 50.0021 147.507 50.0021C148.217 50.0107 148.631 49.9209 149.417 49.4809L149.781 47.8304C149.781 47.8304 150.117 47.4944 150.145 47.2223C150.17 46.9765 149.963 46.6142 149.963 46.6142L149.781 44.8768C150.185 44.1621 150.29 43.7197 150.327 42.8787L149.781 40.5332C149.781 40.5332 150.346 39.7991 150.691 39.317C151.213 38.5864 151.964 37.4059 151.964 37.4059L152.055 34.5391C152.098 33.1757 152.015 32.4494 151.691 31.2381L151.418 27.3289L152.055 26.4602L153.329 27.5895L154.421 29.0663L156.422 30.5431C156.422 30.5431 156.318 30.9856 156.422 31.2381C156.506 31.4401 156.695 31.6724 156.695 31.6724L156.786 32.1936C156.786 32.1936 156.504 32.7325 156.604 32.8886C156.728 33.083 157.15 32.3674 157.15 32.3674C157.15 32.3674 156.755 33.0814 156.968 33.1492C157.119 33.1972 157.332 32.9755 157.332 32.9755L157.696 32.3674V33.1492C157.696 33.1492 157.783 33.2898 157.878 33.3229C158.091 33.398 158.241 32.8886 158.241 32.8886L158.332 32.0199C158.332 32.0199 158.573 33.007 158.969 32.9755C159.394 32.9417 158.969 31.933 158.969 31.933C158.969 31.933 158.665 30.7168 158.878 30.7168C159.091 30.7168 159.242 30.8906 159.424 30.7168C159.606 30.5431 158.332 29.5875 158.332 29.5875L157.332 29.24L155.967 26.8076L155.057 25.9389L153.875 23.0722L153.329 21.5954L152.328 20.9873L151.055 20.0317V18.9024C151.055 18.9024 150.217 18.3511 149.599 18.2074Z" fill="#4D1D9A" />
+                <path d="M149.599 18.2074C148.943 18.0549 147.871 18.2074 147.871 18.2074L146.597 19.7711C146.597 19.7711 145.581 19.6288 144.959 19.7711C144.295 19.9232 143.413 20.553 143.413 20.553L142.321 22.2035C142.321 22.2035 141.674 22.8087 141.321 23.2459C140.911 23.7528 140.411 24.6359 140.411 24.6359C140.411 24.6359 138.634 26.0141 137.682 27.0683C137.018 27.803 136.135 29.0663 136.135 29.0663C135.79 29.1604 135.608 29.2462 135.316 29.5006L134.68 30.8037C134.68 30.8037 134.616 30.9829 134.68 31.0643C134.765 31.1729 135.043 31.0643 135.043 31.0643L135.316 30.5431C135.316 30.5431 135.43 30.5241 135.498 30.5431C135.739 30.6103 135.407 31.1512 135.407 31.1512L134.952 32.1936C134.999 32.4106 135.072 32.433 135.316 32.3674L135.771 31.4987C135.842 31.449 135.882 31.4523 135.953 31.4987L135.68 32.5411C135.68 32.5411 135.718 32.628 135.771 32.628C135.825 32.628 135.953 32.5411 135.953 32.5411L136.317 31.4118C136.388 31.3419 136.428 31.3493 136.499 31.4118V32.3674C136.499 32.3674 136.602 32.4542 136.681 32.4542C136.76 32.4542 136.863 32.3674 136.863 32.3674V31.3249C136.966 31.2649 137.028 31.2708 137.136 31.3249L137.227 32.1068C137.318 32.1936 137.409 32.1936 137.5 32.0199V30.8037V29.5875C137.5 29.5875 138.344 29.0751 138.864 28.7188C140.033 27.9192 141.684 26.4602 141.684 26.4602C141.684 26.4602 142.262 26.2933 142.594 26.1127C142.903 25.945 143.322 25.5915 143.322 25.5915L142.594 30.5431C142.594 30.5431 142.23 31.4789 142.139 32.1068C142.047 32.7453 142.139 33.7573 142.139 33.7573V36.5372C142.139 36.5372 142.598 38.4202 143.049 39.5776C143.332 40.3041 143.868 41.4019 143.868 41.4019C143.868 41.4019 143.912 43.2708 144.141 44.4424C144.406 45.8033 145.232 47.8304 145.232 47.8304C144.945 48.6256 144.855 49.1801 144.868 50.4365C145.348 51.5744 145.764 51.8138 146.597 52.0001C146.597 52.0001 147.126 50.4854 147.143 49.4809C147.154 48.8328 146.961 47.8304 146.961 47.8304L147.143 43.7474L147.871 45.3111V46.0929C147.871 46.0929 147.607 46.771 147.507 47.2223C147.27 48.284 147.507 50.0021 147.507 50.0021C148.217 50.0107 148.631 49.9209 149.417 49.4809L149.781 47.8304C149.781 47.8304 150.117 47.4944 150.145 47.2223C150.17 46.9765 149.963 46.6142 149.963 46.6142L149.781 44.8768C150.185 44.1621 150.29 43.7197 150.327 42.8787L149.781 40.5332C149.781 40.5332 150.346 39.7991 150.691 39.317C151.213 38.5864 151.964 37.4059 151.964 37.4059L152.055 34.5391C152.098 33.1757 152.015 32.4494 151.691 31.2381L151.418 27.3289L152.055 26.4602L153.329 27.5895L154.421 29.0663L156.422 30.5431C156.422 30.5431 156.318 30.9856 156.422 31.2381C156.506 31.4401 156.695 31.6724 156.695 31.6724L156.786 32.1936C156.786 32.1936 156.504 32.7325 156.604 32.8886C156.728 33.083 157.15 32.3674 157.15 32.3674C157.15 32.3674 156.755 33.0814 156.968 33.1492C157.119 33.1972 157.332 32.9755 157.332 32.9755L157.696 32.3674V33.1492C157.696 33.1492 157.783 33.2898 157.878 33.3229C158.091 33.398 158.241 32.8886 158.241 32.8886L158.332 32.0199C158.332 32.0199 158.573 33.007 158.969 32.9755C159.394 32.9417 158.969 31.933 158.969 31.933C158.969 31.933 158.665 30.7168 158.878 30.7168C159.091 30.7168 159.242 30.8906 159.424 30.7168C159.606 30.5431 158.332 29.5875 158.332 29.5875L157.332 29.24L155.967 26.8076L155.057 25.9389L153.875 23.0722L153.329 21.5954L152.328 20.9873L151.055 20.0317V18.9024C151.055 18.9024 150.217 18.3511 149.599 18.2074Z" fill={palette.dragon} />
               </g>
               <path d="M149.599 18.2074C148.943 18.0549 147.871 18.2074 147.871 18.2074L146.597 19.7711C146.597 19.7711 145.581 19.6288 144.959 19.7711C144.295 19.9232 143.413 20.553 143.413 20.553L142.321 22.2035C142.321 22.2035 141.674 22.8087 141.321 23.2459C140.911 23.7528 140.411 24.6359 140.411 24.6359C140.411 24.6359 138.634 26.0141 137.682 27.0683C137.018 27.803 136.135 29.0663 136.135 29.0663C135.79 29.1604 135.608 29.2462 135.316 29.5006L134.68 30.8037C134.68 30.8037 134.616 30.9829 134.68 31.0643C134.765 31.1729 135.043 31.0643 135.043 31.0643L135.316 30.5431C135.316 30.5431 135.43 30.5241 135.498 30.5431C135.739 30.6103 135.407 31.1512 135.407 31.1512L134.952 32.1936C134.999 32.4106 135.072 32.433 135.316 32.3674L135.771 31.4987C135.842 31.449 135.882 31.4523 135.953 31.4987L135.68 32.5411C135.68 32.5411 135.718 32.628 135.771 32.628C135.825 32.628 135.953 32.5411 135.953 32.5411L136.317 31.4118C136.388 31.3419 136.428 31.3493 136.499 31.4118V32.3674C136.499 32.3674 136.602 32.4542 136.681 32.4542C136.76 32.4542 136.863 32.3674 136.863 32.3674V31.3249C136.966 31.2649 137.028 31.2708 137.136 31.3249L137.227 32.1068C137.318 32.1936 137.409 32.1936 137.5 32.0199V30.8037V29.5875C137.5 29.5875 138.344 29.0751 138.864 28.7188C140.033 27.9192 141.684 26.4602 141.684 26.4602C141.684 26.4602 142.262 26.2933 142.594 26.1127C142.903 25.945 143.322 25.5915 143.322 25.5915L142.594 30.5431C142.594 30.5431 142.23 31.4789 142.139 32.1068C142.047 32.7453 142.139 33.7573 142.139 33.7573V36.5372C142.139 36.5372 142.598 38.4202 143.049 39.5776C143.332 40.3041 143.868 41.4019 143.868 41.4019C143.868 41.4019 143.912 43.2708 144.141 44.4424C144.406 45.8033 145.232 47.8304 145.232 47.8304C144.945 48.6256 144.855 49.1801 144.868 50.4365C145.348 51.5744 145.764 51.8138 146.597 52.0001C146.597 52.0001 147.126 50.4854 147.143 49.4809C147.154 48.8328 146.961 47.8304 146.961 47.8304L147.143 43.7474L147.871 45.3111V46.0929C147.871 46.0929 147.607 46.771 147.507 47.2223C147.27 48.284 147.507 50.0021 147.507 50.0021C148.217 50.0107 148.631 49.9209 149.417 49.4809L149.781 47.8304C149.781 47.8304 150.117 47.4944 150.145 47.2223C150.17 46.9765 149.963 46.6142 149.963 46.6142L149.781 44.8768C150.185 44.1621 150.29 43.7197 150.327 42.8787L149.781 40.5332C149.781 40.5332 150.346 39.7991 150.691 39.317C151.213 38.5864 151.964 37.4059 151.964 37.4059L152.055 34.5391C152.098 33.1757 152.015 32.4494 151.691 31.2381L151.418 27.3289L152.055 26.4602L153.329 27.5895L154.421 29.0663L156.422 30.5431C156.422 30.5431 156.318 30.9856 156.422 31.2381C156.506 31.4401 156.695 31.6724 156.695 31.6724L156.786 32.1936C156.786 32.1936 156.504 32.7325 156.604 32.8886C156.728 33.083 157.15 32.3674 157.15 32.3674C157.15 32.3674 156.755 33.0814 156.968 33.1492C157.119 33.1972 157.332 32.9755 157.332 32.9755L157.696 32.3674V33.1492C157.696 33.1492 157.783 33.2898 157.878 33.3229C158.091 33.398 158.241 32.8886 158.241 32.8886L158.332 32.0199C158.332 32.0199 158.573 33.007 158.969 32.9755C159.394 32.9417 158.969 31.933 158.969 31.933C158.969 31.933 158.665 30.7168 158.878 30.7168C159.091 30.7168 159.242 30.8906 159.424 30.7168C159.606 30.5431 158.332 29.5875 158.332 29.5875L157.332 29.24L155.967 26.8076L155.057 25.9389L153.875 23.0722L153.329 21.5954L152.328 20.9873L151.055 20.0317V18.9024C151.055 18.9024 150.217 18.3511 149.599 18.2074Z" stroke="black" stroke-opacity="0.23" />
             </g>
@@ -172,300 +227,300 @@ export default function FantasyFrame({
           </filter>
           <linearGradient id="paint0_linear_2023_362" x1="149" y1="24" x2="149" y2="94" gradientUnits="userSpaceOnUse">
             <stop />
-            <stop offset="1" stop-color="#5C27B1" />
+            <stop offset="1" stopColor={palette.primaryAlt} />
           </linearGradient>
           <linearGradient id="paint1_linear_2023_362" x1="149" y1="24" x2="149" y2="94" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#160B25" />
-            <stop offset="0.451923" stop-color="#43216D" />
-            <stop offset="1" stop-color="#0B0514" />
+            <stop stopColor={palette.frameDark} />
+            <stop offset="0.451923" stopColor={palette.stroke} />
+            <stop offset="1" stopColor={palette.black} />
           </linearGradient>
           <linearGradient id="paint2_linear_2023_362" x1="24.074" y1="96.4092" x2="24.2746" y2="93.3116" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint3_linear_2023_362" x1="33.4317" y1="96.1832" x2="32.9982" y2="94.1961" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint4_linear_2023_362" x1="8.44783" y1="88.8222" x2="21.7992" y2="93.7942" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint5_linear_2023_362" x1="4.34926" y1="81.3371" x2="12.366" y2="91.6179" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint6_linear_2023_362" x1="7.38514" y1="76.8256" x2="9.42768" y2="85.5192" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint7_linear_2023_362" x1="10.4159" y1="73.3454" x2="10.9604" y2="81.123" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint8_linear_2023_362" x1="28.8675" y1="101.395" x2="27.9133" y2="99.105" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint9_linear_2023_362" x1="35.7607" y1="97.8031" x2="34.7575" y2="96.5212" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint10_linear_2023_362" x1="14.548" y1="101.682" x2="26.2763" y2="100.649" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint11_linear_2023_362" x1="8.85439" y1="97.8174" x2="18.2743" y2="102.603" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint12_linear_2023_362" x1="9.52563" y1="93.4701" x2="14.0176" y2="99.0317" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint13_linear_2023_362" x1="10.557" y1="89.8639" x2="13.6763" y2="95.2574" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint14_linear_2023_362" x1="268.016" y1="103.235" x2="269.121" y2="101.014" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint15_linear_2023_362" x1="261.378" y1="99.1899" x2="262.465" y2="97.9781" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint16_linear_2023_362" x1="282.284" y1="104.481" x2="270.651" y2="102.665" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint17_linear_2023_362" x1="288.223" y1="101.007" x2="278.504" y2="105.151" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint18_linear_2023_362" x1="287.845" y1="96.6245" x2="282.99" y2="101.873" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint19_linear_2023_362" x1="287.057" y1="92.9573" x2="283.584" y2="98.1296" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint20_linear_2023_362" x1="274.252" y1="97.4092" x2="274.051" y2="94.3116" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint21_linear_2023_362" x1="264.894" y1="97.1832" x2="265.328" y2="95.1961" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint22_linear_2023_362" x1="289.878" y1="89.8222" x2="276.526" y2="94.7942" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint23_linear_2023_362" x1="293.976" y1="82.3371" x2="285.96" y2="92.6179" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint24_linear_2023_362" x1="290.941" y1="77.8256" x2="288.898" y2="86.5192" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint25_linear_2023_362" x1="287.91" y1="74.3454" x2="287.365" y2="82.123" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint26_linear_2023_362" x1="23.074" y1="20.996" x2="23.2746" y2="24.0936" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint27_linear_2023_362" x1="32.4317" y1="21.2221" x2="31.9982" y2="23.2091" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint28_linear_2023_362" x1="7.44783" y1="28.5831" x2="20.7992" y2="23.6111" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint29_linear_2023_362" x1="3.34926" y1="36.0682" x2="11.366" y2="25.7873" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint30_linear_2023_362" x1="6.38514" y1="40.5797" x2="8.42768" y2="31.8861" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint31_linear_2023_362" x1="9.41589" y1="44.0599" x2="9.96039" y2="36.2823" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint32_linear_2023_362" x1="27.8675" y1="16.0107" x2="26.9133" y2="18.3003" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint33_linear_2023_362" x1="34.7607" y1="19.6022" x2="33.7575" y2="20.8841" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint34_linear_2023_362" x1="13.548" y1="15.7236" x2="25.2763" y2="16.7559" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint35_linear_2023_362" x1="7.85439" y1="19.5879" x2="17.2743" y2="14.8022" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint36_linear_2023_362" x1="8.52563" y1="23.9352" x2="13.0176" y2="18.3736" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint37_linear_2023_362" x1="9.55701" y1="27.5413" x2="12.6763" y2="22.1479" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint38_linear_2023_362" x1="267.016" y1="14.1704" x2="268.121" y2="16.3909" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint39_linear_2023_362" x1="260.378" y1="18.2154" x2="261.465" y2="19.4272" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint40_linear_2023_362" x1="281.284" y1="12.924" x2="269.651" y2="14.7399" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint41_linear_2023_362" x1="287.223" y1="16.3984" x2="277.504" y2="12.2547" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint42_linear_2023_362" x1="286.845" y1="20.7808" x2="281.99" y2="15.5327" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint43_linear_2023_362" x1="286.057" y1="24.448" x2="282.584" y2="19.2757" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint44_linear_2023_362" x1="273.252" y1="19.996" x2="273.051" y2="23.0936" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint45_linear_2023_362" x1="263.894" y1="20.2221" x2="264.328" y2="22.2091" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint46_linear_2023_362" x1="288.878" y1="27.5831" x2="275.526" y2="22.6111" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint47_linear_2023_362" x1="292.976" y1="35.0682" x2="284.96" y2="24.7873" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint48_linear_2023_362" x1="289.941" y1="39.5797" x2="287.898" y2="30.8861" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint49_linear_2023_362" x1="286.91" y1="43.0599" x2="286.365" y2="35.2823" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint50_linear_2023_362" x1="125.074" y1="23.4092" x2="125.275" y2="20.3116" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint51_linear_2023_362" x1="134.432" y1="23.1832" x2="133.998" y2="21.1961" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint52_linear_2023_362" x1="109.448" y1="15.8222" x2="122.799" y2="20.7942" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint53_linear_2023_362" x1="105.349" y1="8.33705" x2="113.366" y2="18.6179" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint54_linear_2023_362" x1="108.385" y1="3.82559" x2="110.428" y2="12.5192" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint55_linear_2023_362" x1="111.416" y1="0.345376" x2="111.96" y2="8.12298" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint56_linear_2023_362" x1="129.868" y1="28.3946" x2="128.913" y2="26.105" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint57_linear_2023_362" x1="136.761" y1="24.8031" x2="135.758" y2="23.5212" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint58_linear_2023_362" x1="115.548" y1="28.6817" x2="127.276" y2="27.6494" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint59_linear_2023_362" x1="109.854" y1="24.8174" x2="119.274" y2="29.603" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint60_linear_2023_362" x1="110.526" y1="20.4701" x2="115.018" y2="26.0317" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint61_linear_2023_362" x1="111.557" y1="16.8639" x2="114.676" y2="22.2574" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint62_linear_2023_362" x1="165.806" y1="29.2349" x2="166.912" y2="27.0144" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint63_linear_2023_362" x1="159.169" y1="25.1899" x2="160.256" y2="23.9781" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint64_linear_2023_362" x1="180.074" y1="30.4812" x2="168.442" y2="28.6654" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint65_linear_2023_362" x1="186.014" y1="27.0069" x2="176.295" y2="31.1506" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint66_linear_2023_362" x1="185.636" y1="22.6245" x2="180.781" y2="27.8726" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint67_linear_2023_362" x1="184.848" y1="18.9573" x2="181.374" y2="24.1296" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint68_linear_2023_362" x1="172.042" y1="23.4092" x2="171.842" y2="20.3116" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5C27B1" />
-            <stop offset="1" stop-color="#101116" />
+            <stop stopColor={palette.primaryAlt} />
+            <stop offset="1" stopColor={palette.darkest} />
           </linearGradient>
           <linearGradient id="paint69_linear_2023_362" x1="162.684" y1="23.1832" x2="163.118" y2="21.1961" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5D24BC" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primaryDeep} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint70_linear_2023_362" x1="187.668" y1="15.8222" x2="174.317" y2="20.7942" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint71_linear_2023_362" x1="191.767" y1="8.33705" x2="183.75" y2="18.6179" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint72_linear_2023_362" x1="188.731" y1="3.82559" x2="186.689" y2="12.5192" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
           <linearGradient id="paint73_linear_2023_362" x1="185.7" y1="0.345376" x2="185.156" y2="8.12298" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6226C4" />
-            <stop offset="1" stop-color="#16092C" />
+            <stop stopColor={palette.primary} />
+            <stop offset="1" stopColor={palette.dark} />
           </linearGradient>
         </defs>
       </svg>

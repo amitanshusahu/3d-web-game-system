@@ -129,24 +129,30 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
 
     const keys = pressedKeysRef.current
 
+    // Once the run is over (alarm rang) the player wakes up: ignore input and
+    // drop any keys still held so the body coasts to a stop.
+    const active = !usePlayerHudStore.getState().isGameOver
+
     controller.setMovement({
       forward:
-        keys.has('KeyW') || keys.has('ArrowUp'),
+        active && (keys.has('KeyW') || keys.has('ArrowUp')),
 
       backward:
-        keys.has('KeyS') || keys.has('ArrowDown'),
+        active && (keys.has('KeyS') || keys.has('ArrowDown')),
 
       leftward:
-        keys.has('KeyA') || keys.has('ArrowLeft'),
+        active && (keys.has('KeyA') || keys.has('ArrowLeft')),
 
       rightward:
-        keys.has('KeyD') || keys.has('ArrowRight'),
+        active && (keys.has('KeyD') || keys.has('ArrowRight')),
 
       run:
-        keys.has('ShiftLeft') || keys.has('ShiftRight'),
+        active && (keys.has('ShiftLeft') || keys.has('ShiftRight')),
 
-      jump: keys.has('Space'),
+      jump: active && keys.has('Space'),
     })
+
+    if (!active) keys.clear()
 
     const bodyPosition = controller.currPos
 
