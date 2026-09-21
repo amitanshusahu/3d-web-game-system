@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { AlarmIcon, PlayIcon } from '@phosphor-icons/react'
+import MissionBoard from '../ui/Mission/MissionBoard'
 import { usePlayerHudStore } from '../../store/playerHudStore'
 
 const DEFAULT_OBJECTIVE = 'Explore the world before your alarm goes off'
@@ -118,40 +119,46 @@ function ObjectiveBanner({ objective, remainingSeconds, progress, expired }: Obj
 }
 
 interface StartOverlayProps {
-  objective: string
   alarmMinutes: number
   onPlay: () => void
 }
 
-function StartOverlay({ objective, alarmMinutes, onPlay }: StartOverlayProps) {
+/**
+ * Pre-run briefing. Missions are shown here — and only here — in the fantasy
+ * mission board; once the player locks in, the HUD drops to the in-game panels.
+ */
+function StartOverlay({ alarmMinutes, onPlay }: StartOverlayProps) {
   return (
     <div
       onClick={onPlay}
-      className='absolute inset-0 z-10 flex cursor-pointer select-none flex-col items-center justify-center gap-8 bg-gradient-to-b from-black/75 via-black/55 to-black/75 px-6 text-center backdrop-blur-sm'
+      className='absolute inset-0 z-10 flex cursor-pointer select-none flex-col items-center justify-center gap-7 overflow-y-auto bg-gradient-to-b from-black/80 via-black/60 to-black/80 px-6 py-8 text-center backdrop-blur-sm'
     >
-      <div className='animate-hud-in flex flex-col items-center gap-3'>
+      <div className='animate-hud-in flex flex-col items-center gap-2'>
         <span className='flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5'>
           <AlarmIcon className='h-6 w-6 text-white/80' weight='duotone' />
         </span>
-        <h1 className='text-2xl font-semibold tracking-tight text-white'>Before the alarm</h1>
-        <p className='max-w-xs text-[13.5px] leading-relaxed text-white/55'>{objective}</p>
+        <h1 className='font-mono text-2xl font-semibold tracking-tight text-white'>Before the alarm</h1>
       </div>
 
-      <span className='animate-hud-in flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-[13px] font-medium text-white shadow-2xl'>
-        <PlayIcon className='h-3.5 w-3.5' weight='fill' />
-        Click to explore
-      </span>
+      <MissionBoard />
 
-      <div className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[11px] text-white/40'>
-        <ControlHint keys={['W', 'A', 'S', 'D']} label='Move' />
-        <ControlHint keys={['Space']} label='Jump' />
-        <ControlHint keys={['Shift']} label='Run' />
-        <ControlHint keys={['Esc']} label='Release' />
+      <div className='flex flex-col items-center gap-3'>
+        <span className='animate-hud-in flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-5 py-2.5 font-mono text-[13px] font-medium text-white shadow-2xl'>
+          <PlayIcon className='h-3.5 w-3.5' weight='fill' />
+          Click to explore
+        </span>
+
+        <div className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[11px] text-white/40'>
+          <ControlHint keys={['W', 'A', 'S', 'D']} label='Move' />
+          <ControlHint keys={['Space']} label='Jump' />
+          <ControlHint keys={['Shift']} label='Run' />
+          <ControlHint keys={['Esc']} label='Release' />
+        </div>
+
+        <p className='text-[11px] tracking-wide text-white/30'>
+          You have {alarmMinutes} minutes before the alarm rings.
+        </p>
       </div>
-
-      <p className='text-[11px] tracking-wide text-white/30'>
-        You have {alarmMinutes} minutes before the alarm rings.
-      </p>
     </div>
   )
 }
@@ -189,9 +196,7 @@ export default function PlayerHud({
   }
 
   if (!isPointerLocked) {
-    return (
-      <StartOverlay objective={objective} alarmMinutes={alarmMinutes} onPlay={requestPointerLock} />
-    )
+    return <StartOverlay alarmMinutes={alarmMinutes} onPlay={requestPointerLock} />
   }
 
   const totalMs = alarmMinutes * 60_000
