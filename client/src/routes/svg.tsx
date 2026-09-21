@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import AvatarFrame from '../components/ui/Hud/AvatarFrame'
 import DialogueBox from '../components/ui/Hud/DialogueBox'
+import TimeBar from '../components/ui/Hud/TimeBar'
 
 export const Route = createFileRoute('/svg')({
   component: RouteComponent,
@@ -8,14 +9,14 @@ export const Route = createFileRoute('/svg')({
 
 function RouteComponent() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 bg-black w-screen h-screen">
+    <div className="flex flex-col items-center justify-center gap-4 bg-white w-screen h-screen">
       {/* dialogue box with avatar frame */}
       <div className="flex gap-8">
         <AvatarFrame className="h-48" imgSrc="/img/avatar/skeleton-dragon.webp" />
         <DialogueBox className="w-125" text="Hello, I am a skeleton dragon! fsfsdfsdf slkdf lksdf ksdljfslkdf lsd flksdjf lsdfj lskdjf lskdfj " />
       </div>
 
-      
+      <TimeBar className="w-125" time={5000} />
     </div>
   )
 }

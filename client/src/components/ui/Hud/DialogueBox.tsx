@@ -8,7 +8,7 @@ export default function DialogueBox({
   return (
     <div className="relative">
       <svg className={className} viewBox="0 0 298 112" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="12.5" y="22.5" width="273" height="67" fill="url(#paint0_linear_2023_267)" fill-opacity="0.5" stroke="url(#paint1_linear_2023_267)" stroke-width="3" />
+        <rect x="12.5" y="22.5" width="273" height="67" fill="url(#paint0_linear_2023_267)" fill-opacity="0.7" stroke="url(#paint1_linear_2023_267)" stroke-width="3" />
         <path d="M25.8017 90.0935C21.1336 91.8708 18.5579 92.1824 13.9963 92.2021C13.9963 92.2021 18.7213 93.3988 21.9958 93.453C24.9689 93.5023 29.5894 92.6568 29.5894 92.6568L34.788 88.8029L25.8017 90.0935Z" fill="url(#paint2_linear_2023_267)" />
         <path d="M34.2186 92.7969C37.6293 91.2488 40.9071 87.9683 40.9071 87.9683L33.8252 88.934C29.8184 92.0937 26.9562 93.5652 20.8416 95.6941C20.8416 95.6941 30.3829 94.538 34.2186 92.7969Z" fill="url(#paint3_linear_2023_267)" />
         <path d="M15.5298 90.1143C20.5025 91.6774 29.3986 90.3289 29.3986 90.3289L19.0708 87.1098C14.4805 87.1176 12.0663 86.7349 7.85767 85.6076C7.85767 85.6076 11.9945 89.003 15.5298 90.1143Z" fill="url(#paint4_linear_2023_267)" />
