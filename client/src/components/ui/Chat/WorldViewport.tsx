@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 import Experience from '../../GameSystem/Experience'
 import PlayerHud from '../../GameSystem/PlayerHud'
+import DialogueHud from '../Dialogue/DialogueHud'
 import { WarningCircleIcon } from '@phosphor-icons/react'
 import { ThinkingOrb } from 'thinking-orbs'
 import type { WorldConfig } from '../../World/worldTypes'
@@ -47,6 +48,7 @@ export const WorldViewport = memo(function WorldViewport({ world, loadFailed }: 
         </div>
       )}
       <PlayerHud />
+      <DialogueHud />
     </div>
   )
 })

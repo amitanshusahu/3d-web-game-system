@@ -13,6 +13,21 @@ body,
 
 @import "tailwindcss";
 
+@theme {
+  --animate-dialogue-in: dialogue-in 0.3s ease-out;
+
+  @keyframes dialogue-in {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
 * {
   font-family: "DM Sans", sans-serif;
 }

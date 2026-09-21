@@ -16,6 +16,7 @@ import { useEffect, useMemo, useRef, type ComponentProps } from 'react'
 import { RigidBody } from '@react-three/rapier'
 import { Howl } from 'howler'
 import { usePlayerStore } from '../../../store/playerStore'
+import { useDialogueStore, type Dialogue } from '../../../store/dialogueStore'
 
 // attack_4 -> roar, attack_5 -> fly roar, soar -> soar, travelrun -> run, travelmove -> walk, travelidle -> idle , stunidle ->  idle / seems like eating
 type ActionName = 'attack_4' | 'attack_5' | 'soar' | 'travelrun' | 'travelmove' | 'travelidle' | 'stunidle'
@@ -40,6 +41,10 @@ type SkeletonDragonProps = ComponentProps<'group'> & {
   collider?: boolean
   alertRadius?: number
   calmRadius?: number
+  /** Dialogue shown when the player first comes near. Pass null to disable. */
+  dialogue?: Dialogue | null
+  /** Distance at which the dialogue triggers. Defaults to alertRadius + 20 so it fires before the roar. */
+  dialogueRadius?: number
   /** Called once the dragon has flown off and despawned itself */
   onDeparted?: () => void
 }
@@ -55,6 +60,14 @@ const ROAR_BASE_VOLUME = 2
 const GROWL_BASE_VOLUME = 4
 const FLAP_BASE_VOLUME = 1
 const DISTANT_BASE_VOLUME = 1
+const DIALOGUE_AUTO_CLOSE_MS = 6000
+
+const dragonDialogue: Dialogue = {
+  id: 'dragon-warning',
+  speaker: 'Mysterious Dragon',
+  avatar: '/img/avatar/skeleton-dragon.webp',
+  text: 'Oh, i smell human',
+}
 
 function volumeForDistance(dist: number, base: number) {
   const t = Math.max(0, 1 - dist / MAX_HEAR_DISTANCE)
@@ -75,7 +88,7 @@ function setHowlPan(howl: Howl, pan: number, id?: number) {
   withStereo.stereo?.(pan, id)
 }
 
-export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 40, calmRadius = 80, onDeparted, ...props }: SkeletonDragonProps) {
+export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 40, calmRadius = 80, dialogue = dragonDialogue, dialogueRadius = alertRadius + 20, onDeparted, ...props }: SkeletonDragonProps) {
   const group = useRef<THREE.Group | null>(null)
   const lift = useRef<THREE.Group | null>(null)
   const extendWithKtx2 = useKtx2LoaderExtender()
@@ -103,6 +116,11 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
   alertRadiusRef.current = alertRadius
   calmRadiusRef.current = calmRadius
   onDepartedRef.current = onDeparted
+  const dialogueRef = useRef<Dialogue | null>(dialogue)
+  const dialogueRadiusRef = useRef(dialogueRadius)
+  const dialogueShownRef = useRef(false)
+  dialogueRef.current = dialogue
+  dialogueRadiusRef.current = dialogueRadius
 
   const soundsRef = useRef<{
     growls: Howl[]
@@ -238,6 +256,8 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     modeRef.current = 'departed'
     clearSequence()
     stopFlap()
+    const dlg = dialogueRef.current
+    if (dlg) useDialogueStore.getState().closeDialogue(dlg.id)
     for (const action of Object.values(actionsRef.current)) action?.stop()
     if (group.current) group.current.visible = false
     const s = soundsRef.current
@@ -282,6 +302,19 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     dragon.getWorldPosition(tmpVec)
     const player = usePlayerStore.getState().position
     const dist = tmpVec.distanceTo(player)
+
+    if (modeRef.current === 'idle' || modeRef.current === 'roar') {
+      const radius = dialogueRadiusRef.current
+      if (!dialogueShownRef.current && dist < radius) {
+        dialogueShownRef.current = true
+        const dlg = dialogueRef.current
+        if (dlg) {
+          useDialogueStore.getState().showDialogue(dlg, { autoCloseMs: DIALOGUE_AUTO_CLOSE_MS })
+        }
+      } else if (dialogueShownRef.current && dist > radius * 1.25) {
+        dialogueShownRef.current = false
+      }
+    }
 
     if (modeRef.current === 'idle' && dist < alertRadiusRef.current) {
       triggerRoar(dist, state.camera)
