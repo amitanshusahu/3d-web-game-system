@@ -16,6 +16,7 @@ body,
 @theme {
   --animate-dialogue-in: dialogue-in 0.3s ease-out;
   --animate-mission-in: mission-in 0.4s ease-out;
+  --animate-hud-in: hud-in 0.35s ease-out;
 
   @keyframes dialogue-in {
     from {
@@ -25,6 +26,17 @@ body,
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes hud-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
   }
 
