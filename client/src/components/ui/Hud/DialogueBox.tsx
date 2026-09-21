@@ -1,12 +1,34 @@
-export default function DialogueBox({
-  className = 'h-32',
-  text
-}: {
+import type { ReactNode } from 'react'
+
+const VIEW_WIDTH = 298
+const VIEW_HEIGHT = 112
+const BOX_LEFT = 12.5
+const BOX_TOP = 22.5
+const BOX_WIDTH = 273
+const BOX_HEIGHT = 67
+
+interface DialogueBoxProps {
+  /** Sizing classes for the frame — controls its rendered width. */
   className?: string
-  text: string
-}) {
+  /** Layout classes for the content overlay; positioning is applied automatically. */
+  contentClassName?: string
+  children: ReactNode
+}
+
+export default function DialogueBox({
+  className = 'w-125',
+  contentClassName = 'flex-col justify-center gap-1 px-8 text-left text-sm',
+  children,
+}: DialogueBoxProps) {
+  const overlayStyle = {
+    left: `${(BOX_LEFT / VIEW_WIDTH) * 100}%`,
+    top: `${(BOX_TOP / VIEW_HEIGHT) * 100}%`,
+    width: `${(BOX_WIDTH / VIEW_WIDTH) * 100}%`,
+    height: `${(BOX_HEIGHT / VIEW_HEIGHT) * 100}%`,
+  }
+
   return (
-    <div className="relative">
+    <div className="relative w-full min-w-0">
       <svg className={className} viewBox="0 0 298 112" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="12.5" y="22.5" width="273" height="67" fill="url(#paint0_linear_2023_267)" fill-opacity="0.7" stroke="url(#paint1_linear_2023_267)" stroke-width="3" />
         <path d="M25.8017 90.0935C21.1336 91.8708 18.5579 92.1824 13.9963 92.2021C13.9963 92.2021 18.7213 93.3988 21.9958 93.453C24.9689 93.5023 29.5894 92.6568 29.5894 92.6568L34.788 88.8029L25.8017 90.0935Z" fill="url(#paint2_linear_2023_267)" />
@@ -261,8 +283,8 @@ export default function DialogueBox({
           </linearGradient>
         </defs>
       </svg>
-      <div className={`absolute left-[12.5px] top-[22.5px] overflow-hidden p-6 text-left font-mono text-sm text-white`}>
-        {text}
+      <div className={`absolute flex overflow-hidden font-mono text-white ${contentClassName}`} style={overlayStyle}>
+        {children}
       </div>
     </div>
   )

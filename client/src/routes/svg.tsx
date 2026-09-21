@@ -14,7 +14,9 @@ function RouteComponent() {
       {/* dialogue box with avatar frame */}
       <div className="flex gap-8">
         <AvatarFrame className="h-48" imgSrc="/img/avatar/skeleton-dragon.webp" />
-        <DialogueBox className="w-125" text="Hello, I am a skeleton dragon! fsfsdfsdf slkdf lksdf ksdljfslkdf lsd flksdjf lsdfj lskdjf lskdfj " />
+        <DialogueBox className="w-125">
+          Hello, I am a skeleton dragon! fsfsdfsdf slkdf lksdf ksdljfslkdf lsd flksdjf lsdfj lskdjf lskdfj
+        </DialogueBox>
       </div>
 
       <TimeBar className="w-125" time={5000} drainColor='#5000e6' onComplete={() => alert("done")} />
