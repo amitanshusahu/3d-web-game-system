@@ -252,6 +252,8 @@ function ComponentWorldObject({ config, entry, ...input }: PlacementInput & {
   if (!placement) return null
 
   const Component = entry.component
+  // i want the componets to be a decor as user will never be able to touch them 
+  config.physics = 'decor';
   return (
     <PlacedFrame config={config} placement={placement}>
       <Component scale={scale} />

@@ -40,12 +40,17 @@ type SkeletonDragonProps = ComponentProps<'group'> & {
   collider?: boolean
   alertRadius?: number
   calmRadius?: number
+  /** Called once the dragon has flown off and despawned itself */
+  onDeparted?: () => void
 }
 
-type DragonMode = 'idle' | 'roar' | 'fly'
+type DragonMode = 'idle' | 'roar' | 'fly' | 'soar' | 'departed'
 
 const MAX_HEAR_DISTANCE = 200
 const FLY_WORLD_HEIGHT = 150
+const FLY_FORWARD_SPEED = 18
+const SOAR_ASCENT = FLY_WORLD_HEIGHT * 0.15
+const SOAR_MAX_MS = 20000
 const ROAR_BASE_VOLUME = 2
 const GROWL_BASE_VOLUME = 4
 const FLAP_BASE_VOLUME = 1
@@ -70,7 +75,7 @@ function setHowlPan(howl: Howl, pan: number, id?: number) {
   withStereo.stereo?.(pan, id)
 }
 
-export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 40, calmRadius = 80, ...props }: SkeletonDragonProps) {
+export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 40, calmRadius = 80, onDeparted, ...props }: SkeletonDragonProps) {
   const group = useRef<THREE.Group | null>(null)
   const lift = useRef<THREE.Group | null>(null)
   const extendWithKtx2 = useKtx2LoaderExtender()
@@ -89,13 +94,15 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
   const modeRef = useRef<DragonMode>(mode === 'flying' ? 'fly' : 'idle')
   const flyLiftRef = useRef(mode === 'flying' ? FLY_LIFT : 0)
-  const flyStartedAtRef = useRef(0)
+  const soarStartedAtRef = useRef(0)
   const sequenceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const initialModeRef = useRef(mode)
   const alertRadiusRef = useRef(alertRadius)
   const calmRadiusRef = useRef(calmRadius)
+  const onDepartedRef = useRef(onDeparted)
   alertRadiusRef.current = alertRadius
   calmRadiusRef.current = calmRadius
+  onDepartedRef.current = onDeparted
 
   const soundsRef = useRef<{
     growls: Howl[]
@@ -157,9 +164,8 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
   useEffect(() => {
     if (initialModeRef.current === 'flying') {
-      modeRef.current = 'fly'
       flyLiftRef.current = FLY_LIFT
-      playAction('attack_5', true)
+      beginTakeoff()
       return
     }
     modeRef.current = 'idle'
@@ -174,7 +180,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     const tmp = new THREE.Vector3()
     const scheduleGrowl = () => {
       timer = setTimeout(() => {
-        if (cancelled) return
+        if (cancelled || modeRef.current === 'departed') return
         const cur = soundsRef.current
         const dragon = group.current
         if (cur && dragon && modeRef.current === 'idle') {
@@ -205,6 +211,44 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     }
   }, [])
 
+  const beginSoar = () => {
+    modeRef.current = 'soar'
+    soarStartedAtRef.current = performance.now()
+    // Plays once and holds the last frame (glide pose) via clampWhenFinished
+    playAction('soar', false)
+  }
+
+  const beginTakeoff = () => {
+    modeRef.current = 'fly'
+    playAction('attack_5', false)
+    const s = soundsRef.current
+    if (s && s.flapId === null) {
+      const id = s.flap.play()
+      s.flapId = id
+    }
+    const flyClip = actionsRef.current['attack_5']?.getClip()
+    const flyMs = Math.max(1000, Math.min(3000, (flyClip?.duration ?? 1.8) * 1000))
+    sequenceTimeout.current = setTimeout(() => {
+      if (modeRef.current !== 'fly') return
+      beginSoar()
+    }, flyMs)
+  }
+
+  const depart = (dist: number, camera: THREE.Camera) => {
+    modeRef.current = 'departed'
+    clearSequence()
+    stopFlap()
+    for (const action of Object.values(actionsRef.current)) action?.stop()
+    if (group.current) group.current.visible = false
+    const s = soundsRef.current
+    if (s && dist < MAX_HEAR_DISTANCE) {
+      const id = s.distant.play()
+      s.distant.volume(volumeForDistance(dist, DISTANT_BASE_VOLUME), id)
+      setHowlPan(s.distant, panForPosition(tmpVec, camera), id)
+    }
+    onDepartedRef.current?.()
+  }
+
   const triggerRoar = (dist: number, camera: THREE.Camera) => {
     const s = soundsRef.current
     modeRef.current = 'roar'
@@ -220,19 +264,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     const roarMs = Math.max(1200, Math.min(3200, (roarClip?.duration ?? 2) * 1000))
     sequenceTimeout.current = setTimeout(() => {
       if (modeRef.current !== 'roar') return
-      modeRef.current = 'fly'
-      flyStartedAtRef.current = performance.now()
-      playAction('attack_5', false)
-      const s2 = soundsRef.current
-      if (s2 && s2.flapId === null) {
-        const id = s2.flap.play()
-        s2.flapId = id
-      }
-      const flyClip = actionsRef.current['attack_5']?.getClip()
-      const flyMs = Math.max(1000, Math.min(3000, (flyClip?.duration ?? 1.8) * 1000))
-      sequenceTimeout.current = setTimeout(() => {
-        if (modeRef.current === 'fly') playAction('attack_5', true)
-      }, flyMs)
+      beginTakeoff()
     }, roarMs)
   }
 
@@ -245,7 +277,7 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
   useFrame((state, delta) => {
     const dragon = group.current
-    if (!dragon) return
+    if (!dragon || modeRef.current === 'departed') return
     const s = soundsRef.current
     dragon.getWorldPosition(tmpVec)
     const player = usePlayerStore.getState().position
@@ -253,18 +285,25 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
     if (modeRef.current === 'idle' && dist < alertRadiusRef.current) {
       triggerRoar(dist, state.camera)
-    } else if (modeRef.current === 'fly') {
-      const airborneFor = performance.now() - flyStartedAtRef.current
-      if (dist > calmRadiusRef.current && airborneFor > 6000) land()
+    } else if (modeRef.current === 'soar') {
+      // Glide straight ahead on the frozen takeoff heading, climbing as it leaves
+      const yaw = dragon.rotation.y
+      dragon.position.x += Math.sin(yaw) * FLY_FORWARD_SPEED * delta
+      dragon.position.z += Math.cos(yaw) * FLY_FORWARD_SPEED * delta
+      const soaredFor = performance.now() - soarStartedAtRef.current
+      if (dist > MAX_HEAR_DISTANCE || soaredFor > SOAR_MAX_MS) {
+        depart(dist, state.camera)
+        return
+      }
     } else if (modeRef.current === 'roar' && dist > calmRadiusRef.current * 1.5) {
       land()
     }
 
-    const targetLift = modeRef.current === 'fly' ? FLY_LIFT : 0
+    const targetLift = modeRef.current === 'fly' ? FLY_LIFT : modeRef.current === 'soar' ? FLY_LIFT + SOAR_ASCENT : 0
     flyLiftRef.current = THREE.MathUtils.damp(flyLiftRef.current, targetLift, 1.2, delta)
     if (lift.current) lift.current.position.y = flyLiftRef.current
 
-    if (modeRef.current !== 'idle') {
+    if (modeRef.current === 'roar' || modeRef.current === 'fly') {
       const yaw = Math.atan2(player.x - tmpVec.x, player.z - tmpVec.z)
       const current = dragon.rotation.y
       let d = yaw - current
