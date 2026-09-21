@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { CheckCircleIcon } from '@phosphor-icons/react'
 import { useMissionStore } from '../../../store/missionStore'
+import FantasyFrame from '../Hud/FantasyFrame'
 
 const TOAST_DURATION_MS = 4000
 
@@ -32,17 +33,17 @@ export default function MissionHud() {
 
   return (
     <div className='pointer-events-none absolute inset-x-0 top-16 z-30 flex justify-center px-4'>
-      <div
-        key={version}
-        className='animate-mission-in flex items-center gap-3 rounded-xl border border-emerald-400/25 bg-emerald-500/15 px-4 py-2.5 shadow-2xl backdrop-blur-md'
-      >
-        <CheckCircleIcon className='h-7 w-7 shrink-0 text-emerald-400' weight='fill' />
-        <div>
-          <p className='text-[10.5px] font-semibold uppercase tracking-widest text-emerald-300'>
+      <div key={version} className='animate-mission-in'>
+        <FantasyFrame
+          className='w-125'
+          contentClassName='flex-col items-center justify-center gap-0.5 px-6 pt-6 text-center'
+        >
+          <p className='flex items-center gap-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.32em] text-amber-200/80'>
+            <CheckCircleIcon className='h-3.5 w-3.5 text-emerald-400' weight='fill' />
             Mission complete
           </p>
-          <p className='text-[14.5px] font-medium text-white'>{toast.name}</p>
-        </div>
+          <p className='text-[15px] font-semibold text-white'>{toast.name}</p>
+        </FantasyFrame>
       </div>
     </div>
   )
