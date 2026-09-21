@@ -13,7 +13,7 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import { useKtx2LoaderExtender } from '../../../lib/ktx2'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
 import { useEffect, useMemo, useRef, type ComponentProps } from 'react'
-import { BallCollider, RigidBody } from '@react-three/rapier'
+import { RigidBody } from '@react-three/rapier'
 import { Howl } from 'howler'
 import { usePlayerStore } from '../../../store/playerStore'
 
@@ -44,12 +44,12 @@ type SkeletonDragonProps = ComponentProps<'group'> & {
 
 type DragonMode = 'idle' | 'roar' | 'fly'
 
-const MAX_HEAR_DISTANCE = 100
+const MAX_HEAR_DISTANCE = 200
 const FLY_WORLD_HEIGHT = 150
-const ROAR_BASE_VOLUME = 7
+const ROAR_BASE_VOLUME = 2
 const GROWL_BASE_VOLUME = 4
-const FLAP_BASE_VOLUME = 15
-const DISTANT_BASE_VOLUME = 5
+const FLAP_BASE_VOLUME = 1
+const DISTANT_BASE_VOLUME = 1
 
 function volumeForDistance(dist: number, base: number) {
   const t = Math.max(0, 1 - dist / MAX_HEAR_DISTANCE)
@@ -70,7 +70,7 @@ function setHowlPan(howl: Howl, pan: number, id?: number) {
   withStereo.stereo?.(pan, id)
 }
 
-export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 30, calmRadius = 60, ...props }: SkeletonDragonProps) {
+export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 40, calmRadius = 80, ...props }: SkeletonDragonProps) {
   const group = useRef<THREE.Group | null>(null)
   const lift = useRef<THREE.Group | null>(null)
   const extendWithKtx2 = useKtx2LoaderExtender()
@@ -85,8 +85,6 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
   const numericScale = typeof scale === 'number' ? scale : 1
   const SCALE = numericScale * 2
-  // const ABDOMEN_RADIUS = SCALE * 0.6
-  // const ABDOMEN_HEIGHT = SCALE * 0.5
   const FLY_LIFT = FLY_WORLD_HEIGHT / SCALE * 0.1
 
   const modeRef = useRef<DragonMode>(mode === 'flying' ? 'fly' : 'idle')
@@ -137,11 +135,10 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
 
   useEffect(() => {
     const growls = [
-      new Howl({ src: ['/ignore/sounds/dragon/high-growl.mp3'], volume: GROWL_BASE_VOLUME, preload: true }),
       new Howl({ src: ['/ignore/sounds/dragon/low-growl.mp3'], volume: GROWL_BASE_VOLUME, preload: true }),
     ]
     const roar = new Howl({ src: ['/ignore/sounds/dragon/dragon-roar-near.mp3'], volume: ROAR_BASE_VOLUME, preload: true })
-    const flap = new Howl({ src: ['/ignore/sounds/dragon/dragon-flaping-winds.mp3'], loop: true, volume: 0, preload: true })
+    const flap = new Howl({ src: ['/ignore/sounds/dragon/dragon-flaping-winds.mp3'], loop: true, volume: FLAP_BASE_VOLUME, preload: true })
     const distant = new Howl({ src: ['/ignore/sounds/dragon/dragon-distant-howling.mp3'], volume: DISTANT_BASE_VOLUME, preload: true })
     soundsRef.current = { growls, roar, flap, distant, flapId: null }
     return () => {
@@ -316,7 +313,6 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
   return (
     <RigidBody type="fixed" colliders={false} position={position} rotation={rotation}>
       {body}
-      {/* <BallCollider args={[ABDOMEN_RADIUS]} position={[0, ABDOMEN_HEIGHT, 0]}/> */}
     </RigidBody>
   )
 }
