@@ -16,7 +16,7 @@ function RouteComponent() {
         <DialogueBox className="w-125" text="Hello, I am a skeleton dragon! fsfsdfsdf slkdf lksdf ksdljfslkdf lsd flksdjf lsdfj lskdjf lskdfj " />
       </div>
 
-      <TimeBar className="w-125" time={5000} />
+      <TimeBar className="w-125" time={5000} drainColor='#5000e6' onComplete={() => alert("done")}/>
     </div>
   )
 }

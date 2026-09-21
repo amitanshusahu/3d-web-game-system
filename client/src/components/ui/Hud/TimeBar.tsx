@@ -13,10 +13,12 @@ function formatTime(ms: number) {
 export default function TimeBar({
   className = 'w-32',
   time = 0,
+  drainColor = 'black',
   onComplete,
 }: {
   className?: string;
   time: number;
+  drainColor?: string;
   onComplete?: () => void;
 }) {
   const [remaining, setRemaining] = useState(time)
@@ -221,8 +223,8 @@ export default function TimeBar({
             <stop offset="1" stop-color="#16092C" />
           </linearGradient>
           <linearGradient id="paint24_linear_2022_65" x1={drainX} y1="44" x2={BAR_START_X} y2="44" gradientUnits="userSpaceOnUse">
-            <stop stop-opacity="0.1" />
-            <stop offset="1" />
+            <stop stop-color={drainColor} stop-opacity="0.1" />
+            <stop offset="1" stop-color={drainColor} />
           </linearGradient>
           <linearGradient id="paint25_linear_2022_65" x1="19.0802" y1="43.75" x2="365.12" y2="43.75" gradientUnits="userSpaceOnUse">
             <stop stop-color="#211047" />
