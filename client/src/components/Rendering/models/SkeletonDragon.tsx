@@ -52,8 +52,8 @@ type SkeletonDragonProps = ComponentProps<'group'> & {
 type DragonMode = 'idle' | 'roar' | 'fly' | 'soar' | 'departed'
 
 const MAX_HEAR_DISTANCE = 200
-const FLY_WORLD_HEIGHT = 150
-const FLY_FORWARD_SPEED = 18
+const FLY_WORLD_HEIGHT = 100
+const FLY_FORWARD_SPEED = 2
 const SOAR_ASCENT = FLY_WORLD_HEIGHT * 0.15
 const SOAR_MAX_MS = 20000
 const ROAR_BASE_VOLUME = 2

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { getToken } from '../../lib/auth'
 import { getChatErrorMessage, useChat, useChats, useSendMessage } from '../../hooks/useChat'
@@ -16,6 +16,7 @@ import {
   ArrowClockwiseIcon,
   CheckIcon,
   CloudArrowUpIcon,
+  CornersInIcon,
   CornersOutIcon,
 } from '@phosphor-icons/react'
 
@@ -39,6 +40,22 @@ function App() {
   const [showPostDrawer, setShowPostDrawer] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const viewportRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(document.fullscreenElement === viewportRef.current)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen()
+    } else if (viewportRef.current) {
+      void viewportRef.current.requestFullscreen()
+    }
+  }
 
   const histories = chatQuery.data?.userChatHistories ?? []
   const latestResponse = histories.length > 0 ? histories[histories.length - 1]?.response : null
@@ -99,10 +116,19 @@ function App() {
 
       <main className='relative order-1 flex h-[38vh] min-h-0 shrink-0 flex-col border-b border-white/10 lg:order-2 lg:h-auto lg:min-w-0 lg:flex-1 lg:border-b-0'>
         <header className='flex justify-between h-14 shrink-0 items-center gap-1.5 border-b border-white/10 bg-[#0a0a0a] px-3'>
+        {/* full screen button */}
           <button
             type='button'
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit full screen' : 'Full screen'}
+            aria-label={isFullscreen ? 'Exit full screen' : 'Full screen'}
+            className='cursor-pointer transition hover:opacity-80'
           >
-            <CornersOutIcon className='text-white/60 w-6 h-6' />
+            {isFullscreen ? (
+              <CornersInIcon className='text-white/60 w-6 h-6' />
+            ) : (
+              <CornersOutIcon className='text-white/60 w-6 h-6' />
+            )}
           </button>
 
           <div className="flex gap-2">
@@ -136,7 +162,7 @@ function App() {
           </div>
         </header>
 
-        <div className='relative min-h-0 flex-1'>
+        <div ref={viewportRef} className='relative min-h-0 flex-1 bg-black'>
           <WorldViewport world={latestWorld} loadFailed={chatQuery.isError} />
           {latestWorld && (
             <div className='pointer-events-none absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-3 py-1 text-[11.5px] text-white/70 backdrop-blur'>
