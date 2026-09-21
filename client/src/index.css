@@ -23,6 +23,7 @@ body,
       opacity: 0;
       transform: translateY(1rem);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -34,6 +35,7 @@ body,
       opacity: 0;
       transform: translateY(-0.5rem) scale(0.98);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -45,6 +47,7 @@ body,
       opacity: 0;
       transform: translateY(-0.75rem);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -67,22 +70,20 @@ canvas {
 }
 
 .eased-overlay {
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.738) 19%,
-    rgba(0, 0, 0, 0.541) 34%,
-    rgba(0, 0, 0, 0.382) 47%,
-    rgba(0, 0, 0, 0.278) 56.5%,
-    rgba(0, 0, 0, 0.194) 65%,
-    rgba(0, 0, 0, 0.126) 73%,
-    rgba(0, 0, 0, 0.075) 80.2%,
-    rgba(0, 0, 0, 0.042) 86.1%,
-    rgba(0, 0, 0, 0.021) 91%,
-    rgba(0, 0, 0, 0.008) 95.2%,
-    rgba(0, 0, 0, 0.002) 98.2%,
-    transparent 100%
-  );
+  background: linear-gradient(to right,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.738) 19%,
+      rgba(0, 0, 0, 0.541) 34%,
+      rgba(0, 0, 0, 0.382) 47%,
+      rgba(0, 0, 0, 0.278) 56.5%,
+      rgba(0, 0, 0, 0.194) 65%,
+      rgba(0, 0, 0, 0.126) 73%,
+      rgba(0, 0, 0, 0.075) 80.2%,
+      rgba(0, 0, 0, 0.042) 86.1%,
+      rgba(0, 0, 0, 0.021) 91%,
+      rgba(0, 0, 0, 0.008) 95.2%,
+      rgba(0, 0, 0, 0.002) 98.2%,
+      transparent 100%);
 }
 
 .smooth {
