@@ -4,7 +4,7 @@ Command: npx gltfjsx@6.5.3 public/models/ignore/map/mobile_home_with_collider.gl
 */
 
 import * as THREE from 'three'
-import { useEffect, useMemo, useRef, type JSX } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, type JSX } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { type GLTF } from 'three-stdlib'
@@ -21,7 +21,6 @@ interface GLTFAction extends THREE.AnimationClip {
 type GLTFResult = GLTF & {
   nodes: {
     VISIBLE_COL_MOVING_JOINT_1VISIBLE_COL_MOVING_JOINT_2: THREE.Mesh
-    COL_MOVING_GEAR_1: THREE.Mesh
     VISIBLE_COL_MOVING_JOINT_1: THREE.Mesh
     COL_MOVING_FLOOR_1: THREE.Mesh
     COL_MOVING_FLOOR_2: THREE.Mesh
@@ -33,6 +32,8 @@ type GLTFResult = GLTF & {
     COL_MOVING_WALL_4: THREE.Mesh
     COL_MOVING_WALL_5: THREE.Mesh
     COL_MOVING_WALL_6: THREE.Mesh
+    COL_MOVING_WALL_7: THREE.Mesh
+    COL_MOVING_WALL_8: THREE.Mesh
     COL_MOVING_FLOOR_4: THREE.Mesh
     COL_MOVING_FLOOR_5: THREE.Mesh
     building_D_pipes001_flame_0: THREE.Mesh
@@ -65,6 +66,8 @@ type GLTFResult = GLTF & {
     COL_FLOOR_21: THREE.Mesh
     COL_FLOOR_22: THREE.Mesh
     COL_FLOOR_23: THREE.Mesh
+    COL_FLOOR_23001: THREE.Mesh
+    COL_FLOOR_23002: THREE.Mesh
     COL_FLOOR_27: THREE.Mesh
     COL_FLOOR_28: THREE.Mesh
     COL_FLOOR_29: THREE.Mesh
@@ -94,26 +97,26 @@ type GLTFResult = GLTF & {
 const MODEL_URL = '/models/ignore/map/mobile_home_with_collider.glb'
 
 /**
- * Spawn zone: the standable top of the COL_FLOOR_4 collider, read straight off
- * its proxy box in component space (World renders this map at mapScale = 1).
- * Format: [x, z, radius, floorY].
+ * Spawn zones: the standable tops of the COL_FLOOR_4 and COL_FLOOR_27 colliders,
+ * read straight off each proxy box in component space (World renders this map at
+ * mapScale = 1). Format: [x, z, radius, floorY].
  */
 export const MobileHomeSpawnZones: SpawnZone[] = [
   [-3.09, 41.52, 6.5, 9.37], // COL_FLOOR_4 deck
+  [22.82, 24.48, 2.6, 52.78], // COL_FLOOR_27 platform
 ]
 
 /**
  * Blender collider naming convention (see docs/WorldBuilding.md):
  *   COL_*          static collider, never rendered
  *   COL_MOVING_*   collider that rides the skeletal animation, never rendered
- *   VISIBLE_COL_*  collider that is also part of the visible mesh
- * Every other mesh is render-only.
+ * VISIBLE_COL_* meshes are render-only: their cuboid proxies are a poor fit for
+ * the curved geometry and trap the player, so they get no collider.
+ * Every other mesh is render-only too.
  */
-const isMovingCollider = (name: string) =>
-  name.startsWith('COL_MOVING_') || name.startsWith('VISIBLE_COL_MOVING_')
+const isMovingCollider = (name: string) => name.startsWith('COL_MOVING_')
 
-const isCollider = (name: string) =>
-  name.startsWith('COL_') || name.startsWith('VISIBLE_COL')
+const isCollider = (name: string) => name.startsWith('COL_')
 
 interface ColliderBox {
   name: string
@@ -137,10 +140,10 @@ export function MobileHome(props: JSX.IntrinsicElements['group']) {
   }, [actions])
 
   /**
-   * Read every COL_* / VISIBLE_COL_* mesh off the loaded scene (bind pose — all
-   * animation scale tracks are constant) and turn its bounding box into a cheap
-   * cuboid. Static proxies go in one frozen body; COL_MOVING_* proxies get a
-   * kinematic body each so they can follow the animation.
+   * Read every COL_* mesh off the loaded scene (bind pose — all animation scale
+   * tracks are constant) and turn its bounding box into a cheap cuboid. Static
+   * proxies go in one frozen body; COL_MOVING_* proxies get a kinematic body
+   * each so they can follow the animation. VISIBLE_COL_* meshes are skipped.
    */
   const { staticBoxes, movingBoxes } = useMemo(() => {
     const staticBoxes: ColliderBox[] = []
@@ -177,16 +180,20 @@ export function MobileHome(props: JSX.IntrinsicElements['group']) {
     return { staticBoxes, movingBoxes }
   }, [scene])
 
-  // The rendered COL_MOVING_* meshes ride the skeleton, so we sample their world
-  // matrices each frame to drive the kinematic bodies that represent them.
+  // The generated JSX renders every mesh in the GLB, so the physics-only COL_*
+  // proxies are hidden here (VISIBLE_COL_* never matches, so it stays visible).
+  // The same pass collects the COL_MOVING_* meshes that ride the skeleton; we
+  // sample their world matrices each frame to drive the kinematic bodies.
   const movingMeshes = useRef(new Map<string, THREE.Mesh>())
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = group.current
     if (!root) return
     const found = new Map<string, THREE.Mesh>()
     root.traverse((object) => {
       const mesh = object as THREE.Mesh
-      if (mesh.isMesh && isMovingCollider(mesh.name)) found.set(mesh.name, mesh)
+      if (!mesh.isMesh) return
+      if (isCollider(mesh.name)) mesh.visible = false
+      if (isMovingCollider(mesh.name)) found.set(mesh.name, mesh)
     })
     movingMeshes.current = found
   }, [scene])
@@ -264,24 +271,25 @@ export function MobileHome(props: JSX.IntrinsicElements['group']) {
                           </group>
                         </group>
                         <group name="building_D_pipes002" rotation={[-Math.PI / 2, -0.856, -Math.PI / 2]}>
-                          <mesh visible={false} name="COL_MOVING_GEAR_1" geometry={nodes.COL_MOVING_GEAR_1.geometry} material={nodes.COL_MOVING_GEAR_1.material} position={[-3.22, 8.373, 7.216]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[3.37, 3.95, 3.43]} />
                           <mesh name="VISIBLE_COL_MOVING_JOINT_1" geometry={nodes.VISIBLE_COL_MOVING_JOINT_1.geometry} material={materials.pipes_moving_baked} />
                         </group>
                       </group>
                       <group name="home_02">
                         <group name="building_D_pipes001" rotation={[0, -1.571, 0]} scale={1.052}>
-                          <mesh visible={false} name="COL_MOVING_FLOOR_1" geometry={nodes.COL_MOVING_FLOOR_1.geometry} material={nodes.COL_MOVING_FLOOR_1.material} position={[-4.71, -2.985, 0.891]} rotation={[Math.PI / 2, 0.017, 0]} scale={[6.577, 0.2, 3.669]} />
-                          <mesh visible={false} name="COL_MOVING_FLOOR_2" geometry={nodes.COL_MOVING_FLOOR_2.geometry} material={nodes.COL_MOVING_FLOOR_2.material} position={[-3.521, 4.087, -0.129]} rotation={[Math.PI / 2, -0.052, 0]} scale={[3.06, 0.219, 4.248]} />
-                          <mesh visible={false} name="COL_MOVING_FLOOR_3" geometry={nodes.COL_MOVING_FLOOR_3.geometry} material={nodes.COL_MOVING_FLOOR_3.material} position={[-3.53, -6.276, -0.229]} rotation={[2.217, 0, 0]} scale={[3.06, 0.219, 2.081]} />
-                          <mesh visible={false} name="COL_MOVING_FLOOR_6" geometry={nodes.COL_MOVING_FLOOR_6.geometry} material={nodes.COL_MOVING_FLOOR_6.material} position={[-3.008, -10.049, -1.675]} rotation={[Math.PI / 2, -0.052, 0.035]} scale={[3.193, 0.181, 5.427]} />
-                          <mesh visible={false} name="COL_MOVING_WALL_1" geometry={nodes.COL_MOVING_WALL_1.geometry} material={nodes.COL_MOVING_WALL_1.material} position={[-0.613, -3.21, 3.205]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
-                          <mesh visible={false} name="COL_MOVING_WALL_2" geometry={nodes.COL_MOVING_WALL_2.geometry} material={nodes.COL_MOVING_WALL_2.material} position={[-11.409, -2.582, 2.921]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
-                          <mesh visible={false} name="COL_MOVING_WALL_3" geometry={nodes.COL_MOVING_WALL_3.geometry} material={nodes.COL_MOVING_WALL_3.material} position={[-0.637, 4.277, 2.613]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
-                          <mesh visible={false} name="COL_MOVING_WALL_4" geometry={nodes.COL_MOVING_WALL_4.geometry} material={nodes.COL_MOVING_WALL_4.material} position={[-6.296, 4.516, 2.483]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
-                          <mesh visible={false} name="COL_MOVING_WALL_5" geometry={nodes.COL_MOVING_WALL_5.geometry} material={nodes.COL_MOVING_WALL_5.material} position={[0.124, -9.853, 1.188]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
-                          <mesh visible={false} name="COL_MOVING_WALL_6" geometry={nodes.COL_MOVING_WALL_6.geometry} material={nodes.COL_MOVING_WALL_6.material} position={[-6.762, -9.74, 1.24]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
-                          <mesh visible={false} name="COL_MOVING_FLOOR_4" geometry={nodes.COL_MOVING_FLOOR_4.geometry} material={nodes.COL_MOVING_FLOOR_4.material} position={[0.184, 0.262, -0.047]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1.882, 1.825, 2.034]} />
-                          <mesh visible={false} name="COL_MOVING_FLOOR_5" geometry={nodes.COL_MOVING_FLOOR_5.geometry} material={nodes.COL_MOVING_FLOOR_5.material} position={[-5.862, 0.151, 0.283]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1.882, 1.825, 2.034]} />
+                          <mesh name="COL_MOVING_FLOOR_1" geometry={nodes.COL_MOVING_FLOOR_1.geometry} material={nodes.COL_MOVING_FLOOR_1.material} position={[-4.71, -2.985, 0.891]} rotation={[Math.PI / 2, 0.017, 0]} scale={[6.577, 0.2, 3.669]} />
+                          <mesh name="COL_MOVING_FLOOR_2" geometry={nodes.COL_MOVING_FLOOR_2.geometry} material={nodes.COL_MOVING_FLOOR_2.material} position={[-3.521, 4.087, -0.129]} rotation={[Math.PI / 2, -0.052, 0]} scale={[3.06, 0.219, 4.248]} />
+                          <mesh name="COL_MOVING_FLOOR_3" geometry={nodes.COL_MOVING_FLOOR_3.geometry} material={nodes.COL_MOVING_FLOOR_3.material} position={[-3.53, -6.276, -0.229]} rotation={[2.217, 0, 0]} scale={[3.06, 0.219, 2.081]} />
+                          <mesh name="COL_MOVING_FLOOR_6" geometry={nodes.COL_MOVING_FLOOR_6.geometry} material={nodes.COL_MOVING_FLOOR_6.material} position={[-3.008, -10.049, -1.675]} rotation={[Math.PI / 2, -0.052, 0.035]} scale={[3.193, 0.181, 5.427]} />
+                          <mesh name="COL_MOVING_WALL_1" geometry={nodes.COL_MOVING_WALL_1.geometry} material={nodes.COL_MOVING_WALL_1.material} position={[-0.613, -3.21, 3.205]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
+                          <mesh name="COL_MOVING_WALL_2" geometry={nodes.COL_MOVING_WALL_2.geometry} material={nodes.COL_MOVING_WALL_2.material} position={[-11.409, -2.582, 2.921]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
+                          <mesh name="COL_MOVING_WALL_3" geometry={nodes.COL_MOVING_WALL_3.geometry} material={nodes.COL_MOVING_WALL_3.material} position={[-0.637, 4.277, 2.613]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
+                          <mesh name="COL_MOVING_WALL_4" geometry={nodes.COL_MOVING_WALL_4.geometry} material={nodes.COL_MOVING_WALL_4.material} position={[-6.296, 4.516, 2.483]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
+                          <mesh name="COL_MOVING_WALL_5" geometry={nodes.COL_MOVING_WALL_5.geometry} material={nodes.COL_MOVING_WALL_5.material} position={[0.124, -9.853, 1.188]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
+                          <mesh name="COL_MOVING_WALL_6" geometry={nodes.COL_MOVING_WALL_6.geometry} material={nodes.COL_MOVING_WALL_6.material} position={[-6.762, -9.74, 1.24]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
+                          <mesh name="COL_MOVING_WALL_7" geometry={nodes.COL_MOVING_WALL_7.geometry} material={nodes.COL_MOVING_WALL_7.material} position={[-8.567, -5.252, 2.921]} rotation={[Math.PI / 2, Math.PI / 2, 0]} scale={[0.257, 2.376, 3.973]} />
+                          <mesh name="COL_MOVING_WALL_8" geometry={nodes.COL_MOVING_WALL_8.geometry} material={nodes.COL_MOVING_WALL_8.material} position={[-9.379, 0.065, 2.935]} rotation={[Math.PI / 2, Math.PI / 2, 0]} scale={[0.257, 2.376, 3.973]} />
+                          <mesh name="COL_MOVING_FLOOR_4" geometry={nodes.COL_MOVING_FLOOR_4.geometry} material={nodes.COL_MOVING_FLOOR_4.material} position={[0.184, 0.262, -0.047]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1.882, 1.825, 2.034]} />
+                          <mesh name="COL_MOVING_FLOOR_5" geometry={nodes.COL_MOVING_FLOOR_5.geometry} material={nodes.COL_MOVING_FLOOR_5.material} position={[-5.862, 0.151, 0.283]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1.882, 1.825, 2.034]} />
                           <mesh name="building_D_pipes001_flame_0" geometry={nodes.building_D_pipes001_flame_0.geometry} material={materials.flame} />
                           <mesh name="building_D_pipes001_house_baked_0001" geometry={nodes.building_D_pipes001_house_baked_0001.geometry} material={materials.house_baked} />
                           <mesh name="building_D_pipes001_house_baked_0002" geometry={nodes.building_D_pipes001_house_baked_0002.geometry} material={materials.house_baked} />
@@ -325,6 +333,30 @@ export function MobileHome(props: JSX.IntrinsicElements['group']) {
               </group>
             </group>
           </group>
+          <mesh name="COL_FLOOR_1" geometry={nodes.COL_FLOOR_1.geometry} material={nodes.COL_FLOOR_1.material} position={[-2.321, -5.924, 13.157]} rotation={[Math.PI / 2, 0, -0.07]} scale={[9.21, 7.73, 9.39]} />
+          <mesh name="COL_FLOOR_2" geometry={nodes.COL_FLOOR_2.geometry} material={nodes.COL_FLOOR_2.material} position={[-19.592, -25.273, -40.325]} rotation={[Math.PI / 2, 0, -0.017]} scale={[7.23, 7.64, 9.68]} />
+          <mesh name="COL_FLOOR_16" geometry={nodes.COL_FLOOR_16.geometry} material={nodes.COL_FLOOR_16.material} position={[5.435, -53.705, -8.271]} rotation={[0.776, 1.522, -2.365]} scale={[3.31, 0.19, 4.9]} />
+          <mesh name="COL_FLOOR_3" geometry={nodes.COL_FLOOR_3.geometry} material={nodes.COL_FLOOR_3.material} position={[6.155, 27.242, -5.267]} rotation={[Math.PI / 2, 0, -Math.PI]} scale={[6.9, 1, 5.76]} />
+          <mesh name="COL_FLOOR_4" geometry={nodes.COL_FLOOR_4.geometry} material={nodes.COL_FLOOR_4.material} position={[3.086, -41.524, -8.372]} rotation={[Math.PI / 2, 0, -Math.PI]} scale={[7.3, 1, 9.19]} />
+          <mesh name="COL_FLOOR_5" geometry={nodes.COL_FLOOR_5.geometry} material={nodes.COL_FLOOR_5.material} position={[12.129, -53.337, -8.725]} rotation={[Math.PI / 2, 0, -Math.PI]} scale={[3.31, 0.19, 4.9]} />
+          <mesh name="COL_FLOOR_17" geometry={nodes.COL_FLOOR_17.geometry} material={nodes.COL_FLOOR_17.material} position={[18.214, 27.326, 3.242]} rotation={[Math.PI / 2, 0, 3.107]} scale={[1, 3.6, 1]} />
+          <mesh name="COL_FLOOR_18" geometry={nodes.COL_FLOOR_18.geometry} material={nodes.COL_FLOOR_18.material} position={[15.736, 27.375, 0.305]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1.02, 3.34, 0.96]} />
+          <mesh name="COL_FLOOR_20" geometry={nodes.COL_FLOOR_20.geometry} material={nodes.COL_FLOOR_20.material} position={[-2.193, 21.855, 5.471]} rotation={[Math.PI / 2, 0, 3.107]} scale={[1, 3.6, 1]} />
+          <mesh name="COL_FLOOR_21" geometry={nodes.COL_FLOOR_21.geometry} material={nodes.COL_FLOOR_21.material} position={[-2.007, 24.627, 0.963]} rotation={[-0.035, 0, Math.PI]} scale={[1, 3.6, 1]} />
+          <mesh name="COL_FLOOR_22" geometry={nodes.COL_FLOOR_22.geometry} material={nodes.COL_FLOOR_22.material} position={[-1.907, -6.044, 0.237]} rotation={[Math.PI / 2, 0, 1.606]} scale={[4.52, 6.49, 4.63]} />
+          <mesh name="COL_FLOOR_23" geometry={nodes.COL_FLOOR_23.geometry} material={nodes.COL_FLOOR_23.material} position={[-0.148, -50.89, -11.941]} rotation={[1.65, -0.037, 2.707]} scale={[1.15, 5.19, 1.91]} />
+          <mesh name="COL_FLOOR_23001" geometry={nodes.COL_FLOOR_23001.geometry} material={nodes.COL_FLOOR_23001.material} position={[7.305, -44.814, -12.581]} rotation={[Math.PI / 2, 0, -Math.PI]} scale={[0.89, 2.94, 1.34]} />
+          <mesh name="COL_FLOOR_23002" geometry={nodes.COL_FLOOR_23002.geometry} material={nodes.COL_FLOOR_23002.material} position={[1.653, -44.923, -12.59]} rotation={[Math.PI / 2, 0, -Math.PI]} scale={[0.89, 2.94, 1.34]} />
+          <mesh name="COL_FLOOR_27" geometry={nodes.COL_FLOOR_27.geometry} material={nodes.COL_FLOOR_27.material} position={[-22.816, -24.476, -49.808]} rotation={[Math.PI / 2, 0, 1.658]} scale={[2.68, 3.47, 3.38]} />
+          <mesh name="COL_FLOOR_28" geometry={nodes.COL_FLOOR_28.geometry} material={nodes.COL_FLOOR_28.material} position={[-19.73, -29.343, -51.158]} rotation={[Math.PI / 2, 0, 1.658]} scale={[2.68, 4.43, 2.76]} />
+          <mesh name="COL_FLOOR_29" geometry={nodes.COL_FLOOR_29.geometry} material={nodes.COL_FLOOR_29.material} position={[-18.429, -28.419, -52.871]} rotation={[Math.PI / 2, 0, 1.658]} scale={[2.79, 2.41, 2.67]} />
+          <mesh name="COL_FLOOR_30" geometry={nodes.COL_FLOOR_30.geometry} material={nodes.COL_FLOOR_30.material} position={[-17.41, -24.244, -49.118]} rotation={[Math.PI / 2, 0, 1.902]} scale={[2.79, 3.45, 2.67]} />
+          <mesh name="COL_FLOOR_19" geometry={nodes.COL_FLOOR_19.geometry} material={nodes.COL_FLOOR_19.material} position={[0.665, 27.143, 0.671]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1.02, 3.34, 0.96]} />
+          <mesh name="COL_FLOOR_31" geometry={nodes.COL_FLOOR_31.geometry} material={nodes.COL_FLOOR_31.material} position={[6.761, 27.626, 0.088]} rotation={[Math.PI / 2, 0, -Math.PI]} scale={[7.14, 2.83, 4.8]} />
+          <mesh name="COL_FLOOR_32" geometry={nodes.COL_FLOOR_32.geometry} material={nodes.COL_FLOOR_32.material} position={[8.57, 27.872, 1.395]} rotation={[0.587, -1.508, 2.159]} scale={[8.91, 2.83, 4.8]} />
+          <mesh name="COL_FLOOR_33" geometry={nodes.COL_FLOOR_33.geometry} material={nodes.COL_FLOOR_33.material} position={[16.051, 36.407, 4.489]} rotation={[2.141, -1.114, -2.439]} scale={[2.98, 1, 4.44]} />
+          <mesh name="COL_FLOOR_34" geometry={nodes.COL_FLOOR_34.geometry} material={nodes.COL_FLOOR_34.material} position={[-14.011, -40.631, -48.347]} rotation={[2.071, 0.194, -2.969]} scale={[3.03, 2.96, 4.45]} />
+          <mesh name="COL_FLOOR_35" geometry={nodes.COL_FLOOR_35.geometry} material={nodes.COL_FLOOR_35.material} position={[-11.535, -48.471, -50.259]} rotation={[2.071, 0.194, -2.969]} scale={[2.7, 1.9, 2.64]} />
         </group>
       </group>
     </group>
