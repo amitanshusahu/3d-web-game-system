@@ -10,7 +10,7 @@ import type { WorldConfig } from '../World/worldTypes'
 import { useMissionStore } from '../../store/missionStore'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
-import { EffectComposer,HueSaturation, Vignette } from '@react-three/postprocessing'
+import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { useTexture } from '@react-three/drei'
 import { GROUND_TEXTURES } from '../Rendering/map/OpenPlains'
 
@@ -48,7 +48,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
       <Fog sky={theme.sky} fog={theme.fog} near={theme.fogNear} far={theme.fogFar} />
       <Weather weather={weather} />
       <EffectComposer multisampling={0}>
-        <HueSaturation saturation={-0.25} />
+        {/* <HueSaturation saturation={-0.25} /> */}
         <Vignette offset={0.25} darkness={0.8} />
       </EffectComposer>
       <Lights
@@ -60,7 +60,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
         hemiGround={theme.hemiGround}
       />
       {/*  note for me: gravty set through Ecctrl in EcctrlWrapper */}
-      <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
+      <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive} debug>
         <World config={worldConfig} />
         <MissionZones missions={missions} debug/>
         <EcctrlWrapper mapId={mapId} config={worldConfig} />
