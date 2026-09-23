@@ -14,7 +14,7 @@ export interface MapEntry {
 export const MAP_REGISTRY: Record<string, MapEntry> = {
   testMap: { component: TestMap, spawnZones: TestMapSpawnZones },
   openPlains: { component: OpenPlains, spawnZones: OpenPlainsSpawnZones },
-  strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones, mapScale: 10 },
+  strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones, mapScale: 3 },
   mobileHome: { component: MobileHome, spawnZones: MobileHomeSpawnZones},
 }
 

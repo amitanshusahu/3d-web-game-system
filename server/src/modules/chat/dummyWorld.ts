@@ -1,6 +1,9 @@
-const dummyWorld = {
-  "map": "mobileHome",
-  "objects": [
+import type { worldConfig } from "@/sharedTypes/world/world.model";
+
+const dummyWorld: worldConfig = {
+  mode: "preset",
+  map: "mobileHome",
+  objects: [
     // {
     //   "model": "/models/cyberpunk_hovercar.glb",
     //   "zone": 0

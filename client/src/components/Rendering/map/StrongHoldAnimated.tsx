@@ -12,7 +12,7 @@ import { useEffect, useMemo, useRef, type JSX } from 'react'
 import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useKtx2LoaderExtender } from '../../../lib/ktx2'
-import { CuboidCollider, RigidBody } from '@react-three/rapier'
+import { BallCollider, ConeCollider, CuboidCollider, RigidBody } from '@react-three/rapier'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
 
 import type { SpawnZone } from '../../World/worldTypes'
@@ -52,12 +52,13 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-type ColliderGLTFResult = GLTF & {
-  nodes: {
-    Cube001: THREE.InstancedMesh
-  }
-  materials: {}
-}
+type Vec3 = [number, number, number]
+
+/** One fixed physics primitive derived from an instance of a mesh in the collider GLB. */
+type ColliderSpec =
+  | { shape: 'cuboid'; args: [number, number, number]; position: Vec3; rotation: Vec3 }
+  | { shape: 'ball'; args: [number]; position: Vec3; rotation: Vec3 }
+  | { shape: 'cone'; args: [number, number]; position: Vec3; rotation: Vec3 }
 
 const MODEL_URL = '/models/ignore/map/the_last_stronghold_animated_floating.glb'
 const COLLIDER_URL = '/models/ignore/map/the_last_stronghold_animated_floating_collider.glb'
@@ -83,7 +84,7 @@ export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
   const group = useRef<THREE.Group | null>(null);
   const extendWithKtx2 = useKtx2LoaderExtender()
   const { scene, animations } = useGLTF(MODEL_URL, true, true, extendWithKtx2)
-  const { nodes: colliderNodes } = useGLTF(COLLIDER_URL, true, true, extendWithKtx2) as unknown as ColliderGLTFResult
+  const { scene: colliderScene } = useGLTF(COLLIDER_URL, true, true, extendWithKtx2)
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
   const { actions } = useAnimations(animations, group)
@@ -96,47 +97,83 @@ export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
   }, [actions])
 
   /**
-   * Collision comes from the dedicated collider GLB: a single box instanced 12
-   * times (COL_FLOOR_1..12). Its mesh is never rendered — we only read each
-   * instance's position/rotation/scale and turn them into cheap fixed cuboids.
+   * Collision comes from the dedicated collider GLB. Its meshes are never
+   * rendered — we read each mesh/instance's world transform (including the
+   * collider's own node hierarchy) and turn it into a cheap fixed primitive:
+   *   - `Cube.001`   instanced boxes   -> CuboidCollider (floors / platforms)
+   *   - `Sphere`     instanced spheres -> BallCollider
+   *   - `COL_CONE_*` cone meshes       -> ConeCollider
    * This replaces the previous skinned trimesh colliders (see git history),
    * which were far more expensive and had to be baked by hand. The float
    * animation (~±0.5 m bob) is still not tracked — colliders stay at bind pose.
    */
-  const colliderBoxes = useMemo(() => {
-    const mesh = colliderNodes.Cube001
-    mesh.geometry.computeBoundingBox()
-    const bounds = mesh.geometry.boundingBox
-    const baseHalf = bounds
-      ? new THREE.Vector3().subVectors(bounds.max, bounds.min).multiplyScalar(0.5)
-      : new THREE.Vector3(1, 1, 1)
-    const matrix = new THREE.Matrix4()
+  const colliders = useMemo(() => {
+    const specs: ColliderSpec[] = []
+    const worldMatrix = new THREE.Matrix4()
+    const instanceMatrix = new THREE.Matrix4()
     const position = new THREE.Vector3()
     const quaternion = new THREE.Quaternion()
     const scale = new THREE.Vector3()
     const euler = new THREE.Euler()
-    return Array.from({ length: mesh.count }, (_, i) => {
-      matrix.fromArray(mesh.instanceMatrix.array, i * 16)
-      matrix.decompose(position, quaternion, scale)
-      euler.setFromQuaternion(quaternion)
-      return {
-        position: [position.x, position.y, position.z] as [number, number, number],
-        rotation: [euler.x, euler.y, euler.z] as [number, number, number],
-        halfExtents: [
-          baseHalf.x * Math.abs(scale.x),
-          baseHalf.y * Math.abs(scale.y),
-          baseHalf.z * Math.abs(scale.z),
-        ] as [number, number, number],
+    const half = new THREE.Vector3()
+
+    colliderScene.updateMatrixWorld(true)
+    colliderScene.traverse((object) => {
+      const mesh = object as THREE.Mesh
+      if (!mesh.isMesh) return
+
+      // Geometry is authored in unit space, so its bbox is the primitive's
+      // base half-extents and the instance/mesh scale stretches it to size.
+      mesh.geometry.computeBoundingBox()
+      const bounds = mesh.geometry.boundingBox
+      if (bounds) bounds.getSize(half).multiplyScalar(0.5)
+      else half.set(1, 1, 1)
+
+      const shape: ColliderSpec['shape'] = mesh.name.startsWith('COL_CONE')
+        ? 'cone'
+        : mesh.name.startsWith('Sphere')
+          ? 'ball'
+          : 'cuboid'
+
+      const instanced = (mesh as THREE.InstancedMesh).isInstancedMesh
+      const count = instanced ? (mesh as THREE.InstancedMesh).count : 1
+
+      for (let i = 0; i < count; i++) {
+        worldMatrix.copy(mesh.matrixWorld)
+        if (instanced) {
+          instanceMatrix.fromArray((mesh as THREE.InstancedMesh).instanceMatrix.array, i * 16)
+          worldMatrix.multiply(instanceMatrix)
+        }
+        worldMatrix.decompose(position, quaternion, scale)
+        euler.setFromQuaternion(quaternion)
+
+        const spec = {
+          position: [position.x, position.y, position.z] as Vec3,
+          rotation: [euler.x, euler.y, euler.z] as Vec3,
+        }
+        // Rapier only has circular balls/cones, so non-uniform instances collapse
+        // to their largest radial extent to avoid clipping through the mesh.
+        if (shape === 'ball') {
+          specs.push({ shape, args: [half.x * Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))], ...spec })
+        } else if (shape === 'cone') {
+          specs.push({ shape, args: [half.y * Math.abs(scale.y), half.x * Math.max(Math.abs(scale.x), Math.abs(scale.z))], ...spec })
+        } else {
+          specs.push({ shape, args: [half.x * Math.abs(scale.x), half.y * Math.abs(scale.y), half.z * Math.abs(scale.z)], ...spec })
+        }
       }
     })
-  }, [colliderNodes])
+
+    return specs
+  }, [colliderScene])
 
   return (
     <group ref={group} {...props} dispose={null}>
       <RigidBody type="fixed" colliders={false}>
-        {colliderBoxes.map((box, i) => (
-          <CuboidCollider key={i} args={box.halfExtents} position={box.position} rotation={box.rotation} />
-        ))}
+        {colliders.map((collider, i) => {
+          if (collider.shape === 'ball') return <BallCollider key={i} args={collider.args} position={collider.position} rotation={collider.rotation} />
+          if (collider.shape === 'cone') return <ConeCollider key={i} args={collider.args} position={collider.position} rotation={collider.rotation} />
+          return <CuboidCollider key={i} args={collider.args} position={collider.position} rotation={collider.rotation} />
+        })}
         <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[Math.PI / 2, 0, Math.PI]} scale={0.002}>
           <group name="ed9a8042c54c452db47145e9a7551210fbx" rotation={[-Math.PI, 0, 0]}>
