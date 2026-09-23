@@ -45,6 +45,7 @@ export const MODEL_REGISTRY: Record<string, ObjectModelEntry> = {
   'neo-tokyo': { kind: 'path', path: '/models/ignore/map/neo-tokyo.glb' },
   robin_hood_in_sherwood_forest: { kind: 'path', path: '/models/ignore/map/robin_hood_in_sherwood_forest.glb' },
   the_last_stronghold_animated_floating: { kind: 'path', path: '/models/ignore/map/the_last_stronghold_animated_floating.glb' },
+  the_last_stronghold_animated_floating_collider: { kind: 'path', path: '/models/ignore/map/the_last_stronghold_animated_floating_collider.glb' },
   bush: { kind: 'path', path: '/models/ignore/nature/bush.glb' },
   flower_bush: { kind: 'path', path: '/models/ignore/nature/flower_bush.glb' },
   flowers: { kind: 'path', path: '/models/ignore/nature/flowers.glb' },

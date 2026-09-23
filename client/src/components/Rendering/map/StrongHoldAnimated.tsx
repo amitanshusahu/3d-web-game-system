@@ -12,7 +12,7 @@ import { useEffect, useMemo, useRef, type JSX } from 'react'
 import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useKtx2LoaderExtender } from '../../../lib/ktx2'
-import { RigidBody, TrimeshCollider } from '@react-three/rapier'
+import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
 
 import type { SpawnZone } from '../../World/worldTypes'
@@ -52,25 +52,38 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
+type ColliderGLTFResult = GLTF & {
+  nodes: {
+    Cube001: THREE.InstancedMesh
+  }
+  materials: {}
+}
+
+const MODEL_URL = '/models/ignore/map/the_last_stronghold_animated_floating.glb'
+const COLLIDER_URL = '/models/ignore/map/the_last_stronghold_animated_floating_collider.glb'
+
 /**
- * Spawn zones: known-clear surfaces of the floating stronghold for randomly
- * placing world objects, derived from the rasterized top surface of the GLB
- * (bind pose, sky excluded). Format: [x, z, radius, floorY].
- * Keep-outs excluded: gate front (x -2.5..2, z 3..8.5, y ~2), courtyard steps,
- * chain/rope spans between the islands, flag poles on the east islands.
+ * Spawn zones: the standable tops of the collider floors (COL_FLOOR_*), read
+ * straight off each collider instance (position, footprint, top surface) in
+ * component space — World renders this map at mapScale = 10. Format:
+ * [x, z, radius, floorY]. Only the reachable spawn floors are listed.
  */
 export const StrongHoldSpawnZones: SpawnZone[] = [
-  [3.9, -2.5, 0.7, -1.5],   // east hanging island platform (largest flat area)
-  [-0.7, -5.0, 0.6, 9.3],   // south deck top
-  [-4.5, 1.5, 0.7, 8.5],    // north deck top
-  [-4.9, 5.4, 0.4, 13.1],   // keep tower top
-  [10.4, -3.9, 0.4, -2.6],  // far east island ledge
+  [10.15, -3.85, 0.63, -2.86],  // COL_FLOOR_1  far east island ledge
+  [0.37, -3.27, 0.76, -0.13],   // COL_FLOOR_3
+  [-5.15, 5.58, 0.87, 12.86],   // COL_FLOOR_11 keep tower top
+  [4.04, -2.36, 0.99, -1.39],   // COL_FLOOR_6  east hanging island platform
+  [3.79, 0.53, 0.55, -1.96],    // COL_FLOOR_7
+  [1.76, 4.24, 0.58, -0.66],    // COL_FLOOR_8
+  [-0.87, 5.47, 1.24, -0.02],   // COL_FLOOR_9
+  [-0.85, -4.9, 0.94, 9.86],    // COL_FLOOR_10 south deck top
 ]
 
 export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
   const group = useRef<THREE.Group | null>(null);
   const extendWithKtx2 = useKtx2LoaderExtender()
-  const { scene, animations } = useGLTF('/models/ignore/map/the_last_stronghold_animated_floating.glb', true, true, extendWithKtx2)
+  const { scene, animations } = useGLTF(MODEL_URL, true, true, extendWithKtx2)
+  const { nodes: colliderNodes } = useGLTF(COLLIDER_URL, true, true, extendWithKtx2) as unknown as ColliderGLTFResult
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
   const { actions } = useAnimations(animations, group)
@@ -83,59 +96,46 @@ export function StrongHoldAnimated(props: JSX.IntrinsicElements['group']) {
   }, [actions])
 
   /**
-   * Static trimesh colliders baked from the skinned meshes at bind pose.
-   * Rapier's auto colliders can't be used here: they read raw geometry x node
-   * transform, but skinned vertices are placed by the skeleton (bones x inverse
-   * bind matrices), which lands rotated ~90° on this model. So bake the skinned
-   * positions once in world space (map renders at origin) and feed them to
-   * explicit TrimeshColliders. The sky dome is skipped, and the float animation
-   * (~±0.5 m bob) is not tracked — colliders stay at the bind pose.
+   * Collision comes from the dedicated collider GLB: a single box instanced 12
+   * times (COL_FLOOR_1..12). Its mesh is never rendered — we only read each
+   * instance's position/rotation/scale and turn them into cheap fixed cuboids.
+   * This replaces the previous skinned trimesh colliders (see git history),
+   * which were far more expensive and had to be baked by hand. The float
+   * animation (~±0.5 m bob) is still not tracked — colliders stay at bind pose.
    */
-  const colliderData = useMemo(() => {
-    clone.updateMatrixWorld(true)
-    const data: Array<{ vertices: Float32Array; indices: Uint32Array }> = []
-    const vertex = new THREE.Vector3()
-    const skinned = new THREE.Vector3()
-    const temp = new THREE.Vector3()
-    const boneMatrix = new THREE.Matrix4()
-    clone.traverse((obj) => {
-      const mesh = obj as THREE.SkinnedMesh
-      if (!mesh.isSkinnedMesh) return
-      const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material
-      if (material?.name.includes('sky')) return
-      const position = mesh.geometry.attributes.position
-      const skinIndex = mesh.geometry.attributes.skinIndex
-      const skinWeight = mesh.geometry.attributes.skinWeight
-      const vertices = new Float32Array(position.count * 3)
-      for (let i = 0; i < position.count; i++) {
-        vertex.fromBufferAttribute(position, i).applyMatrix4(mesh.bindMatrix)
-        skinned.set(0, 0, 0)
-        for (let k = 0; k < 4; k++) {
-          const weight = skinWeight.getComponent(i, k)
-          if (weight === 0) continue
-          const bone = skinIndex.getComponent(i, k)
-          boneMatrix.multiplyMatrices(mesh.skeleton.bones[bone].matrixWorld, mesh.skeleton.boneInverses[bone])
-          skinned.add(temp.copy(vertex).applyMatrix4(boneMatrix).multiplyScalar(weight))
-        }
-        skinned.applyMatrix4(mesh.bindMatrixInverse).applyMatrix4(mesh.matrixWorld)
-        vertices[i * 3] = skinned.x
-        vertices[i * 3 + 1] = skinned.y
-        vertices[i * 3 + 2] = skinned.z
+  const colliderBoxes = useMemo(() => {
+    const mesh = colliderNodes.Cube001
+    mesh.geometry.computeBoundingBox()
+    const bounds = mesh.geometry.boundingBox
+    const baseHalf = bounds
+      ? new THREE.Vector3().subVectors(bounds.max, bounds.min).multiplyScalar(0.5)
+      : new THREE.Vector3(1, 1, 1)
+    const matrix = new THREE.Matrix4()
+    const position = new THREE.Vector3()
+    const quaternion = new THREE.Quaternion()
+    const scale = new THREE.Vector3()
+    const euler = new THREE.Euler()
+    return Array.from({ length: mesh.count }, (_, i) => {
+      matrix.fromArray(mesh.instanceMatrix.array, i * 16)
+      matrix.decompose(position, quaternion, scale)
+      euler.setFromQuaternion(quaternion)
+      return {
+        position: [position.x, position.y, position.z] as [number, number, number],
+        rotation: [euler.x, euler.y, euler.z] as [number, number, number],
+        halfExtents: [
+          baseHalf.x * Math.abs(scale.x),
+          baseHalf.y * Math.abs(scale.y),
+          baseHalf.z * Math.abs(scale.z),
+        ] as [number, number, number],
       }
-      const indexAttr = mesh.geometry.index
-      const indices = indexAttr
-        ? new Uint32Array(indexAttr.array)
-        : Uint32Array.from({ length: position.count }, (_, i) => i)
-      data.push({ vertices, indices })
     })
-    return data
-  }, [clone])
+  }, [colliderNodes])
 
   return (
     <group ref={group} {...props} dispose={null}>
       <RigidBody type="fixed" colliders={false}>
-        {colliderData.map((data, i) => (
-          <TrimeshCollider key={i} args={[data.vertices, data.indices]} />
+        {colliderBoxes.map((box, i) => (
+          <CuboidCollider key={i} args={box.halfExtents} position={box.position} rotation={box.rotation} />
         ))}
         <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[Math.PI / 2, 0, Math.PI]} scale={0.002}>

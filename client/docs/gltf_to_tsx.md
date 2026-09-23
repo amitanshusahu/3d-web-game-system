@@ -2,13 +2,13 @@
 
 ```shell
 ## jsx
-npx gltfjsx public/model.glb 
+bunx gltfjsx public/model.glb 
 
 ## tsx
-npx gltfjsx public/model.glb -t
+bunx gltfjsx public/model.glb -t
 
 ## custom output path
-npx gltfjsx public/model.glb -o src/components/Model.tsx -t
+bunx gltfjsx public/model.glb -o src/components/Model.tsx -t
 
 ```
 
