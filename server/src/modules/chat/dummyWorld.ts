@@ -1,15 +1,15 @@
 const dummyWorld = {
-  "map": "strongHold",
+  "map": "mobileHome",
   "objects": [
-    {
-      "model": "/models/cyberpunk_hovercar.glb",
-      "zone": 0
-    },
-    {
-      "model": "/models/cyberpunk_hovercar.glb",
-      "zone": 3,
-      "rotationY": 1.2
-    }
+    // {
+    //   "model": "/models/cyberpunk_hovercar.glb",
+    //   "zone": 0
+    // },
+    // {
+    //   "model": "/models/cyberpunk_hovercar.glb",
+    //   "zone": 3,
+    //   "rotationY": 1.2
+    // }
   ]
 }
 

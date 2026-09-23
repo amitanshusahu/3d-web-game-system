@@ -3,6 +3,7 @@ import { TestMap, TestMapSpawnZones } from '../Rendering/map/TestMap'
 import { OpenPlains, OpenPlainsSpawnZones } from '../Rendering/map/OpenPlains'
 import type { SpawnZone, WorldConfig } from './worldTypes'
 import { StrongHoldAnimated, StrongHoldSpawnZones } from '../Rendering/map/StrongHoldAnimated'
+import { MobileHome, MobileHomeSpawnZones } from '../Rendering/map/MobileHome'
 
 export interface MapEntry {
   component: ComponentType
@@ -13,7 +14,8 @@ export interface MapEntry {
 export const MAP_REGISTRY: Record<string, MapEntry> = {
   testMap: { component: TestMap, spawnZones: TestMapSpawnZones },
   openPlains: { component: OpenPlains, spawnZones: OpenPlainsSpawnZones },
-  strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones, mapScale: 8 },
+  strongHold: { component: StrongHoldAnimated, spawnZones: StrongHoldSpawnZones, mapScale: 3 },
+  mobileHome: { component: MobileHome, spawnZones: MobileHomeSpawnZones },
 }
 
 
