@@ -98,7 +98,7 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
-        <group name="Mobile-Home-Map" rotation={[Math.PI / 2, 0, Math.PI]}>
+        <group name="Mobile-Home-Map" rotation={[Math.PI / 2, 0, Math.PI]} scale={2}>
           <group name="VISIBLE_MESH" rotation={[-Math.PI, 0, 0]} scale={0.01}>
             <group name="Object_2">
               <group name="RootNode">
@@ -117,8 +117,8 @@ export function Model(props: JSX.IntrinsicElements['group']) {
                       </group>
                       <group name="home_02">
                         <group name="building_D_pipes001" rotation={[0, -1.571, 0]} scale={1.052}>
-                          <mesh name="COL_MOVING_FLOOR_1" geometry={nodes.COL_MOVING_FLOOR_1.geometry} material={nodes.COL_MOVING_FLOOR_1.material} position={[-4.71, -2.985, 0.891]} rotation={[Math.PI / 2, 0.017, 0]} scale={[6.577, 0.2, 3.669]} />
-                          <mesh name="COL_MOVING_FLOOR_2" geometry={nodes.COL_MOVING_FLOOR_2.geometry} material={nodes.COL_MOVING_FLOOR_2.material} position={[-3.521, 4.087, -0.129]} rotation={[Math.PI / 2, -0.052, 0]} scale={[3.06, 0.219, 4.248]} />
+                          <mesh name="COL_MOVING_FLOOR_1" geometry={nodes.COL_MOVING_FLOOR_1.geometry} material={nodes.COL_MOVING_FLOOR_1.material} position={[-4.555, -2.092, 0.887]} rotation={[Math.PI / 2, 0.017, 0]} scale={[6.577, 0.2, 3.098]} />
+                          <mesh name="COL_MOVING_FLOOR_2" geometry={nodes.COL_MOVING_FLOOR_2.geometry} material={nodes.COL_MOVING_FLOOR_2.material} position={[-3.521, 4.087, 0.27]} rotation={[1.431, -0.052, -0.007]} scale={[3.06, 0.219, 4.248]} />
                           <mesh name="COL_MOVING_FLOOR_3" geometry={nodes.COL_MOVING_FLOOR_3.geometry} material={nodes.COL_MOVING_FLOOR_3.material} position={[-3.53, -6.276, -0.229]} rotation={[2.217, 0, 0]} scale={[3.06, 0.219, 2.081]} />
                           <mesh name="COL_MOVING_FLOOR_6" geometry={nodes.COL_MOVING_FLOOR_6.geometry} material={nodes.COL_MOVING_FLOOR_6.material} position={[-3.008, -10.049, -1.675]} rotation={[Math.PI / 2, -0.052, 0.035]} scale={[3.193, 0.181, 5.427]} />
                           <mesh name="COL_MOVING_WALL_1" geometry={nodes.COL_MOVING_WALL_1.geometry} material={nodes.COL_MOVING_WALL_1.material} position={[-0.613, -3.21, 3.205]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />

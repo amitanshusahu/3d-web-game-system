@@ -101,11 +101,13 @@ const MODEL_URL = '/models/ignore/map/mobile_home_with_collider.glb'
 /**
  * Spawn zones: the standable tops of the COL_FLOOR_4 and COL_FLOOR_27 colliders,
  * read straight off each proxy box in component space (World renders this map at
- * mapScale = 1). Format: [x, z, radius, floorY].
+ * mapScale = 1). The new GLB bakes a half-size model plus a root `scale={2}` on
+ * Mobile-Home-Map, so every value here is the measured box at that 2x. Format:
+ * [x, z, radius, floorY].
  */
 export const MobileHomeSpawnZones: SpawnZone[] = [
-  [-3.09, 41.52, 6.5, 9.37], // COL_FLOOR_4 deck
-  [22.82, 24.48, 2.6, 52.78], // COL_FLOOR_27 platform
+  [-6.18, 83.04, 13, 18.74], // COL_FLOOR_4 deck
+  [45.64, 48.96, 5.2, 105.56], // COL_FLOOR_27 platform
 ]
 
 /**
@@ -270,7 +272,11 @@ export function MobileHome(props: JSX.IntrinsicElements['group']) {
       ))}
 
       <group name="Scene">
-        <group name="Mobile-Home-Map" rotation={[Math.PI / 2, 0, Math.PI]}>
+        {/* The GLB's root node carries scale 2 (half-size geometry baked in
+            Blender, doubled back here). The COL_* collider boxes are measured
+            off the raw scene, so they already include this 2x — keeping it here
+            keeps the rendered meshes locked to those colliders. */}
+        <group name="Mobile-Home-Map" rotation={[Math.PI / 2, 0, Math.PI]} scale={2}>
           <group name="VISIBLE_MESH" rotation={[-Math.PI, 0, 0]} scale={0.01}>
             <group name="Object_2">
               <group name="RootNode">
@@ -289,8 +295,8 @@ export function MobileHome(props: JSX.IntrinsicElements['group']) {
                       </group>
                       <group name="home_02">
                         <group name="building_D_pipes001" rotation={[0, -1.571, 0]} scale={1.052}>
-                          <mesh name="COL_MOVING_FLOOR_1" geometry={nodes.COL_MOVING_FLOOR_1.geometry} material={nodes.COL_MOVING_FLOOR_1.material} position={[-4.71, -2.985, 0.891]} rotation={[Math.PI / 2, 0.017, 0]} scale={[6.577, 0.2, 3.669]} />
-                          <mesh name="COL_MOVING_FLOOR_2" geometry={nodes.COL_MOVING_FLOOR_2.geometry} material={nodes.COL_MOVING_FLOOR_2.material} position={[-3.521, 4.087, -0.129]} rotation={[Math.PI / 2, -0.052, 0]} scale={[3.06, 0.219, 4.248]} />
+                          <mesh name="COL_MOVING_FLOOR_1" geometry={nodes.COL_MOVING_FLOOR_1.geometry} material={nodes.COL_MOVING_FLOOR_1.material} position={[-4.555, -2.092, 0.887]} rotation={[Math.PI / 2, 0.017, 0]} scale={[6.577, 0.2, 3.098]} />
+                          <mesh name="COL_MOVING_FLOOR_2" geometry={nodes.COL_MOVING_FLOOR_2.geometry} material={nodes.COL_MOVING_FLOOR_2.material} position={[-3.521, 4.087, 0.27]} rotation={[1.431, -0.052, -0.007]} scale={[3.06, 0.219, 4.248]} />
                           <mesh name="COL_MOVING_FLOOR_3" geometry={nodes.COL_MOVING_FLOOR_3.geometry} material={nodes.COL_MOVING_FLOOR_3.material} position={[-3.53, -6.276, -0.229]} rotation={[2.217, 0, 0]} scale={[3.06, 0.219, 2.081]} />
                           <mesh name="COL_MOVING_FLOOR_6" geometry={nodes.COL_MOVING_FLOOR_6.geometry} material={nodes.COL_MOVING_FLOOR_6.material} position={[-3.008, -10.049, -1.675]} rotation={[Math.PI / 2, -0.052, 0.035]} scale={[3.193, 0.181, 5.427]} />
                           <mesh name="COL_MOVING_WALL_1" geometry={nodes.COL_MOVING_WALL_1.geometry} material={nodes.COL_MOVING_WALL_1.material} position={[-0.613, -3.21, 3.205]} rotation={[Math.PI / 2, 0.017, 0]} scale={[0.257, 2.376, 3.26]} />
