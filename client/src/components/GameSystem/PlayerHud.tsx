@@ -8,16 +8,15 @@ import {
 } from '@phosphor-icons/react'
 import MissionBoard from '../ui/Mission/MissionBoard'
 import FantasyFrame from '../ui/Hud/FantasyFrame'
+import MiniMap from '../ui/Hud/MiniMap'
 import TimeBar from '../ui/Hud/TimeBar'
 import { useMissionStore } from '../../store/missionStore'
 import { usePlayerHudStore } from '../../store/playerHudStore'
 
 const DEFAULT_ALARM_MINUTES = 1
-/** Below this many seconds the timer turns amber, then rose once it expires. */
 const LOW_ALARM_SECONDS = 60
 
 interface PlayerHudProps {
-  /** Length of the alarm countdown, in minutes. */
   alarmMinutes?: number
 }
 
@@ -257,8 +256,13 @@ export default function PlayerHud({ alarmMinutes = DEFAULT_ALARM_MINUTES }: Play
   const drainColor = expired ? '#fb7185' : low ? '#fbbf24' : '#6226c4'
 
   return (
-    <div className='pointer-events-none absolute left-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
-      <TimeBar className='w-72' time={totalMs} remaining={remainingMs} drainColor={drainColor} />
-    </div>
+    <>
+      <div className='pointer-events-none absolute left-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
+        <TimeBar className='w-72' time={totalMs} remaining={remainingMs} drainColor={drainColor} />
+      </div>
+      <div className='pointer-events-none absolute right-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
+        <MiniMap />
+      </div>
+    </>
   )
 }

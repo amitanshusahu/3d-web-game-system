@@ -211,6 +211,7 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
     state.camera.quaternion.setFromEuler(lookEuler)
 
     usePlayerStore.getState().setPlayerPosition(bodyPosition)
+    usePlayerStore.getState().setPlayerHeading(lookYawRef.current)
   })
 
   return (

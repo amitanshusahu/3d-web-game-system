@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import Lights from '../Rendering/Lights'
 import { World } from '../World/World'
 import MissionZones from '../World/MissionZones'
+import MapCoverage from '../World/MapCoverage'
 import Fog from '../World/weather/Fog'
 import Weather from '../World/weather/Weather'
 import { getWeatherTheme } from '../World/weather/weatherRegistry'
@@ -64,6 +65,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
         <World config={worldConfig} />
         <MissionZones missions={missions} debug/>
         <EcctrlWrapper mapId={mapId} config={worldConfig} />
+        <MapCoverage config={worldConfig} />
       </Physics>
     </>
   );
