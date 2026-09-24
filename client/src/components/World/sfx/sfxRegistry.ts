@@ -1,3 +1,5 @@
+import type { TerrainKind } from '../terrian/terrianRegistry'
+
 export const SFX_REGISTRY = {
   animal: [
     '/ignore/sounds/animal/horse.mp3',
@@ -65,3 +67,22 @@ export function getRandomSfx(category: SfxCategory): string | undefined {
 }
 
 export const sounds: Record<SfxCategory, readonly string[]> = SFX_REGISTRY
+
+const WALK_CLIPS = SFX_REGISTRY.walk
+const GRASS_STEP = WALK_CLIPS[0]
+const ROCKY_STEP = WALK_CLIPS[1]
+const WET_STEP = WALK_CLIPS[2]
+
+/** Footstep clip per terrain. Only grass/mud have dedicated recordings — everything else falls back to rocky. */
+export const FOOTSTEP_BY_TERRAIN: Record<TerrainKind, string> = {
+  default: ROCKY_STEP,
+  grass: GRASS_STEP,
+  soil: ROCKY_STEP,
+  snow: ROCKY_STEP,
+  sand: ROCKY_STEP,
+  mud: WET_STEP,
+}
+
+export function getFootstepSfx(terrain: TerrainKind = 'default'): string {
+  return FOOTSTEP_BY_TERRAIN[terrain] ?? ROCKY_STEP
+}

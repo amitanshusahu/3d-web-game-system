@@ -12,6 +12,7 @@ declare module 'howler' {
     stop(id?: number): this
     unload(): void
     volume(volume?: number, id?: number): this | number
+    rate(rate?: number, id?: number): this | number
     once(event: 'end' | 'load' | 'play' | 'stop' | 'pause', callback: (id: number) => void, id?: number): this
     on(event: string, callback: (id: number) => void, id?: number): this
   }

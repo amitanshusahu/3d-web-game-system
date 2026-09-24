@@ -8,6 +8,8 @@ import { usePlayerHudStore } from '../../store/playerHudStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { getPlayerSpawnPosition } from '../World/mapRegistry'
 import type { WorldConfig } from '../World/worldTypes'
+import type { TerrainKind } from '../World/terrian/terrianRegistry'
+import { useFootsteps } from '../World/sfx/useFootsteps'
 import CharacterModel from '../Rendering/models/CharacterModel'
 
 const MOUSE_SENSITIVITY = 0.0025
@@ -25,6 +27,10 @@ interface EcctrlWrapperProps {
 
 export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
   const ecctrlRef = useRef<EcctrlHandle>(null)
+
+  const terrain: TerrainKind =
+    config?.mode === 'open' ? (config.ground?.terrain ?? 'default') : 'default'
+  const { playStep } = useFootsteps(terrain)
 
   const spawnPosition = useMemo(
     () => getPlayerSpawnPosition(mapId, config),
@@ -122,7 +128,7 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
   // Game loop
   // --------------------------------
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const controller = ecctrlRef.current
 
     if (!controller) return
@@ -153,6 +159,18 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
     })
 
     if (!active) keys.clear()
+
+    const hasInput = keys.has('KeyW') || keys.has('ArrowUp')
+      || keys.has('KeyS') || keys.has('ArrowDown')
+      || keys.has('KeyA') || keys.has('ArrowLeft')
+      || keys.has('KeyD') || keys.has('ArrowRight')
+
+    playStep(delta, {
+      moving: active && hasInput,
+      grounded: controller.isOnGround,
+      running: controller.runActive,
+      speed: controller.moveSpeed,
+    })
 
     const bodyPosition = controller.currPos
 
