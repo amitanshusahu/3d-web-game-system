@@ -1,6 +1,6 @@
 const dummyWorld = {
   mode: "open",
-  ground: { size: 600 },
+  ground: { size: 600, terrain: "grass" },
   playerSpawn: [0, 1, 40],
   objects: [
     {
@@ -126,7 +126,6 @@ const dummyWorld = {
     },
   ],
   environment: {
-    terrain: "grass",
     weather: "rain",
     time: "night"
   },

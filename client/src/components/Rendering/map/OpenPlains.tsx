@@ -1,13 +1,16 @@
 import { useLoader, type ThreeElements } from '@react-three/fiber'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
+import { useMemo } from 'react'
 import { TextureLoader, RepeatWrapping, SRGBColorSpace } from 'three'
+import { terrianRegistry, type TerrainKind } from '../../World/terrian/terrianRegistry'
 
-export const GROUND_TEXTURES = [
-    '/texture/ground/soil/diff.png',
-    '/texture/ground/soil/nor_gl.png',
-    '/texture/ground/soil/rough.png',
-    '/texture/ground/soil/ao.png',
-]
+const GROUND_TEXTURE_FILES = ['diff.png', 'nor_gl.png', 'rough.png', 'ao.png']
+
+/** [diffuse, normal, roughness, ao] texture paths for a terrain, resolved from terrianRegistry */
+export function groundTexturePaths(terrain: TerrainKind = 'default'): string[] {
+    const { url } = terrianRegistry[terrain]
+    return GROUND_TEXTURE_FILES.map((file) => `${url}/${file}`)
+}
 
 const DEFAULT_SIZE = 2000
 const WALL_HEIGHT = 4
@@ -21,9 +24,10 @@ export const OpenPlainsSpawnZones: Array<[number, number, number]> = [
     [-600, 500, 20],
 ]
 
-export function OpenPlains({ size = DEFAULT_SIZE, ...props }: ThreeElements['group'] & { size?: number }) {
+export function OpenPlains({ size = DEFAULT_SIZE, terrain = 'default', ...props }: ThreeElements['group'] & { size?: number; terrain?: TerrainKind }) {
     const half = size / 2
-    const [diffuse, normal, roughness, ao] = useLoader(TextureLoader, GROUND_TEXTURES)
+    const texturePaths = useMemo(() => groundTexturePaths(terrain), [terrain])
+    const [diffuse, normal, roughness, ao] = useLoader(TextureLoader, texturePaths)
 
     diffuse.colorSpace = SRGBColorSpace;
     const textureRepeat = size / 10;

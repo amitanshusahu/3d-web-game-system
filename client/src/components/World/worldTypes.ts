@@ -1,3 +1,5 @@
+import type { TerrainKind } from './terrian/terrianRegistry'
+
 /** [x, z, radius] plus an optional floor surface Y used for player spawn */
 export type SpawnZone = [x: number, z: number, radius: number, y?: number]
 
@@ -38,7 +40,6 @@ export interface WorldObjectConfig {
 }
 
 export interface WorldEnvironmentConfig {
-  terrain?: 'grass' | 'soil'
   weather?: 'clear' | 'rain' | 'snow' | 'forest' | 'desert'
   time?: 'day' | 'night'
   fogColor?: string
@@ -63,6 +64,8 @@ export interface MissionConfig {
 export interface OpenGroundConfig {
   /** Edge length of the square ground in meters (defaults to 2000) */
   size?: number
+  /** Ground texture set resolved client-side via terrianRegistry (defaults to 'default') */
+  terrain?: TerrainKind
 }
 
 /** Preset mode: a hand-built map from the registry, objects spawn into its zones */

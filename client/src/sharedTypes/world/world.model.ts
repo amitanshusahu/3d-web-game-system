@@ -26,7 +26,6 @@ export const worldObjectSchema = z.object({
 });
 
 export const worldEnvironmentSchema = z.object({
-  terrain: z.enum(["grass", "soil"]).optional(),
   weather: z.enum(["clear", "rain", "snow", "forest", "desert"]).optional(),
   time: z.enum(["day", "night"]).optional(),
   fogColor: z.string().optional(),
@@ -46,6 +45,7 @@ export const missionSchema = z.object({
 
 const openGroundSchema = z.object({
   size: z.number().positive().optional(),
+  terrain: z.enum(["default", "grass", "soil", "snow", "sand"]).optional(),
 });
 
 const baseWorldFields = {

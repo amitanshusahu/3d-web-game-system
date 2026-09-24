@@ -12,15 +12,15 @@ import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
 import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { useTexture } from '@react-three/drei'
-import { GROUND_TEXTURES } from '../Rendering/map/OpenPlains'
-
-// note for me: player + ground before first paint, everything else streams via Suspense, else things will get fucked !! :)
-useTexture.preload(GROUND_TEXTURES)
+import { groundTexturePaths } from '../Rendering/map/OpenPlains'
 
 export default function Experience({ config }: { config: WorldConfig }) {
   const worldConfig = config
   const mapId = worldConfig.mode === 'open' ? 'openPlains' : worldConfig.map
   const environment = worldConfig.mode === 'open' ? worldConfig.environment : undefined
+
+  // note for me: player + ground before first paint, everything else streams via Suspense, else things will get fucked !! :)
+  useTexture.preload(groundTexturePaths(worldConfig.mode === 'open' ? worldConfig.ground?.terrain : undefined))
   const weather = environment?.weather ?? 'clear'
   const time = environment?.time ?? 'day'
   const theme = useMemo(
@@ -60,7 +60,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
         hemiGround={theme.hemiGround}
       />
       {/*  note for me: gravty set through Ecctrl in EcctrlWrapper */}
-      <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive} debug>
+      <Physics timeStep="vary" gravity={[0, 0, 0]} paused={!physicsActive}>
         <World config={worldConfig} />
         <MissionZones missions={missions} debug/>
         <EcctrlWrapper mapId={mapId} config={worldConfig} />
