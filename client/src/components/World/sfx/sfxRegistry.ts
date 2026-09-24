@@ -36,6 +36,11 @@ export const SFX_REGISTRY = {
     '/ignore/sounds/thunder/long-heavy-thunder.mp3',
     '/ignore/sounds/thunder/loud-thunder.mp3',
   ],
+  walk: [
+    '/ignore/sounds/walk/grass-footstep.mp3',
+    '/ignore/sounds/walk/rocky-footstep.mp3',
+    '/ignore/sounds/walk/wet-footstep.mp3',
+  ],
   water: [
     '/ignore/sounds/water/stream.mp3',
   ],
