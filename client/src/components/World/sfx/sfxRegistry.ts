@@ -72,6 +72,22 @@ export function getRandomSfx(category: SfxCategory): string | undefined {
 
 export const sounds: Record<SfxCategory, readonly string[]> = SFX_REGISTRY
 
+const WIND_CLIPS = SFX_REGISTRY.wind
+const DESERT_WIND = WIND_CLIPS[0]
+const WINTER_WIND = WIND_CLIPS[1]
+
+/** The two wind beds: a dry desert gust and a colder winter gust. */
+export const WIND_SFX = {
+  desert: DESERT_WIND,
+  winter: WINTER_WIND,
+} as const
+
+export type WindSfx = keyof typeof WIND_SFX
+
+export function getWindSfx(kind: WindSfx): string {
+  return WIND_SFX[kind]
+}
+
 const WALK_CLIPS = SFX_REGISTRY.walk
 const GRASS_STEP = WALK_CLIPS[0]
 const ROCKY_STEP = WALK_CLIPS[1]

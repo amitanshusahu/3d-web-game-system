@@ -1,6 +1,6 @@
 const dummyWorld = {
   mode: "open",
-  ground: { size: 600, terrain: "mud" },
+  ground: { size: 600, terrain: "snow" },
   playerSpawn: [0, 1, 40],
   objects: [
     {
@@ -126,8 +126,8 @@ const dummyWorld = {
     },
   ],
   environment: {
-    weather: "rain",
-    time: "night"
+    weather: "snow",
+    time: "day"
   },
   missions: [
     {

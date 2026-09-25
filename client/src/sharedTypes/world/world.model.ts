@@ -26,7 +26,7 @@ export const worldObjectSchema = z.object({
 });
 
 export const worldEnvironmentSchema = z.object({
-  weather: z.enum(["clear", "rain", "snow", "forest", "desert"]).optional(),
+  weather: z.enum(["clear", "wind", "rain", "snow", "forest", "desert"]).optional(),
   time: z.enum(["day", "night"]).optional(),
   fogColor: z.string().optional(),
 });

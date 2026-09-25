@@ -40,7 +40,7 @@ export interface WorldObjectConfig {
 }
 
 export interface WorldEnvironmentConfig {
-  weather?: 'clear' | 'rain' | 'snow' | 'forest' | 'desert'
+  weather?: 'clear' | 'wind' | 'rain' | 'snow' | 'forest' | 'desert'
   time?: 'day' | 'night'
   fogColor?: string
 }
