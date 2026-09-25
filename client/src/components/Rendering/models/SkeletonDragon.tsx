@@ -18,6 +18,7 @@ import { Howl } from 'howler'
 import { useCameraShakeStore } from '../../../store/cameraShakeStore'
 import { usePlayerStore } from '../../../store/playerStore'
 import { useDialogueStore, type Dialogue } from '../../../store/dialogueStore'
+import { registerHitTarget } from '../../World/combat/hitTargets'
 
 // attack_4 -> roar, attack_5 -> fly roar, soar -> soar, travelrun -> run, travelmove -> walk, travelidle -> idle , stunidle ->  idle / seems like eating
 type ActionName = 'attack_4' | 'attack_5' | 'soar' | 'travelrun' | 'travelmove' | 'travelidle' | 'stunidle'
@@ -125,6 +126,9 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
   const dialogueShownRef = useRef(false)
   dialogueRef.current = dialogue
   dialogueRadiusRef.current = dialogueRadius
+
+  const cameraRef = useRef<THREE.Camera | null>(null)
+  const hitHandlerRef = useRef<(point: THREE.Vector3, distance: number) => void>(() => {})
 
   const soundsRef = useRef<{
     growls: Howl[]
@@ -319,9 +323,31 @@ export function SkeletonDragon({ mode, collider=false, scale = 1, alertRadius = 
     playAction('stunidle', true)
   }
 
+  // A shot landing on the dragon wakes it exactly like the player stepping into
+  // the alert zone: roar → takeoff → flee. Already-agitated or departed dragons
+  // ignore further hits so the reaction can't restart mid-sequence.
+  hitHandlerRef.current = (_point, distance) => {
+    const dragon = group.current
+    if (!dragon || !dragon.visible) return
+    if (modeRef.current !== 'idle') return
+    const camera = cameraRef.current
+    if (!camera) return
+    triggerRoar(distance, camera)
+  }
+
+  useEffect(() => {
+    const root = group.current
+    if (!root) return
+    return registerHitTarget({
+      root,
+      onHit: (point, distance) => hitHandlerRef.current(point, distance),
+    })
+  }, [])
+
   useFrame((state, delta) => {
     const dragon = group.current
     if (!dragon || modeRef.current === 'departed') return
+    cameraRef.current = state.camera
     const s = soundsRef.current
     dragon.getWorldPosition(tmpVec)
     const player = usePlayerStore.getState().position

@@ -50,6 +50,10 @@ export const SFX_REGISTRY = {
     '/ignore/sounds/wind/desert-wind.mp3',
     '/ignore/sounds/wind/winter-wind.mp3',
   ],
+  weapon: [
+    '/ignore/sounds/weapon/gun-shot.mp3',
+    '/ignore/sounds/weapon/gun-reload.mp3',
+  ]
 } as const
 
 export type SfxCategory = keyof typeof SFX_REGISTRY

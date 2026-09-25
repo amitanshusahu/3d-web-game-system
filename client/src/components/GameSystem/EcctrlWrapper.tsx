@@ -196,13 +196,28 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
       }
     }
 
+    // Weapon recoil rides on top of the shake as its own short, upward-biased
+    // jolt, so rapid fire doesn't cut a long roar shake short (and vice versa).
+    let recoilAmount = 0
+    if (shake.recoilEndsAt !== null) {
+      const remaining = shake.recoilEndsAt - Date.now()
+      if (remaining <= 0) {
+        shake.stopRecoil()
+      } else {
+        const trauma = remaining / shake.recoilDurationMs
+        recoilAmount = shake.recoilIntensity * trauma * trauma
+      }
+    }
+
     const elapsed = state.clock.getElapsedTime()
     const shakeX = shakeAmount === 0 ? 0 : (Math.sin(elapsed * 39.7) + Math.sin(elapsed * 17.3)) * 0.5 * shakeAmount
     const shakeY = shakeAmount === 0 ? 0 : (Math.sin(elapsed * 47.1 + 1.3) + Math.sin(elapsed * 23.7 + 0.5)) * 0.5 * shakeAmount
+    const recoilX = recoilAmount === 0 ? 0 : Math.sin(elapsed * 83.1) * 0.4 * recoilAmount
+    const recoilY = recoilAmount === 0 ? 0 : (0.7 + 0.3 * Math.sin(elapsed * 67.9)) * recoilAmount
 
     state.camera.position.set(
-      bodyPosition.x + shakeX,
-      bodyPosition.y + EYE_HEIGHT_ABOVE_CENTER + shakeY,
+      bodyPosition.x + shakeX + recoilX,
+      bodyPosition.y + EYE_HEIGHT_ABOVE_CENTER + shakeY + recoilY,
       bodyPosition.z,
     )
 
@@ -211,7 +226,7 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
       lookPitchRef.current,
       lookYawRef.current,
       // A touch of roll so the shake reads as a rumble, not just a bob.
-      shakeX * 0.4,
+      shakeX * 0.4 + recoilX * 0.4,
     )
     state.camera.quaternion.setFromEuler(lookEuler)
 
