@@ -9,6 +9,7 @@ import Weather from '../World/weather/Weather'
 import { getWeatherTheme } from '../World/weather/weatherRegistry'
 import type { WorldConfig } from '../World/worldTypes'
 import { useMissionStore } from '../../store/missionStore'
+import { usePlayerLoadoutStore } from '../../store/playerLoadoutStore'
 import EcctrlWrapper from './EcctrlWrapper'
 import { useEffect, useState } from 'react'
 import { EffectComposer, Vignette } from '@react-three/postprocessing'
@@ -41,6 +42,12 @@ export default function Experience({ config }: { config: WorldConfig }) {
   useEffect(() => {
     useMissionStore.getState().setMissions(missions)
   }, [missions])
+
+  // A freshly generated world starts the player unarmed: the previous world's
+  // weapon (and its already-consumed pickup) must not carry over.
+  useEffect(() => {
+    usePlayerLoadoutStore.getState().resetLoadout()
+  }, [worldConfig])
 
   return (
     <>

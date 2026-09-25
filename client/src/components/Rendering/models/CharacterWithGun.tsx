@@ -44,6 +44,30 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
+/**
+ * Placement of the rig in camera space, so the barrel sits down the view centre.
+ *
+ * The pack is authored around a static `FPS_Camera_j_01` bone at model-space
+ * (0.0109, 1.5393, -0.1006) and the rifle points along the model's +Z, while a
+ * three.js camera looks down -Z. Anchoring that bone on the camera and yawing
+ * the rig 180° reproduces the artist's framing exactly:
+ *   gun body  (-0.22, -0.09, -0.22) · foregrip hand (-0.36) · trigger hand (-0.03)
+ *
+ * z is pushed an extra 0.12 forward of the raw anchor: the trigger hand only
+ * sits ~2.5cm ahead of the anchor, so without the nudge it falls inside the
+ * camera's 0.1 near plane and gets clipped away.
+ */
+const VIEWMODEL_ANCHOR: [number, number, number] = [0.0109, -1.5393, -0.2206]
+const VIEWMODEL_YAW = Math.PI
+
+/** Restart `action` as a one-shot pose that holds its final frame. */
+function playPoseOnce(action: THREE.AnimationAction) {
+  action.reset()
+  action.setLoop(THREE.LoopOnce, 1)
+  action.clampWhenFinished = true
+  action.play()
+}
+
 export function Model(props: JSX.IntrinsicElements['group']) {
   const group = React.useRef<THREE.Group | null>(null)
   const extendWithKtx2 = useKtx2LoaderExtender()
@@ -51,8 +75,21 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as unknown as GLTFResult
   const { actions } = useAnimations(animations, group)
+
+  // Equipping plays Draw once and holds it on the final frame. Nothing else
+  // drives the rig, so the weapon sits in that pose until it is equipped again.
+  // Gated on the clip existing: useAnimations builds its action map a tick
+  // after mount.
+  const drawAction = actions.Draw
+  const hasDrawn = React.useRef(false)
+  React.useEffect(() => {
+    if (!drawAction || hasDrawn.current) return
+    hasDrawn.current = true
+    playPoseOnce(drawAction)
+  }, [drawAction])
+
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group ref={group} {...props} position={VIEWMODEL_ANCHOR} rotation-y={VIEWMODEL_YAW} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="90bb898c5cd8456e986c226c4e48dc5bfbx" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
@@ -72,4 +109,3 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/m4a1-gun-fps.glb')

@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import type { ThreeElements } from '@react-three/fiber'
 import { SkeletonDragon } from './components/Rendering/models/SkeletonDragon'
+import { WeaponPickup } from './components/World/WeaponPickup'
 
 export type ObjectModelProps = ThreeElements['group']
 export type ObjectModelComponent = ComponentType<ObjectModelProps>
@@ -84,6 +85,8 @@ export const MODEL_REGISTRY: Record<string, ObjectModelEntry> = {
   // weapons
   'm4a1-gun-fps': { kind: 'path', path: '/models/ignore/character/m4a1-gun-fps.glb' },
   'm4a1-gun-fps-optimized': { kind: 'path', path: '/models/ignore/weapon/m4a1.glb' },
+  // Collectible rifle: equips the armed character when the player walks into it
+  'm4a1': { kind: 'component', component: WeaponPickup, footprint: [0.5, 0.2, 0.15] },
 }
 
 export function resolveObjectModel(name: string): ObjectModelEntry | undefined {

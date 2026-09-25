@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
+import { createPortal, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
 
 import { useCameraShakeStore } from '../../store/cameraShakeStore'
 import { usePlayerHudStore } from '../../store/playerHudStore'
+import { usePlayerLoadoutStore } from '../../store/playerLoadoutStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { getPlayerSpawnPosition } from '../World/mapRegistry'
 import type { WorldConfig } from '../World/worldTypes'
 import type { TerrainKind } from '../World/terrian/terrianRegistry'
 import { useFootsteps } from '../World/sfx/useFootsteps'
 import CharacterModel from '../Rendering/models/CharacterModel'
+import { Model as CharacterWithGun } from '../Rendering/models/CharacterWithGun'
 
 const MOUSE_SENSITIVITY = 0.0025
 const MAX_LOOK_PITCH = 1.55
@@ -27,6 +29,8 @@ interface EcctrlWrapperProps {
 
 export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
   const ecctrlRef = useRef<EcctrlHandle>(null)
+  const viewmodelRef = useRef<THREE.Group>(null)
+  const activeCharacter = usePlayerLoadoutStore((s) => s.activeCharacter)
 
   const terrain: TerrainKind =
     config?.mode === 'open' ? (config.ground?.terrain ?? 'default') : 'default'
@@ -52,6 +56,7 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
   )
 
   const renderer = useThree((s) => s.gl)
+  const scene = useThree((s) => s.scene)
 
   // --------------------------------
   // Keyboard
@@ -210,22 +215,47 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
     )
     state.camera.quaternion.setFromEuler(lookEuler)
 
+    // The armed viewmodel is a world-space rig snapped onto the camera every
+    // tick: parenting it to the capsule would leave the barrel tracking the
+    // body instead of the crosshair, and doing it here (the same tick that
+    // places the camera) keeps it locked with no frame of lag. The camera has
+    // no parent, so its local transform is already the world transform.
+    const viewmodel = viewmodelRef.current
+    if (viewmodel) {
+      viewmodel.position.copy(state.camera.position)
+      viewmodel.quaternion.copy(state.camera.quaternion)
+    }
+
     usePlayerStore.getState().setPlayerPosition(bodyPosition)
     usePlayerStore.getState().setPlayerHeading(lookYawRef.current)
   })
 
   return (
-    <Ecctrl
-      ref={ecctrlRef}
-      position={spawnPosition}
-      capsuleRadius={CAPSULE_RADIUS}
-      capsuleHalfHeight={CAPSULE_HALF_HEIGHT}
-      maxWalkVel={WALK_SPEED}
-      maxRunVel={RUN_SPEED}
-      enableToggleRun={true}
-      enableCustomGravity={true}
-    >
-      <CharacterModel position={[0, 0, 0]} />
-    </Ecctrl>
+    <>
+      {/* Portalled to the scene root rather than into the capsule so the model
+          can be driven straight from the camera above; the scene sits at the
+          origin, so the rig's world transform is the camera's. */}
+      {activeCharacter === 'armed'
+        && createPortal(
+          <group ref={viewmodelRef}>
+            <Suspense fallback={null}>
+              <CharacterWithGun />
+            </Suspense>
+          </group>,
+          scene,
+        )}
+      <Ecctrl
+        ref={ecctrlRef}
+        position={spawnPosition}
+        capsuleRadius={CAPSULE_RADIUS}
+        capsuleHalfHeight={CAPSULE_HALF_HEIGHT}
+        maxWalkVel={WALK_SPEED}
+        maxRunVel={RUN_SPEED}
+        enableToggleRun={true}
+        enableCustomGravity={true}
+      >
+        {activeCharacter === 'unarmed' && <CharacterModel position={[0, 0, 0]} />}
+      </Ecctrl>
+    </>
   )
 }

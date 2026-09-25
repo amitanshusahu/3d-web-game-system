@@ -24,10 +24,10 @@ const dummyWorld = {
       scale: 0.002,
     },
     {
-      model: "animated_old_chest",
+      model: "m4a1",
       position: [-8, 0, 6],
       rotationY: 0.7,
-      scale: 0.02,
+      scale: 1,
     },
     {
       model: "oak_trees",

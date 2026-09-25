@@ -12,6 +12,7 @@ import MiniMap from '../ui/Hud/MiniMap'
 import TimeBar from '../ui/Hud/TimeBar'
 import { useMissionStore } from '../../store/missionStore'
 import { usePlayerHudStore } from '../../store/playerHudStore'
+import { usePlayerLoadoutStore } from '../../store/playerLoadoutStore'
 
 const DEFAULT_ALARM_MINUTES = 5
 const LOW_ALARM_SECONDS = 60
@@ -38,6 +39,22 @@ function ControlHint({ keys, label }: { keys: string[]; label: string }) {
       </span>
       {label}
     </span>
+  )
+}
+
+/**
+ * Viewmodel crosshair, shown only while the player carries the M4: four ticks
+ * around a centre dot, with the gap reading as a hip-fire spread.
+ */
+function Crosshair() {
+  return (
+    <div className='pointer-events-none absolute left-1/2 top-1/2 z-10 h-8 w-8 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]'>
+      <span className='absolute left-1/2 top-1/2 h-[3px] w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/95' />
+      <span className='absolute left-1/2 top-0 h-2.5 w-[2px] -translate-x-1/2 rounded-full bg-white/80' />
+      <span className='absolute bottom-0 left-1/2 h-2.5 w-[2px] -translate-x-1/2 rounded-full bg-white/80' />
+      <span className='absolute left-0 top-1/2 h-[2px] w-2.5 -translate-y-1/2 rounded-full bg-white/80' />
+      <span className='absolute right-0 top-1/2 h-[2px] w-2.5 -translate-y-1/2 rounded-full bg-white/80' />
+    </div>
   )
 }
 
@@ -200,6 +217,7 @@ export default function PlayerHud({ alarmMinutes = DEFAULT_ALARM_MINUTES }: Play
   const isPointerLocked = usePlayerHudStore((state) => state.isPointerLocked)
   const alarmEndsAt = usePlayerHudStore((state) => state.alarmEndsAt)
   const isGameOver = usePlayerHudStore((state) => state.isGameOver)
+  const armed = usePlayerLoadoutStore((state) => state.activeCharacter === 'armed')
   const startAlarm = usePlayerHudStore((state) => state.startAlarm)
   const resetAlarm = usePlayerHudStore((state) => state.resetAlarm)
   const endRun = usePlayerHudStore((state) => state.endRun)
@@ -263,6 +281,7 @@ export default function PlayerHud({ alarmMinutes = DEFAULT_ALARM_MINUTES }: Play
       <div className='pointer-events-none absolute right-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
         <MiniMap />
       </div>
+      {armed && <Crosshair />}
     </>
   )
 }

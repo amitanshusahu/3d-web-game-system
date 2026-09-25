@@ -8,7 +8,7 @@ Title: Low Poly Colt M4A1
 */
 
 import * as THREE from 'three'
-import React, { type JSX } from 'react'
+import { type JSX } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { type GLTF } from 'three-stdlib'
 import { useKtx2LoaderExtender } from '../../../lib/ktx2'
@@ -18,6 +18,7 @@ type GLTFResult = GLTF & {
     Object_2: THREE.Mesh
     Object_3: THREE.Mesh
     Object_4: THREE.Mesh
+    Object_5: THREE.Mesh
     Object_6: THREE.Mesh
   }
   materials: {
@@ -44,4 +45,3 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/m4a1.glb')
