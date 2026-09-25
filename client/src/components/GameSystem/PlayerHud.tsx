@@ -13,7 +13,7 @@ import TimeBar from '../ui/Hud/TimeBar'
 import { useMissionStore } from '../../store/missionStore'
 import { usePlayerHudStore } from '../../store/playerHudStore'
 
-const DEFAULT_ALARM_MINUTES = 1
+const DEFAULT_ALARM_MINUTES = 5
 const LOW_ALARM_SECONDS = 60
 
 interface PlayerHudProps {
@@ -258,7 +258,7 @@ export default function PlayerHud({ alarmMinutes = DEFAULT_ALARM_MINUTES }: Play
   return (
     <>
       <div className='pointer-events-none absolute left-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
-        <TimeBar className='w-72' time={totalMs} remaining={remainingMs} drainColor={drainColor} />
+        <TimeBar className='w-100' time={totalMs} remaining={remainingMs} drainColor={drainColor} />
       </div>
       <div className='pointer-events-none absolute right-5 top-5 z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'>
         <MiniMap />

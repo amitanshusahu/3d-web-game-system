@@ -154,12 +154,14 @@ export default function MiniMap() {
   if (!active) return null
 
   return (
-    <div className='flex flex-col items-end gap-2'>
+    <div className='relative'>
       <SpecialCircularFrame className='w-60'>
         <canvas ref={mapRef} className='block h-full w-full' />
       </SpecialCircularFrame>
-      <div className='rounded-lg border border-white/10 bg-black/45 px-2.5 py-1 font-mono text-[10.5px] font-semibold uppercase tracking-[0.22em] text-white/60 shadow-2xl backdrop-blur-sm'>
-        Explored <span className='tabular-nums text-white'>{percent}%</span>
+      <div className='rounded-lg border border-white/10 bg-black/45 px-2.5 py-1 font-mono text-[10.5px] 
+      font-semibold uppercase tracking-[0.22em] text-white/60 shadow-2xl
+       backdrop-blur-sm absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-2'>
+        <span className='tabular-nums text-white'>{percent}%</span>
       </div>
     </div>
   )
