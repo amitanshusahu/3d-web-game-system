@@ -54,7 +54,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
       {/* note for me: background + fog must share one color so distant
           geometry melts into the sky (CSS background can never blend with fog) */}
       <Fog sky={theme.sky} fog={theme.fog} near={theme.fogNear} far={theme.fogFar} />
-      <Weather weather={weather} />
+      <Weather weather={weather} time={time} />
       <EffectComposer multisampling={0}>
         {/* <HueSaturation saturation={-0.25} /> */}
         <Vignette offset={0.25} darkness={0.8} />

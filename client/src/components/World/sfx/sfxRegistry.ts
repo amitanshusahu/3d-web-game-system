@@ -88,6 +88,22 @@ export function getWindSfx(kind: WindSfx): string {
   return WIND_SFX[kind]
 }
 
+const FOREST_CLIPS = SFX_REGISTRY.forest
+const FOREST_NIGHT = FOREST_CLIPS[0]
+const FOREST_DAY = FOREST_CLIPS[1]
+
+/** Forest ambience: birdsong by day, crickets by night. */
+export const FOREST_SFX = {
+  day: FOREST_DAY,
+  night: FOREST_NIGHT,
+} as const
+
+export type ForestTime = keyof typeof FOREST_SFX
+
+export function getForestSfx(time: ForestTime): string {
+  return FOREST_SFX[time]
+}
+
 const WALK_CLIPS = SFX_REGISTRY.walk
 const GRASS_STEP = WALK_CLIPS[0]
 const ROCKY_STEP = WALK_CLIPS[1]
