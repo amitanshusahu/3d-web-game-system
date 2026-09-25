@@ -8,7 +8,7 @@ export const objects = {
     'the_human_deer_animated_horror',
     'unicorn',
     'unicorn_wip',
-    'velkhana',
+    'skeleton_dragon',
   ],
   characters: [
     'forest_guardian',
@@ -68,4 +68,7 @@ export const objects = {
     'water_animation',
     'water_wave_long',
   ],
+  weapon: [
+    'm4a1-gun'
+  ]
 }
