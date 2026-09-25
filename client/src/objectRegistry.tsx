@@ -81,6 +81,9 @@ export const MODEL_REGISTRY: Record<string, ObjectModelEntry> = {
   pile_burned_trash: { kind: 'path', path: '/models/ignore/terrain/pile_burned_trash.glb' },
   sand_rock_pack: { kind: 'path', path: '/models/ignore/terrain/sand_rock_pack.glb' },
   water_wave_long: { kind: 'path', path: '/models/ignore/terrain/water_wave_long.glb' },
+  // weapons
+  'm4a1-gun-fps': { kind: 'path', path: '/models/ignore/character/m4a1-gun-fps.glb' },
+  'm4a1-gun-fps-optimized': { kind: 'path', path: '/models/ignore/weapon/m4a1.glb' },
 }
 
 export function resolveObjectModel(name: string): ObjectModelEntry | undefined {
