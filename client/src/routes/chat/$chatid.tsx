@@ -9,7 +9,6 @@ import {
   ChatSidebar,
   PostDreamDrawer,
   WorldViewport,
-  objectCount,
   parseWorld,
 } from '../../components/ui/Chat'
 import {

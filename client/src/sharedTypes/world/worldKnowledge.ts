@@ -1,3 +1,12 @@
+/**
+ * Shared world knowledge.
+ *
+ * Single source of truth for what the world builder can place. The server feeds
+ * it to the model as prompt context; the client uses it to interpret the models
+ * named in a generated world config. Kept in sharedTypes so it is synced to the
+ * client by `bun scripts/copyTypes.ts` and never drifts between the two sides.
+ */
+
 export const worldObjectKnowledge = {
   creatures: {
     animated_bird_pigeon:
@@ -34,7 +43,7 @@ export const worldObjectKnowledge = {
     drone:
       'a flying drone, good for scouting, companions, or sci-fi patrols.',
   },
-  fantacy: {
+  fantasy: {
     blue_scrub_bush:
       'a blue-tinted scrub bush for fantasy or alien vegetation.',
     glowing_mushroom:
@@ -78,7 +87,7 @@ export const worldObjectKnowledge = {
       'an animated portal with swirling effects, for fast travel or level gates.',
     portal: 'a static portal gate for teleporting between areas.',
   },
-  structure: {
+  structures: {
     ancient_ruins_pack:
       'a set of ancient broken ruins, pillars and stones for lost temples.',
     city_ruins_environment:
@@ -105,4 +114,50 @@ export const worldObjectKnowledge = {
   weapon: {
     'm4a1-gun': 'an M4A1 rifle pickup for shooter combat.',
   },
-};
+} as const;
+
+/** Ground textures the client's terrain registry can resolve (open mode `ground.terrain`). */
+export const worldTerrainKnowledge = {
+  default: 'neutral soil ground.',
+  grass: 'grassy meadow ground.',
+  soil: 'dark dirt soil ground.',
+  snow: 'snow-covered ground.',
+  sand: 'sandy desert ground.',
+  mud: 'wet muddy ground.',
+} as const;
+
+/** Weather presets the client can render (`environment.weather`). */
+export const worldWeatherKnowledge = {
+  clear: 'a calm, bright sky.',
+  wind: 'a breezy, windswept sky.',
+  rain: 'rain with an overcast sky.',
+  snow: 'falling snow with a cold, pale sky.',
+  forest: 'a lush, green forest ambience.',
+  desert: 'a hot, hazy desert ambience.',
+} as const;
+
+/** Time of day the client can render (`environment.time`). */
+export const worldTimeKnowledge = {
+  day: 'bright daylight.',
+  night: 'dark night lit by moonlight.',
+} as const;
+
+/** How the two world modes work. */
+export const worldModeKnowledge = {
+  open: 'a flat generated ground that you populate freely with objects. Always use this mode.',
+  preset:
+    'a hand-built map from the client map registry; objects spawn into its zones. Only use when the player explicitly asks for a preset map.',
+} as const;
+
+/**
+ * Preset map ids the client map registry understands, keyed by id.
+ * Used only in `preset` mode (`world.map`).
+ */
+export const presetMapsKnowledge = {
+  strongHold:
+    'the last stronghold: a floating shrine in the sky with bridges wobbling in the wind the player must cross.',
+  mobileHome:
+    'a floating fortress in the sky with a mobile home on top that bridges areas with mechanical moving parts.',
+  openPlains: 'a wide open grassy plains map.',
+  testMap: 'a small flat development test map.',
+} as const;

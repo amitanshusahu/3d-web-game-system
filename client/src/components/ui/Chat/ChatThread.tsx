@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import type { ChatHistoryEntry } from '../../../api/chat'
-import { objectCount, parseWorld } from './worldUtils'
+import { describeObject, objectCount, objectModelNames, parseAgentTurn } from './worldUtils'
 import Logo from '../../../assets/Logo'
 import { SparkleIcon, TerminalIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { ThinkingOrb } from 'thinking-orbs'
@@ -58,8 +58,9 @@ export const ChatThread = memo(function ChatThread({ histories, isPending }: Cha
   return (
     <div ref={threadRef} onScroll={handleScroll} className='flex-1 space-y-7 overflow-y-auto px-5 py-6 sm:px-6'>
       {histories.map((h) => {
-        const world = parseWorld(h.response)
-        const count = objectCount(world)
+        const turn = parseAgentTurn(h.response)
+        const count = objectCount(turn.world)
+        const names = objectModelNames(turn.world)
         return (
           <div key={h.id} className='space-y-4'>
             <div className='flex justify-end'>
@@ -80,15 +81,37 @@ export const ChatThread = memo(function ChatThread({ histories, isPending }: Cha
               <div className='min-w-0 max-w-[85%]'>
                 {h.response ? (
                   <div className='rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.04] px-4 py-3'>
-                    <p className='flex items-center gap-1.5 text-[13px] font-medium text-white'>
-                      <SparkleIcon className='h-3.5 w-3.5 text-blue-300' />
-                      World updated
-                    </p>
-                    <p className='mt-1 flex items-center gap-1.5 text-[12px] text-white/50'>
+                    {turn.message ? (
+                      <p className='text-[13.5px] leading-relaxed text-white/85'>{turn.message}</p>
+                    ) : (
+                      <p className='flex items-center gap-1.5 text-[13px] font-medium text-white'>
+                        <SparkleIcon className='h-3.5 w-3.5 text-blue-300' />
+                        World updated
+                      </p>
+                    )}
+                    <p className={`flex items-center gap-1.5 text-[12px] text-white/50 ${turn.message ? 'mt-2' : 'mt-1'}`}>
                       <TerminalIcon className='h-3 w-3' />
                       {count} {count === 1 ? 'object' : 'objects'} placed
                       {h.updatedAt && <span className='text-white/30'>· {formatTime(h.updatedAt)}</span>}
                     </p>
+                    {names.length > 0 && (
+                      <div className='mt-2.5 flex flex-wrap gap-1.5'>
+                        {names.slice(0, 6).map((name) => (
+                          <span
+                            key={name}
+                            title={describeObject(name) ?? name}
+                            className='rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[11px] text-white/60'
+                          >
+                            {name}
+                          </span>
+                        ))}
+                        {names.length > 6 && (
+                          <span className='rounded-full px-2 py-0.5 text-[11px] text-white/35'>
+                            +{names.length - 6} more
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className='flex items-center gap-2 rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.04] px-4 py-3 text-[13px] text-white/50'>

@@ -7,11 +7,18 @@ export interface apiEnvelope<T> {
   data: T;
 }
 
+/** World-builder agent reply: a short message plus the complete world config. */
+export interface AgentWorldResponse {
+  message: string;
+  world: WorldConfig;
+}
+
 export interface ChatHistoryEntry {
   id: string;
   userChatId: string;
   message: string;
-  response: WorldConfig | string;
+  /** Agent reply. Legacy rows may still hold a bare world config or a JSON string. */
+  response: AgentWorldResponse | WorldConfig | string;
   createdAt: string;
   updatedAt: string;
 }

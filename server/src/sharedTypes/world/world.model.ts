@@ -26,7 +26,7 @@ export const worldObjectSchema = z.object({
 });
 
 export const worldEnvironmentSchema = z.object({
-  weather: z.enum(["clear", "rain", "snow", "forest", "desert"]).optional(),
+  weather: z.enum(["clear", "wind", "rain", "snow", "forest", "desert"]).optional(),
   time: z.enum(["day", "night"]).optional(),
   fogColor: z.string().optional(),
 });
@@ -45,12 +45,17 @@ export const missionSchema = z.object({
 
 const openGroundSchema = z.object({
   size: z.number().positive().optional(),
-  terrain: z.enum(["default", "grass", "soil", "snow", "sand"]).optional(),
+  terrain: z.enum(["default", "grass", "soil", "snow", "sand", "mud"]).optional(),
 });
+
+const spawnZoneSchema = z.union([
+  z.tuple([z.number(), z.number(), z.number()]),
+  z.tuple([z.number(), z.number(), z.number(), z.number()]),
+]);
 
 const baseWorldFields = {
   playerSpawn: vec3Schema.optional(),
-  spawnZones: z.array(z.tuple([z.number(), z.number(), z.number(), z.number().optional()])).optional(),
+  spawnZones: z.array(spawnZoneSchema).optional(),
   objects: z.array(worldObjectSchema),
   environment: worldEnvironmentSchema.optional(),
   missions: z.array(missionSchema).optional(),
