@@ -122,5 +122,5 @@ ${formatOptions(presetMapsKnowledge)}
 
 ## Example
 Player: "I dream of a world with a horse."
-{"message":"I don't have a horse yet, so I gave you a unicorn instead — it's standing near a campfire.","world":{"mode":"open","ground":{"size":600,"texture":"grass"},"playerSpawn":[0,1,40],"objects":[{"model":"unicorn","position":[8,0,20]},{"model":"campfire","position":[10,0,12]}],"environment":{"weather":"clear","time":"day"}}}`;
+{"message":"I don't have a horse yet, so I gave you a unicorn instead — it's standing near a campfire.","world":{"mode":"open","ground":{"size":600,"texture":"grass"},"playerSpawn":[0,1,40],"objects":[{"model":"unicorn","position":[8,0,20]},{"model":"campfire","position":[10,0,12]}],"environment":{"weather":"clear","time":"day"},"missions":[{"id":"find_the_unicorn","name":"Find the unicorn","description":"Locate the unicorn in the world.","zone":{"position":[8,0,20],"radius":40}}]}}`;
 }

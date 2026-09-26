@@ -1,6 +1,7 @@
 import { generateWorldTurn, type agentTurn } from "@/lib/ai";
 import { ApiError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
+import { testResponse } from "./testWorld";
 
 export function titleFromPrompt(prompt: string): string {
   const firstLine = prompt.split("\n")[0]?.trim() ?? "";
@@ -43,7 +44,9 @@ export async function appendMessage(userId: string, chatId: string, message: str
     throw new ApiError(404, "Chat not found");
   }
 
-  const response = await generateWorldTurn(historyToTurns(chat.userChatHistories), message);
+  // const response = await generateWorldTurn(historyToTurns(chat.userChatHistories), message);
+  // for testing
+  const response = testResponse; 
 
   return prisma.userChatHistory.create({
     data: { userChatId: chatId, message, response },
