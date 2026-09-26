@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Howl } from 'howler'
 import { getFootstepSfx } from './sfxRegistry'
-import type { TerrainKind } from '../terrian/terrianRegistry'
+import type { TextureKind } from '../texture/textureRegistry'
 
 const MIN_SPEED_MPS = 0.5
 const WALK_VOLUME = 1
@@ -21,13 +21,13 @@ interface FootstepState {
  * (start on move, stop on stop) instead of a play() per stride, which would
  * stack overlapping voices that pile up double/triple/quadruple.
  */
-export function useFootsteps(terrain: TerrainKind = 'default') {
+export function useFootsteps(texture: TextureKind = 'default') {
   const howlRef = useRef<Howl | null>(null)
   const voiceRef = useRef<number | null>(null)
   const runningRef = useRef(false)
 
   useEffect(() => {
-    const howl = new Howl({ src: [getFootstepSfx(terrain)], loop: true, preload: true })
+    const howl = new Howl({ src: [getFootstepSfx(texture)], loop: true, preload: true })
     howlRef.current = howl
     voiceRef.current = null
     return () => {
@@ -35,7 +35,7 @@ export function useFootsteps(terrain: TerrainKind = 'default') {
       howl.unload()
       howlRef.current = null
     }
-  }, [terrain])
+  }, [texture])
 
   const stepRef = useRef((_delta: number, state: FootstepState) => {
     const howl = howlRef.current

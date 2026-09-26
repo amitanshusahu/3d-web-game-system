@@ -2,13 +2,13 @@ import { useLoader, type ThreeElements } from '@react-three/fiber'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { useMemo } from 'react'
 import { TextureLoader, RepeatWrapping, SRGBColorSpace } from 'three'
-import { terrianRegistry, type TerrainKind } from '../../World/terrian/terrianRegistry'
+import { textureRegistry, type TextureKind } from '../../World/texture/textureRegistry'
 
 const GROUND_TEXTURE_FILES = ['diff.png', 'nor_gl.png', 'rough.png', 'ao.png']
 
-/** [diffuse, normal, roughness, ao] texture paths for a terrain, resolved from terrianRegistry */
-export function groundTexturePaths(terrain: TerrainKind = 'default'): string[] {
-    const { url } = terrianRegistry[terrain]
+/** [diffuse, normal, roughness, ao] texture paths for a ground texture, resolved from textureRegistry */
+export function groundTexturePaths(texture: TextureKind = 'default'): string[] {
+    const { url } = textureRegistry[texture]
     return GROUND_TEXTURE_FILES.map((file) => `${url}/${file}`)
 }
 
@@ -24,18 +24,18 @@ export const OpenPlainsSpawnZones: Array<[number, number, number]> = [
     [-600, 500, 20],
 ]
 
-export function OpenPlains({ size = DEFAULT_SIZE, terrain = 'default', ...props }: ThreeElements['group'] & { size?: number; terrain?: TerrainKind }) {
+export function OpenPlains({ size = DEFAULT_SIZE, texture = 'default', ...props }: ThreeElements['group'] & { size?: number; texture?: TextureKind }) {
     const half = size / 2
-    const texturePaths = useMemo(() => groundTexturePaths(terrain), [terrain])
+    const texturePaths = useMemo(() => groundTexturePaths(texture), [texture])
     const [diffuse, normal, roughness, ao] = useLoader(TextureLoader, texturePaths)
 
     diffuse.colorSpace = SRGBColorSpace;
     const textureRepeat = size / 10;
-    [diffuse, normal, roughness, ao].forEach((texture) => {
-        texture.wrapS = RepeatWrapping
-        texture.wrapT = RepeatWrapping
-        texture.repeat.set(textureRepeat, textureRepeat)
-        texture.anisotropy = 4
+    [diffuse, normal, roughness, ao].forEach((map) => {
+        map.wrapS = RepeatWrapping
+        map.wrapT = RepeatWrapping
+        map.repeat.set(textureRepeat, textureRepeat)
+        map.anisotropy = 4
     })
 
     return (

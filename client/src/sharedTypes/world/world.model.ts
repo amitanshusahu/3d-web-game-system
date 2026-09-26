@@ -45,7 +45,7 @@ export const missionSchema = z.object({
 
 const openGroundSchema = z.object({
   size: z.number().positive().optional(),
-  terrain: z.enum(["default", "grass", "soil", "snow", "sand", "mud"]).optional(),
+  texture: z.enum(["default", "grass", "soil", "snow", "sand", "mud"]).optional(),
 });
 
 const spawnZoneSchema = z.union([

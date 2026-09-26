@@ -9,7 +9,7 @@ import { usePlayerLoadoutStore } from '../../store/playerLoadoutStore'
 import { usePlayerStore } from '../../store/playerStore'
 import { getPlayerSpawnPosition } from '../World/mapRegistry'
 import type { WorldConfig } from '../World/worldTypes'
-import type { TerrainKind } from '../World/terrian/terrianRegistry'
+import type { TextureKind } from '../World/texture/textureRegistry'
 import { useFootsteps } from '../World/sfx/useFootsteps'
 import CharacterModel from '../Rendering/models/CharacterModel'
 import { Model as CharacterWithGun } from '../Rendering/models/CharacterWithGun'
@@ -32,9 +32,9 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
   const viewmodelRef = useRef<THREE.Group>(null)
   const activeCharacter = usePlayerLoadoutStore((s) => s.activeCharacter)
 
-  const terrain: TerrainKind =
-    config?.mode === 'open' ? (config.ground?.terrain ?? 'default') : 'default'
-  const { playStep } = useFootsteps(terrain)
+  const texture: TextureKind =
+    config?.mode === 'open' ? (config.ground?.texture ?? 'default') : 'default'
+  const { playStep } = useFootsteps(texture)
 
   const spawnPosition = useMemo(
     () => getPlayerSpawnPosition(mapId, config),

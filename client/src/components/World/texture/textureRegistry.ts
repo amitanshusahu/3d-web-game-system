@@ -1,4 +1,4 @@
-export const terrianRegistry = {
+export const textureRegistry = {
   default: {
     url: '/texture/ground/soil',
   },
@@ -19,4 +19,4 @@ export const terrianRegistry = {
   }
 }
 
-export type TerrainKind = keyof typeof terrianRegistry
+export type TextureKind = keyof typeof textureRegistry

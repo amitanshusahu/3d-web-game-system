@@ -2,7 +2,7 @@ import {
   presetMapsKnowledge,
   worldModeKnowledge,
   worldObjectKnowledge,
-  worldTerrainKnowledge,
+  worldTextureKnowledge,
   worldTimeKnowledge,
   worldWeatherKnowledge,
 } from "@/sharedTypes/world/worldKnowledge";
@@ -49,7 +49,7 @@ Respond with a single JSON object and nothing else — no markdown, no code fenc
 ## WorldConfig
 {
   "mode": "open",
-  "ground": { "size": 600, "terrain": "grass" },
+  "ground": { "size": 600, "texture": "grass" },
   "playerSpawn": [0, 1, 40],
   "objects": [ ...WorldObject ],
   "environment": { "weather": "clear", "time": "day" },
@@ -57,7 +57,7 @@ Respond with a single JSON object and nothing else — no markdown, no code fenc
 }
 
 - mode: always "open" (${worldModeKnowledge.open}).
-- ground.terrain: one of the terrain options below. Defaults to "grass".
+- ground.texture: the ground's surface texture. Use a single name from the ground texture options below. Defaults to "grass". This is NOT an object model name — never put a catalog model like "moist-stones" here.
 - ground.size: edge length of the square ground in meters. Defaults to 600.
 - playerSpawn: [x, y, z] where the player starts. Keep it clear of solid objects.
 - environment.weather: one of the weather options below.
@@ -107,8 +107,8 @@ Mission:
 ## Object catalog (only these model names may be used)
 ${formatCatalog(worldObjectKnowledge)}
 
-## Terrain options (ground.terrain)
-${formatOptions(worldTerrainKnowledge)}
+## Ground texture options (ground.texture)
+${formatOptions(worldTextureKnowledge)}
 
 ## Weather options (environment.weather)
 ${formatOptions(worldWeatherKnowledge)}
@@ -122,5 +122,5 @@ ${formatOptions(presetMapsKnowledge)}
 
 ## Example
 Player: "I dream of a world with a horse."
-{"message":"I don't have a horse yet, so I gave you a unicorn instead — it's standing near a campfire.","world":{"mode":"open","ground":{"size":600,"terrain":"grass"},"playerSpawn":[0,1,40],"objects":[{"model":"unicorn","position":[8,0,20]},{"model":"campfire","position":[10,0,12]}],"environment":{"weather":"clear","time":"day"}}}`;
+{"message":"I don't have a horse yet, so I gave you a unicorn instead — it's standing near a campfire.","world":{"mode":"open","ground":{"size":600,"texture":"grass"},"playerSpawn":[0,1,40],"objects":[{"model":"unicorn","position":[8,0,20]},{"model":"campfire","position":[10,0,12]}],"environment":{"weather":"clear","time":"day"}}}`;
 }

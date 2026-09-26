@@ -1,4 +1,4 @@
-import type { TerrainKind } from '../terrian/terrianRegistry'
+import type { TextureKind } from '../texture/textureRegistry'
 
 export const SFX_REGISTRY = {
   animal: [
@@ -109,8 +109,8 @@ const GRASS_STEP = WALK_CLIPS[0]
 const ROCKY_STEP = WALK_CLIPS[1]
 const WET_STEP = WALK_CLIPS[2]
 
-/** Footstep clip per terrain. Only grass/mud have dedicated recordings — everything else falls back to rocky. */
-export const FOOTSTEP_BY_TERRAIN: Record<TerrainKind, string> = {
+/** Footstep clip per ground texture. Only grass/mud have dedicated recordings — everything else falls back to rocky. */
+export const FOOTSTEP_BY_TEXTURE: Record<TextureKind, string> = {
   default: ROCKY_STEP,
   grass: GRASS_STEP,
   soil: ROCKY_STEP,
@@ -119,6 +119,6 @@ export const FOOTSTEP_BY_TERRAIN: Record<TerrainKind, string> = {
   mud: WET_STEP,
 }
 
-export function getFootstepSfx(terrain: TerrainKind = 'default'): string {
-  return FOOTSTEP_BY_TERRAIN[terrain] ?? ROCKY_STEP
+export function getFootstepSfx(texture: TextureKind = 'default'): string {
+  return FOOTSTEP_BY_TEXTURE[texture] ?? ROCKY_STEP
 }

@@ -1,4 +1,4 @@
-import type { TerrainKind } from './terrian/terrianRegistry'
+import type { TextureKind } from './texture/textureRegistry'
 
 /** [x, z, radius] plus an optional floor surface Y used for player spawn */
 export type SpawnZone = [x: number, z: number, radius: number, y?: number]
@@ -64,8 +64,8 @@ export interface MissionConfig {
 export interface OpenGroundConfig {
   /** Edge length of the square ground in meters (defaults to 2000) */
   size?: number
-  /** Ground texture set resolved client-side via terrianRegistry (defaults to 'default') */
-  terrain?: TerrainKind
+  /** Ground texture set resolved client-side via textureRegistry (defaults to 'default') */
+  texture?: TextureKind
 }
 
 /** Preset mode: a hand-built map from the registry, objects spawn into its zones */

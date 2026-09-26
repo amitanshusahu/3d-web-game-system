@@ -22,7 +22,7 @@ export default function Experience({ config }: { config: WorldConfig }) {
   const environment = worldConfig.mode === 'open' ? worldConfig.environment : undefined
 
   // note for me: player + ground before first paint, everything else streams via Suspense, else things will get fucked !! :)
-  useTexture.preload(groundTexturePaths(worldConfig.mode === 'open' ? worldConfig.ground?.terrain : undefined))
+  useTexture.preload(groundTexturePaths(worldConfig.mode === 'open' ? worldConfig.ground?.texture : undefined))
   const weather = environment?.weather ?? 'clear'
   const time = environment?.time ?? 'day'
   const theme = useMemo(

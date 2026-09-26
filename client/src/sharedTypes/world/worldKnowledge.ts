@@ -116,8 +116,8 @@ export const worldObjectKnowledge = {
   },
 } as const;
 
-/** Ground textures the client's terrain registry can resolve (open mode `ground.terrain`). */
-export const worldTerrainKnowledge = {
+/** Ground textures the client's texture registry can resolve (open mode `ground.texture`). */
+export const worldTextureKnowledge = {
   default: 'neutral soil ground.',
   grass: 'grassy meadow ground.',
   soil: 'dark dirt soil ground.',

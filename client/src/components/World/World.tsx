@@ -49,7 +49,7 @@ function OpenWorld({ config, ...props }: ThreeElements['group'] & { config: Open
   }), [config])
   return (
     <group {...props}>
-      <OpenPlains size={config.ground?.size} terrain={config.ground?.terrain} />
+      <OpenPlains size={config.ground?.size} texture={config.ground?.texture} />
       {config.objects.flatMap((object, index) => {
         if (!object.scatter) {
           return (
