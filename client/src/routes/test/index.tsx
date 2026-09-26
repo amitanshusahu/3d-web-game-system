@@ -3,13 +3,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { OrbitControls, useAnimations, useGLTF, Grid } from '@react-three/drei'
-import { MODEL_REGISTRY } from '../objectRegistry'
-import { useKtx2LoaderExtender } from '../lib/ktx2'
+import { MODEL_REGISTRY } from '../../objectRegistry'
+import { useKtx2LoaderExtender } from '../../lib/ktx2'
 import { Physics, CuboidCollider, RigidBody } from '@react-three/rapier'
 import { Ecctrl, type EcctrlHandle } from 'ecctrl'
-import Lights from '../components/Rendering/Lights'
+import Lights from '../../components/Rendering/Lights'
 
-export const Route = createFileRoute('/test')({
+export const Route = createFileRoute('/test/')({
   component: RouteComponent,
 })
 

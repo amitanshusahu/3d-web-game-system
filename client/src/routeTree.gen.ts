@@ -11,12 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SvgRouteImport } from './routes/svg'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as ChatChatidRouteImport } from './routes/chat/$chatid'
 import { Route as ChatNewRouteImport } from './routes/chat/new'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
+import { Route as TestIndexRouteImport } from './routes/test/index'
+import { Route as TestTestChatRouteImport } from './routes/test/$testChat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -26,11 +27,6 @@ const IndexRoute = IndexRouteImport.update({
 const SvgRoute = SvgRouteImport.update({
   id: '/svg',
   path: '/svg',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -58,80 +54,97 @@ const ExploreIndexRoute = ExploreIndexRouteImport.update({
   path: '/explore/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TestIndexRoute = TestIndexRouteImport.update({
+  id: '/test/',
+  path: '/test/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestTestChatRoute = TestTestChatRouteImport.update({
+  id: '/test/$testChat',
+  path: '/test/$testChat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/svg': typeof SvgRoute
-  '/test': typeof TestRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/chat/$chatid': typeof ChatChatidRoute
   '/chat/new': typeof ChatNewRoute
+  '/test/$testChat': typeof TestTestChatRoute
   '/explore/': typeof ExploreIndexRoute
+  '/test/': typeof TestIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/svg': typeof SvgRoute
-  '/test': typeof TestRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/chat/$chatid': typeof ChatChatidRoute
   '/chat/new': typeof ChatNewRoute
+  '/test/$testChat': typeof TestTestChatRoute
   '/explore': typeof ExploreIndexRoute
+  '/test': typeof TestIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/svg': typeof SvgRoute
-  '/test': typeof TestRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/chat/$chatid': typeof ChatChatidRoute
   '/chat/new': typeof ChatNewRoute
+  '/test/$testChat': typeof TestTestChatRoute
   '/explore/': typeof ExploreIndexRoute
+  '/test/': typeof TestIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/svg'
-    | '/test'
     | '/auth/login'
     | '/auth/signup'
     | '/chat/$chatid'
     | '/chat/new'
+    | '/test/$testChat'
     | '/explore/'
+    | '/test/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/svg'
-    | '/test'
     | '/auth/login'
     | '/auth/signup'
     | '/chat/$chatid'
     | '/chat/new'
+    | '/test/$testChat'
     | '/explore'
+    | '/test'
   id:
     | '__root__'
     | '/'
     | '/svg'
-    | '/test'
     | '/auth/login'
     | '/auth/signup'
     | '/chat/$chatid'
     | '/chat/new'
+    | '/test/$testChat'
     | '/explore/'
+    | '/test/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SvgRoute: typeof SvgRoute
-  TestRoute: typeof TestRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ChatChatidRoute: typeof ChatChatidRoute
   ChatNewRoute: typeof ChatNewRoute
+  TestTestChatRoute: typeof TestTestChatRoute
   ExploreIndexRoute: typeof ExploreIndexRoute
+  TestIndexRoute: typeof TestIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -148,13 +161,6 @@ declare module '@tanstack/react-router' {
       path: '/svg'
       fullPath: '/svg'
       preLoaderRoute: typeof SvgRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login': {
@@ -192,18 +198,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/test/': {
+      id: '/test/'
+      path: '/test'
+      fullPath: '/test/'
+      preLoaderRoute: typeof TestIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test/$testChat': {
+      id: '/test/$testChat'
+      path: '/test/$testChat'
+      fullPath: '/test/$testChat'
+      preLoaderRoute: typeof TestTestChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SvgRoute: SvgRoute,
-  TestRoute: TestRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   ChatChatidRoute: ChatChatidRoute,
   ChatNewRoute: ChatNewRoute,
+  TestTestChatRoute: TestTestChatRoute,
   ExploreIndexRoute: ExploreIndexRoute,
+  TestIndexRoute: TestIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
