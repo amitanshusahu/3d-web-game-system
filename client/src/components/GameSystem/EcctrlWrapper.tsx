@@ -269,7 +269,7 @@ export default function EcctrlWrapper({ mapId, config }: EcctrlWrapperProps) {
         enableToggleRun={true}
         enableCustomGravity={true}
       >
-        {activeCharacter === 'unarmed' && <CharacterModel position={[0, 0, 0]} />}
+        {activeCharacter === 'unarmed' && <CharacterModel position={[0, 1, 0]} />}
       </Ecctrl>
     </>
   )
